@@ -1,0 +1,70 @@
+\documentclass[11pt, a4paper, openany]{book}
+\usepackage{amsmath, amssymb,}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{relsize}
+\usepackage[left=2.00cm, right=2.00cm, top=2.00cm, bottom=2.00cm]{geometry}
+\linespread{1.1}
+\author{Germán Ferrero}
+\title{Construcción formal de programas asistida por Dafny}
+\begin{document}
+    \chapter{Introducción}
+    En el libro Cálculo de Programas (en adelante simplemente ``el libro''), se busca introducir al estudiante en la construcción de programas imperativos a través de un método formal para derivar el programa a partir de su especificación. La misma debe estar definida por una precondición y una postcondición, ambas escritas como fórmulas del cálculo de predicados estudiado en la materia pre correlativa ``Introducción a los Algoritmos''. El método consiste en tender puentes entre los bloques constructivos de un lenguaje imperativo (\textit{if}, \textit{for}, asignación, \textit{skip}, etc) y el cálculo de predicados. De manera tal que uno pueda plantear el esqueleto de un programa de manera creativa, y concluir los detalles razonando - o calculando - sobre el terreno ya conocido del cálculo de predicados.
+
+    En este trabajo se proponen dos críticas al texto del mismo:
+    \begin{itemize}
+    \item El libro utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
+    \item A su vez, y quizá en el afán de no abandonar este lenguaje formal, pasa por alto el desarrollo de las estrategias creativas necesarias para construir programas, introduciéndolas sin preámbulo alguno, y forzando el foco de atención a los detalles que sí pueden desarrollarse dentro del lenguaje elegido.
+    \end{itemize}
+
+    En el capítulo 2 se analizan ejemplos concretos del libro que dan sustento a estas críticas y se propone en cada caso textos alternativos y complementarios que podrían favorecer el desarrollo del mismo.
+    % TODO: Revisar más adelante cómo se le da continuidad a la tesis mediante la introducción de Dafny. Por ahora va este texto %
+    [WIP] Las críticas desarrolladas en este capítulo no buscan desmerecer la potencia del método formal de derivación de programas que se enseña en el libro sino fortalecerlo y posicionarlo de cara a los estudiantes como un método que, una vez entrenada nuestra capacidad creativa e intuitiva para construir programas simples, nos será verdaderamente útil para la derivación de programas más complejos.
+    En los capítulos siguientes se presenta el lenguaje de programación ``Dafny'' y su potencial uso como herramienta de apoyo para la derivación formal de estos programas.[END-WIP]
+
+    \chapter{Enseñanza de la programación imperativa en el libro Cálculo de Programas}
+
+    En el capítulo ``Programación Imperativa"" del libro se introducen tres conceptos fundamentales para el método propuesto: La terna de Hoare
+        \begin{math}
+            \{P\}S\{Q\}
+        \end{math} que utilizamos para denotar la especificación de un programa. La \textit{weakest precondition}
+        \begin{math}
+            wp.S.Q
+        \end{math}. Y la equivalencia que relaciona las dos anteriores \begin{math}
+            \{P\}S\{Q\} \equiv [P \Rightarrow wp.S.Q]
+        \end{math}
+
+    La introducción de estos tres conceptos nos sirve como primer ejemplo de cómo podemos complementar el lenguaje formal del libro con un lenguaje informal que facilite la comprensión por parte del lector. Veamos cada caso.
+    \begin{itemize}
+        \item ¿Qué significa la terna de Hoare
+        \begin{math}
+            \{P\}S\{Q\}
+        \end{math}?
+        \begin{itemize}
+            \item En lenguaje informal, podríamos decir: Significa que $S$ es un programa tal que si se cumple la precondición $P$ antes de ejecutar $S$, entonces luego de ejecutar $S$ se cumple la postcondición $Q$.
+            \item Por su parte en el lenguaje formal del libro tenemos:
+            \begin{quote}
+                Cada vez que parto de un estado que satisface $P$, y ejecuto $S$, termino en un estado que satisface $Q$
+            \end{quote}
+        \end{itemize}
+        \item ¿Qué significa la \textit{weakest precondition}
+        \begin{math}
+            wp.S.Q
+        \end{math}?
+        \begin{itemize}
+            \item En lenguaje informal: Es la precondición mínima y suficiente que se tiene que cumplir antes de ejecutar $S$ para que luego de la ejecución se llegue a la postcondición $Q$
+            \item En términos del libro:
+            \begin{quote}
+                Si $Q$ es un predicado, $wp.S.Q$ representa el predicado más debil para el cuál vale $\{P\}S\{Q\}$. (\dots) En otras palabras
+                \begin{align*}
+                    [wp.S.Q = P] \Longleftrightarrow \left\{
+                        \begin{matrix}
+                         &(i) & \{P\}S\{Q\} \\ 
+                         &(ii) & \{P_{0}\}S\{Q\} \Rightarrow [P_{0} \Rightarrow P]
+                        \end{matrix}\right.
+                \end{align*}
+            \end{quote}
+        \end{itemize}
+    \end{itemize}
+    \chapter{Dafny}
+\end{document}
