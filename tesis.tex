@@ -19,12 +19,12 @@
 
     En el capítulo 2 se analizan ejemplos concretos del libro que dan sustento a estas críticas y se propone en cada caso textos alternativos y complementarios que podrían favorecer el desarrollo del mismo.
     % TODO: Revisar más adelante cómo se le da continuidad a la tesis mediante la introducción de Dafny. Por ahora va este texto %
-    [WIP] Las críticas desarrolladas en este capítulo no buscan desmerecer la potencia del método formal de derivación de programas que se enseña en el libro sino fortalecerlo y posicionarlo de cara a los estudiantes como un método que, una vez entrenada nuestra capacidad creativa e intuitiva para construir programas simples, nos será verdaderamente útil para la derivación de programas más complejos.
+    [WIP] Las críticas desarrolladas en este capítulo no buscan desmerecer la potencia del método formal de derivación de programas que se enseña en el libro sino fortalecerlo y posicionarlo de cara a los estudiantes como un método que, una vez entrenada su capacidad creativa e intuitiva para construir programas simples, les será verdaderamente útil para la derivación de programas más complejos.
     En los capítulos siguientes se presenta el lenguaje de programación ``Dafny'' y su potencial uso como herramienta de apoyo para la derivación formal de estos programas.[END-WIP]
 
     \chapter{Enseñanza de la programación imperativa en el libro Cálculo de Programas}
 
-    En el capítulo ``Programación Imperativa"" del libro se introducen tres conceptos fundamentales para el método propuesto: La terna de Hoare
+    En el capítulo ``Programación Imperativa'' del libro se introducen tres conceptos fundamentales para el método propuesto: La terna de Hoare
         \begin{math}
             \{P\}S\{Q\}
         \end{math} que utilizamos para denotar la especificación de un programa. La \textit{weakest precondition}
@@ -65,6 +65,74 @@
                 \end{align*}
             \end{quote}
         \end{itemize}
+        \item ¿Qué significa la equivalencia \begin{math}
+            \{P\}S\{Q\} \equiv [P \Rightarrow wp.S.Q]
+        \end{math}?
+        \begin{itemize}
+            \item En lenguaje informal: Que $P$ reúne las condiciones mínimas y necesarias para que al ejecutar $S$ lleguemos a $Q$
+            \item En el libro se deja al lector interpretar la equivalencia.
+        \end{itemize}
     \end{itemize}
+
+    Observamos que las explicaciones en lenguaje informal permiten al lector capturar el concepto que se quiere transmitir de manera más directa, aunque utilizan construcciones del lenguaje poco específicas, que no dan un sentido acabado. Mientras que las explicaciones en lenguaje formal expresan de manera acabada e inequívoca el significado de la simbología, anclándose en conceptos definidos previamente con la misma rigurosidad, como el de \textit{estado} y \textit{predicado}. Sin embargo, son más difíciles de digerir. El lector típicamente tiene que hacer un esfuerzo mayor para comprender lo que lee.
+    Notemos, a su vez, que no necesitamos optar entre uno de los dos lenguajes de manera exclusiva. El texto puede utilizar el lenguaje informal para introducir al lector en el aprendizaje de un nuevo concepto, y luego con el lector y su intuición a bordo, afinar utilizando el lenguaje formal una definición rigurosa y necesariamente más profunda.
+
+    \section{La división entera de números}
+    En el capítulo 19 del libro, se estudian técnicas para determinar invariantes de cíclos. En la primera sección, se introduce la técnica de determinar el invariante tomando términos de la postcondición cuando la misma es una conjunción de términos. Como ejemplo se propone la división entera de números. Invitamos al lector a leer su desarrollo (ejemplo 19.1).
+    Hay en este ejemplo, al menos tres pasos creativos, cuya inclusión en el desarrollo no presentan introducción previa:
+        \begin{itemize}
+            \item Utilizar un ciclo para el cálculo del cociente y el resto.
+            \item Utilizar la ecuación matemática $x = q * y + r$ como corazón de la definición del invariante.
+            \item Hacer asignaciones a $q$ y $r$ en el cuerpo del ciclo. 
+        \end{itemize}
+
+    Postulamos, que este ejemplo, contribuye poco a generar la capacidad necesaria en el alumno para identificar otros problemas que pueden ser resueltos a través de un ciclo, y entender la importancia del invariante.
+
+    Proponemos, como desarrollo alternativo utilizando lenguaje informal, el siguiente texto:
+
+    \subsection{Explicación alternativa de la división entera}
+    Queremos obtener un programa que dados dos números $x$ e $y$, compute el cociente $q$ y el resto $r$ de la división entera de $x$ por $y$.
+    Recordemos que el cociente y el resto cumplen:
+    $$x = y * q + r$$
+    Ahora bien, ¿cómo podemos computar $q$ y $r$, para cualquier $x$ e $y$ dados?
+    Una alternativa razonable es construir iterativamente tanto $q$ como $r$, partiendo de valores iniciales y acercándolos en cada paso a su valor final.
+    Si en todo momento, mantenemos la cantidad de $x$ distribuída entre cierta cantidad de $y$’s (esto es $q$) y el resto que falta para llegar a cubrir $x$ (esto es $r$), entonces podemos imaginar un ciclo en el que empezamos con $q$ igual a 0 y todo $x$ está en $r$.
+    Luego en cada paso, y mientras podamos extraer una cantidad $y$ de $r$, la sustraemos de ahí y la pasamos a $q$.
+    Es decir, empezamos con:
+    \begin{verbatim}
+        q:=0;
+        r:=x;
+    \end{verbatim}
+    Y en cada paso mientras que $r >= y$, ejecutamos
+    \begin{verbatim}
+        q:=q + 1;
+        r:=r - y;
+    \end{verbatim}
+
+    Y así sucesivamente hasta que $y$ no quepe en $r$ ( $ y > r $ ). Para entonces $q$ y $r$ serán respectivamente el cociente y el resto de la división de $x$ por $y$.
+
+    Nuestro programa final será:
+    \begin{verbatim}
+    q:=0;
+    r:=x;
+    do r >=y
+        q:=q+1;
+        r:=r-y;
+    od
+    \end{verbatim}
+    Notemos en este programa simple, que:
+    \begin{itemize}
+        \item En todo momento se cumple:
+        $$x = q * y + r$$
+        Este es nuestro \textit{invariante}, y proviene de nuestra estrategia inicial de tener distribuído $x$, paso a paso, entre $q$ y $r$.
+        \item Que debemos continuar iterando mientras que $r >= y$,
+        Esta es nuestra \textit{guarda}.
+        \item Que si se cumple el invariante y la guarda deja de cumplirse entonces hemos terminado.
+        \item Y que a su vez, estamos seguros de que en algún momento la guarda dejará de cumplirse, por que en cada paso reducimos $r$.
+    \end{itemize}
+
+    Este desarrollo alternativo, pone foco en presentar al lector una estrategia de resolución iterativa del problema, acudiendo a la experiencia común entre las personas de ``pasar cosas'' de un lugar a otro, y cómo esa estrategia puede traducirse en un programa concreto.
+    La esperanza, es que al finalizar la explicación, el lector esté en mejores condiciones de identificar otros problemas que puedan resolverse programando ciclos, y la importancia que el invariante adquiere como sostén de la estrategia iterativa de resolución.
     \chapter{Dafny}
+    Continuará.
 \end{document}
