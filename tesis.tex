@@ -11,86 +11,71 @@
     \chapter{Introducción}
     En el libro Cálculo de Programas (en adelante simplemente ``el libro''), se busca introducir al estudiante en la construcción de programas imperativos a través de un método formal para derivar el programa a partir de su especificación. La misma debe estar definida por una precondición y una postcondición, ambas escritas como fórmulas del cálculo de predicados estudiado en la materia pre correlativa ``Introducción a los Algoritmos''. El método consiste en tender puentes entre los bloques constructivos de un lenguaje imperativo (\textit{if}, \textit{for}, asignación, \textit{skip}, etc) y el cálculo de predicados. De manera tal que uno pueda plantear el esqueleto de un programa de manera creativa, y concluir los detalles razonando - o calculando - sobre el terreno ya conocido del cálculo de predicados.
 
-    En este trabajo se proponen dos críticas al texto del mismo:
+    En mi opinión el libro tiene algunas características que merecen revisión:
     \begin{itemize}
-    \item El libro utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
-    \item A su vez, y quizá en el afán de no abandonar este lenguaje formal, pasa por alto el desarrollo de las estrategias creativas necesarias para construir programas, introduciéndolas sin preámbulo alguno, y forzando el foco de atención a los detalles que sí pueden desarrollarse dentro del lenguaje elegido.
+    \item Utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
+    \item En ocasiones pasa por alto el origen de las estrategias creativas necesarias para construir programas, introduciendo \\esqueletos'' sin mucho preámbulo, y restringiendo el foco de atención a la derivación de las sentencias que constituyen el resto del programa y sí pueden derivarse mediante el método formal.
+    \item Los programas obtenidos y sus pruebas, no están escritos en computadora, y por tanto no pueden ser ejecutados ni verificados de forma automática.
     \end{itemize}
 
-    En el capítulo 2 se analizan ejemplos concretos del libro que dan sustento a estas críticas y se propone en cada caso textos alternativos y complementarios que podrían favorecer el desarrollo del mismo.
-    % TODO: Revisar más adelante cómo se le da continuidad a la tesis mediante la introducción de Dafny. Por ahora va este texto %
-    [WIP] Las críticas desarrolladas en este capítulo no buscan desmerecer la potencia del método formal de derivación de programas que se enseña en el libro sino fortalecerlo y posicionarlo de cara a los estudiantes como un método que, una vez entrenada su capacidad creativa e intuitiva para construir programas simples, les será verdaderamente útil para la derivación de programas más complejos.
-    En los capítulos siguientes se presenta el lenguaje de programación ``Dafny'' y su potencial uso como herramienta de apoyo para la derivación formal de estos programas.[END-WIP]
+    Nuestra hipótesis, es que resultaría más provechoso para el proceso de aprendizaje, primero, introducir la programación imperativa con ejemplos en un lenguaje no formal. Luego, con el lector y su intuición a bordo, identificar en los ejemplos la utilidad de los conceptos básicos (transformación de estado, precondición, postcondición, invariante, etc) y finalmente proceder a la formalización de los mismos para luego poder probar (formalmente), la corrección de los programas obtenidos y resolver problemas más complejos asistidos por una metodología similar a la del libro pero adaptada al uso de Dafny, un lenguaje de programación con soporte para la declaración de especificaciones, pruebas y un entorno de desarrollo capaz de verificar los programas de manera automática.
 
-    \chapter{Enseñanza de la programación imperativa en el libro Cálculo de Programas}
+    A lo largo de este trabajo desarrollamos esta estrategia alternativa.
+    % TODO: Revisar más adelante qué texto resume mejor cada capítulo.%
+    [WIP]
+    En el capítulo 2 presentamos ejemplos de problemas simples que pueden resolverse con programación imperativa. Apelamos a la intuición y la creatividad para construir los programas e identificamos en ellos los conceptos fundamentales.
+    En el capítulo 3 los formalizamos (...)
+    En el capítulo 4 realizamos pruebas formales de correctitud utilizando Dafny. (...)[END-WIP]
 
-    En el capítulo ``Programación Imperativa'' del libro se introducen tres conceptos fundamentales para el método propuesto: La terna de Hoare
-        \begin{math}
-            \{P\}S\{Q\}
-        \end{math} que utilizamos para denotar la especificación de un programa. La \textit{weakest precondition}
-        \begin{math}
-            wp.S.Q
-        \end{math}. Y la equivalencia que relaciona las dos anteriores \begin{math}
-            \{P\}S\{Q\} \equiv [P \Rightarrow wp.S.Q]
-        \end{math}
+    \chapter{Introducción a la programación imperativa}
+    [WIP](...)
 
-    La introducción de estos tres conceptos nos sirve como primer ejemplo de cómo podemos complementar el lenguaje formal del libro con un lenguaje informal que facilite la comprensión por parte del lector. Veamos cada caso.
-    \begin{itemize}
-        \item ¿Qué significa la terna de Hoare
-        \begin{math}
-            \{P\}S\{Q\}
-        \end{math}?
-        \begin{itemize}
-            \item En lenguaje informal, podríamos decir: Significa que $S$ es un programa tal que si se cumple la precondición $P$ antes de ejecutar $S$, entonces luego de ejecutar $S$ se cumple la postcondición $Q$.
-            \item Por su parte en el lenguaje formal del libro tenemos:
-            \begin{quote}
-                Cada vez que parto de un estado que satisface $P$, y ejecuto $S$, termino en un estado que satisface $Q$
-            \end{quote}
-        \end{itemize}
-        \item ¿Qué significa la \textit{weakest precondition}
-        \begin{math}
-            wp.S.Q
-        \end{math}?
-        \begin{itemize}
-            \item En lenguaje informal: Es la precondición mínima y suficiente que se tiene que cumplir antes de ejecutar $S$ para que luego de la ejecución se llegue a la postcondición $Q$
-            \item En términos del libro:
-            \begin{quote}
-                Si $Q$ es un predicado, $wp.S.Q$ representa el predicado más debil para el cuál vale $\{P\}S\{Q\}$. (\dots) En otras palabras
-                \begin{align*}
-                    [wp.S.Q = P] \Longleftrightarrow \left\{
-                        \begin{matrix}
-                         &(i) & \{P\}S\{Q\} \\ 
-                         &(ii) & \{P_{0}\}S\{Q\} \Rightarrow [P_{0} \Rightarrow P]
-                        \end{matrix}\right.
-                \end{align*}
-            \end{quote}
-        \end{itemize}
-        \item ¿Qué significa la equivalencia \begin{math}
-            \{P\}S\{Q\} \equiv [P \Rightarrow wp.S.Q]
-        \end{math}?
-        \begin{itemize}
-            \item En lenguaje informal: Que $P$ reúne las condiciones mínimas y necesarias para que al ejecutar $S$ lleguemos a $Q$
-            \item En el libro se deja al lector interpretar la equivalencia.
-        \end{itemize}
-    \end{itemize}
+    \subsection{Duplicar}
+    Queremos obtener un programa $P$ que dado un número entero cualquiera lo duplique. Este simple programa, que finalmente resultará en una línea de código similar a esta:
+    \begin{verbatim}
+        y = x * 2  # Pseudocódigo
+    \end{verbatim}
+    nos servirá para razonar sobre qué es un programa imperativo.
 
-    Observamos que las explicaciones en lenguaje informal permiten al lector capturar el concepto que se quiere transmitir de manera más directa, aunque utilizan construcciones del lenguaje poco específicas, que no dan un sentido acabado. Mientras que las explicaciones en lenguaje formal expresan de manera acabada e inequívoca el significado de la simbología, anclándose en conceptos definidos previamente con la misma rigurosidad, como el de \textit{estado} y \textit{predicado}. Sin embargo, son más difíciles de digerir. El lector típicamente tiene que hacer un esfuerzo mayor para comprender lo que lee.
-    Notemos, a su vez, que no necesitamos optar entre uno de los dos lenguajes de manera exclusiva. El texto puede utilizar el lenguaje informal para introducir al lector en el aprendizaje de un nuevo concepto, y luego con el lector y su intuición a bordo, afinar utilizando el lenguaje formal una definición rigurosa y necesariamente más profunda.
 
-    \section{La división entera de números}
-    En el capítulo 19 del libro, se estudian técnicas para determinar invariantes de cíclos. En la primera sección, se introduce la técnica de determinar el invariante tomando términos de la postcondición cuando la misma es una conjunción de términos. Como ejemplo se propone la división entera de números. Invitamos al lector a leer su desarrollo (ejemplo 19.1).
-    Hay en este ejemplo, al menos tres pasos creativos, cuya inclusión en el desarrollo no presentan introducción previa:
-        \begin{itemize}
-            \item Utilizar un ciclo para el cálculo del cociente y el resto.
-            \item Utilizar la ecuación matemática $x = q * y + r$ como corazón de la definición del invariante.
-            \item Hacer asignaciones a $q$ y $r$ en el cuerpo del ciclo. 
-        \end{itemize}
+    En primer lugar, necesitamos ``recibir'' o ``leer'' de alguna forma el número en cuestión, para conocer su valor, y luego poder ``devolver'' o ``escribir'' de alguna forma su valor duplicado, una vez que lo calculemos.
+    En la programación imperativa el mecanismo que utilizaremos para satisfacer ambas necesidades es el de \textit{transformación de estado}.
+    Un \textit{estado} será una colección de nombres de variables y sus valores. Al \textit{ejecutar} un programa lo que estaremos haciendo es transformar potencialmente ese estado, sea agregando nuevas variables, modificando el valor de las variables existentes, o dejándolo tal cual lo recibimos.
+    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una única variable $x$ que tiene el valor del número que queremos duplicar y, al finalizar la ejecución, habrá escrito el resultado en una variable adicional $y$, obteniendo un estado con dos variables $x$ e $y$.
 
-    Postulamos, que este ejemplo, contribuye poco a generar la capacidad necesaria en el alumno para identificar otros problemas que pueden ser resueltos a través de un ciclo, y entender la importancia del invariante.
+    Ahora bien,
+    ¿Qué pasa si $x$ no está en el estado al ejecutarlo?
+    ¿Qué pasa si el valor de $x$ no es un entero?
+    ¿Qué relación esperamos se cumpla entre $x$ e $y$ luego de la ejecución?
 
-    Proponemos, como desarrollo alternativo utilizando lenguaje informal, el siguiente texto:
+    Respondernos estas preguntas puntillosamente dará resultado a una \textit{especificación} del programa.
+    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $P$ si $x$ no está en el estado y por tanto que $P$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea exactamente el doble de $x$. Esta será nuestra postcondición.
 
-    \subsection{Explicación alternativa de la división entera}
+    En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}
+
+    Aún quedan preguntas sin resolver:
+    ¿Qué pasa si nuestro programa cumple con la postcondición, pero en el camino, no solo modificó $y$ sino también $x$? Para resolver este problema necesitamos que, para nuestro programa, $x$ no sea una variable sino una \textit{constante} (es decir, que no pueda ser modificada).
+    ¿Algún otro programa estará consultando el estado además del nuestro?¿Tenemos que especificarle a nuestro programa que no modifique variables que no debe? Por el momento, pensaremos nuestro programa como el único que leerá y escribirá el estado. Puede modificar las variables que desee, siempre que cumpla con la postcondición.
+
+    Nos resultará muy útil emplear \textit{predicados} para escribir la precondición $Q$ y la postcondición $R$ en lenguaje formal:
+
+    \begin{math}
+        Q: \lbrace const\,x \in Int \rbrace
+    \end{math}
+
+
+    \begin{math}
+        R: \lbrace const\,x \in Int,\; var\,y \in Int\;|\;y = x * 2 \rbrace
+    \end{math}
+
+    Nuestro programa será correcto si cumple con su especificación, es decir, si siempre que parte de un estado que satisface $Q$ llega a un estado que satisface $R$.
+
+    [WIP]: (Introduccion de la asignación)
+
+    \subsection{El valor absoluto de un número entero}
+    [WIP]: (Introduccion del if)
+
+    \subsection{La división de números enteros}
     Queremos obtener un programa que dados dos números $x$ e $y$, compute el cociente $q$ y el resto $r$ de la división entera de $x$ por $y$.
     Recordemos que el cociente y el resto cumplen:
     $$x = y * q + r$$
@@ -103,7 +88,7 @@
         q:=0;
         r:=x;
     \end{verbatim}
-    Y en cada paso mientras que $r >= y$, ejecutamos
+    Y en cada paso mientras que $r \geq y$, ejecutamos
     \begin{verbatim}
         q:=q + 1;
         r:=r - y;
