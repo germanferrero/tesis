@@ -1,9 +1,12 @@
-\documentclass[11pt, a4paper, openany]{book}
+\documentclass[12pt, a4paper, openany, fleqn]{book}
 \usepackage{amsmath, amssymb,}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{relsize}
 \usepackage[left=2.00cm, right=2.00cm, top=2.00cm, bottom=2.00cm]{geometry}
+\usepackage{xcolor}
+\usepackage{dafny}
+\renewcommand{\lstlistingname}{Ejemplo}
 \linespread{1.1}
 \author{Germán Ferrero}
 \title{Construcción formal de programas asistida por Dafny}
@@ -14,7 +17,7 @@
     En mi opinión el libro tiene algunas características que merecen revisión:
     \begin{itemize}
     \item Utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
-    \item En ocasiones pasa por alto el origen de las estrategias creativas necesarias para construir programas, introduciendo \\esqueletos'' sin mucho preámbulo, y restringiendo el foco de atención a la derivación de las sentencias que constituyen el resto del programa y sí pueden derivarse mediante el método formal.
+    \item En ocasiones pasa por alto el origen de las estrategias creativas necesarias para construir programas, introduciendo ``esqueletos'' de programas sin mucho preámbulo, y restringiendo el foco de atención a la derivación de las sentencias que constituyen el resto del programa y sí pueden derivarse mediante el método formal.
     \item Los programas obtenidos y sus pruebas, no están escritos en computadora, y por tanto no pueden ser ejecutados ni verificados de forma automática.
     \end{itemize}
 
@@ -31,25 +34,28 @@
     [WIP](...)
 
     \subsection{Duplicar}
-    Queremos obtener un programa $P$ que dado un número entero cualquiera lo duplique. Este simple programa, que finalmente resultará en una línea de código similar a esta:
+    \subsubsection*{La especificación de un programa}
+
+    Queremos obtener un programa $S$ que dado un número entero cualquiera lo duplique. Este simple programa, que finalmente resultará en una línea de código similar a esta:
     \begin{verbatim}
         y = x * 2  # Pseudocódigo
     \end{verbatim}
-    nos servirá para razonar sobre qué es un programa imperativo.
+    nos servirá para especificar acabadamente qué es un programa imperativo.
 
 
     En primer lugar, necesitamos ``recibir'' o ``leer'' de alguna forma el número en cuestión, para conocer su valor, y luego poder ``devolver'' o ``escribir'' de alguna forma su valor duplicado, una vez que lo calculemos.
     En la programación imperativa el mecanismo que utilizaremos para satisfacer ambas necesidades es el de \textit{transformación de estado}.
     Un \textit{estado} será una colección de nombres de variables y sus valores. Al \textit{ejecutar} un programa lo que estaremos haciendo es transformar potencialmente ese estado, sea agregando nuevas variables, modificando el valor de las variables existentes, o dejándolo tal cual lo recibimos.
-    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una única variable $x$ que tiene el valor del número que queremos duplicar y, al finalizar la ejecución, habrá escrito el resultado en una variable adicional $y$, obteniendo un estado con dos variables $x$ e $y$.
+
+    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una variable $x$, que aloja el valor del número que queremos duplicar y una variable $y$ donde depositaremos el resultado.
 
     Ahora bien,
-    ¿Qué pasa si $x$ no está en el estado al ejecutarlo?
-    ¿Qué pasa si el valor de $x$ no es un entero?
+    ¿Qué hará el programa si $x$ no está en el estado al ser ejecutado?
+    ¿Qué hará si el valor de $x$ no es un entero?
     ¿Qué relación esperamos se cumpla entre $x$ e $y$ luego de la ejecución?
 
     Respondernos estas preguntas puntillosamente dará resultado a una \textit{especificación} del programa.
-    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $P$ si $x$ no está en el estado y por tanto que $P$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea exactamente el doble de $x$. Esta será nuestra postcondición.
+    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $S$ si $x$ no está en el estado y por tanto que $S$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero y que $y$ esté definida aunque su valor sea un número entero arbitrario. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea exactamente el doble de $x$. Esta será nuestra postcondición.
 
     En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}
 
@@ -57,20 +63,45 @@
     ¿Qué pasa si nuestro programa cumple con la postcondición, pero en el camino, no solo modificó $y$ sino también $x$? Para resolver este problema necesitamos que, para nuestro programa, $x$ no sea una variable sino una \textit{constante} (es decir, que no pueda ser modificada).
     ¿Algún otro programa estará consultando el estado además del nuestro?¿Tenemos que especificarle a nuestro programa que no modifique variables que no debe? Por el momento, pensaremos nuestro programa como el único que leerá y escribirá el estado. Puede modificar las variables que desee, siempre que cumpla con la postcondición.
 
-    Nos resultará muy útil emplear \textit{predicados} para escribir la precondición $Q$ y la postcondición $R$ en lenguaje formal:
+    Nos resultará muy útil emplear \textit{predicados} para escribir la precondición y la postcondición de nuestros programas. En este caso:
 
-    \begin{math}
-        Q: \lbrace const\,x \in Int \rbrace
-    \end{math}
+    \begin{align*}
+        [[& \text{const x} \in \mathbb{Z} \\
+          & \text{var y} \in \mathbb{Z} \\
+          & \lbrace {True} \rbrace \\
+          & S \\
+          & \lbrace {y = x * 2} \rbrace \\
+        ]]
+    \end{align*}
 
+    Notese que la precondición es $True$ pues lo único que debe cumplirse es la existencia de la constante $x$ y la variable $y$ en el estado.
+    Hasta aquí, utilizando los conceptos de estado, predicados, y transformación de estados, hemos logrado especificar acabadamente qué debería hacer nuestro programa, aún sin hablar en absoluto de cómo lo hará.
 
-    \begin{math}
-        R: \lbrace const\,x \in Int,\; var\,y \in Int\;|\;y = x * 2 \rbrace
-    \end{math}
+    \subsubsection*{La especificación de un programa en Dafny}
 
-    Nuestro programa será correcto si cumple con su especificación, es decir, si siempre que parte de un estado que satisface $Q$ llega a un estado que satisface $R$.
+    A lo largo de este trabajo, escribiremos programas formalmente especificados, y verificaremos a través de \textit{pruebas} que sus implementaciones sean correctas, es decir, que cumplan con su especificación.
 
-    [WIP]: (Introduccion de la asignación)
+    Para ayudarnos en esta tarea, utilizaremos Dafny un lenguaje de programación con soporte para declarar especificaciones, y dotado de un entorno de desarrollo capaz de verificar los programas de manera automática.
+
+    Si bien, para programas sencillos como el de duplicar un número entero, la correctitud del programa será evidente con solo inspeccionarlo, a medida que construyamos programas más complejos descubriremos la invaluable tranquilidad de saber que la correctitud de nuestro programa ha sido verificada de manera automática.
+
+    Escribamos entonces la especificación de nuestro programa en Dafny:
+
+    \dafnyfile{examples/01_duplicar.dfy}
+
+    Hemos utilizado el constructor \inlinedafny{method} de Dafny para especificar nuestro programa. La precondición de que exista la constante \begin{math}x \in \mathbb{Z}\end{math}, está especificada por el parámetro \inlinedafny{x:int}, los parámetros de los métodos en Dafny son inmutables. La precondición de que exista la variable \begin{math}y \in \mathbb{Z}\end{math} está especificada por la presencia de \inlinedafny{y:int} en la cláusula \inlinedafny{returns}.
+    La postcondición está especificada por la cláusula \inlinedafny{ensures y == x * 2} que especifica la relación que el programa garantiza entre $x$ e $y$ al final de la ejecución.
+
+    \subsubsection*{La asignación}
+    Nuestro programa no tiene un cuerpo o implementación aún. El cuerpo de un programa imperativo estará dado por una sucesión sentencias de varios tipos, bien definidos. El primer tipo de sentencia que estudiaremos es la ``asignación''.
+
+    La asignación, (asignación paralela en Dafny) se utiliza para asignar valores a variables y toma la forma \inlinedafny{x, y := E, E';}. Donde a lo que está a la izquierda del operador \inlinedafny{:=} le llamamos Left Hand Side (LHS) y lo que está a la derecha RHS. El LHS puede estar compuesto por una o más variables y el RHS estará compuesto por un número igual de expresiones.
+
+    Las variables que aparecen en el LHS deben haber sido declaradas previamente con una sentencia de declaración de variables. Que toma la forma \inlinedafny{var x;}
+
+    Las expresiones del RHS pueden ser cualquier tipo de expresión en Dafny, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
+
+    [WIP]: (Semántica de la asignación en términos de predicados, WP, obligación de prueba, pasamano al solver, asignación verificada automáticamente)
 
     \subsection{El valor absoluto de un número entero}
     [WIP]: (Introduccion del if)
