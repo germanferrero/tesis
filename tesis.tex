@@ -6,7 +6,9 @@
 \usepackage[left=2.00cm, right=2.00cm, top=2.00cm, bottom=2.00cm]{geometry}
 \usepackage{xcolor}
 \usepackage{dafny}
-\renewcommand{\lstlistingname}{Ejemplo}
+\usepackage{spverbatim}
+
+\renewcommand{\lstlistingname}{Dafny}
 \linespread{1.1}
 \author{Germán Ferrero}
 \title{Construcción formal de programas asistida por Dafny}
@@ -33,29 +35,28 @@
     \chapter{Introducción a la programación imperativa}
     [WIP](...)
 
-    \subsection{Duplicar}
+    \subsection{Superar un número entero}
     \subsubsection*{La especificación de un programa}
 
-    Queremos obtener un programa $S$ que dado un número entero cualquiera lo duplique. Este simple programa, que finalmente resultará en una línea de código similar a esta:
+    Queremos obtener un programa $S$ que dado un número entero cualquiera nos devuelva otro mayor. Este simple programa, que finalmente resultará en una línea de código similar a esta:
     \begin{verbatim}
-        y = x * 2  # Pseudocódigo
+        y = x + 1  # Pseudocódigo
     \end{verbatim}
-    nos servirá para especificar acabadamente qué es un programa imperativo.
+    nos servirá para razonar acerca de qué es un programa imperativo y cómo podemos garantizar su correctitud.
 
-
-    En primer lugar, necesitamos ``recibir'' o ``leer'' de alguna forma el número en cuestión, para conocer su valor, y luego poder ``devolver'' o ``escribir'' de alguna forma su valor duplicado, una vez que lo calculemos.
+    En primer lugar, necesitamos ``recibir'' o ``leer'' de alguna forma el número en cuestión, para conocer su valor, y luego poder ``devolver'' o ``escribir'' de alguna forma otro valor mayor, una vez que lo calculemos.
     En la programación imperativa el mecanismo que utilizaremos para satisfacer ambas necesidades es el de \textit{transformación de estado}.
     Un \textit{estado} será una colección de nombres de variables y sus valores. Al \textit{ejecutar} un programa lo que estaremos haciendo es transformar potencialmente ese estado, sea agregando nuevas variables, modificando el valor de las variables existentes, o dejándolo tal cual lo recibimos.
 
-    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una variable $x$, que aloja el valor del número que queremos duplicar y una variable $y$ donde depositaremos el resultado.
+    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una variable $x$, que aloja el valor de la cantidad a superar y una variable $y$ donde depositaremos el resultado.
 
     Ahora bien,
     ¿Qué hará el programa si $x$ no está en el estado al ser ejecutado?
     ¿Qué hará si el valor de $x$ no es un entero?
     ¿Qué relación esperamos se cumpla entre $x$ e $y$ luego de la ejecución?
 
-    Respondernos estas preguntas puntillosamente dará resultado a una \textit{especificación} del programa.
-    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $S$ si $x$ no está en el estado y por tanto que $S$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero y que $y$ esté definida aunque su valor sea un número entero arbitrario. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea exactamente el doble de $x$. Esta será nuestra postcondición.
+    Respondernos estas preguntas puntillosamente dará resultado a la \textit{especificación} del programa.
+    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $S$ si $x$ no está en el estado y por tanto que $S$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero y que $y$ esté definida aunque su valor sea un número entero arbitrario. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea estrictamente mayor a $x$. Esta será nuestra postcondición.
 
     En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}
 
@@ -70,7 +71,7 @@
           & \text{var y} \in \mathbb{Z} \\
           & \lbrace {True} \rbrace \\
           & S \\
-          & \lbrace {y = x * 2} \rbrace \\
+          & \lbrace {y > x} \rbrace \\
         ]]
     \end{align*}
 
@@ -83,25 +84,64 @@
 
     Para ayudarnos en esta tarea, utilizaremos Dafny un lenguaje de programación con soporte para declarar especificaciones, y dotado de un entorno de desarrollo capaz de verificar los programas de manera automática.
 
-    Si bien, para programas sencillos como el de duplicar un número entero, la correctitud del programa será evidente con solo inspeccionarlo, a medida que construyamos programas más complejos descubriremos la invaluable tranquilidad de saber que la correctitud de nuestro programa ha sido verificada de manera automática.
+    Si bien, para programas sencillos como el superar un número entero, la correctitud del programa será evidente con solo inspeccionarlo, a medida que construyamos programas más complejos descubriremos la invaluable tranquilidad de saber que la correctitud de nuestro programa ha sido verificada de manera automática.
 
     Escribamos entonces la especificación de nuestro programa en Dafny:
 
-    \dafnyfile{examples/01_duplicar.dfy}
+    \dafnyfile{ejemplos/01_superar_especificacion.dfy}
 
     Hemos utilizado el constructor \inlinedafny{method} de Dafny para especificar nuestro programa. La precondición de que exista la constante \begin{math}x \in \mathbb{Z}\end{math}, está especificada por el parámetro \inlinedafny{x:int}, los parámetros de los métodos en Dafny son inmutables. La precondición de que exista la variable \begin{math}y \in \mathbb{Z}\end{math} está especificada por la presencia de \inlinedafny{y:int} en la cláusula \inlinedafny{returns}.
-    La postcondición está especificada por la cláusula \inlinedafny{ensures y == x * 2} que especifica la relación que el programa garantiza entre $x$ e $y$ al final de la ejecución.
+    La postcondición está especificada por la cláusula \inlinedafny{ensures y > x} que especifica la relación que el programa garantiza entre $x$ e $y$ al final de la ejecución.
 
     \subsubsection*{La asignación}
     Nuestro programa no tiene un cuerpo o implementación aún. El cuerpo de un programa imperativo estará dado por una sucesión sentencias de varios tipos, bien definidos. El primer tipo de sentencia que estudiaremos es la ``asignación''.
 
-    La asignación, (asignación paralela en Dafny) se utiliza para asignar valores a variables y toma la forma \inlinedafny{x, y := E, E';}. Donde a lo que está a la izquierda del operador \inlinedafny{:=} le llamamos Left Hand Side (LHS) y lo que está a la derecha RHS. El LHS puede estar compuesto por una o más variables y el RHS estará compuesto por un número igual de expresiones.
+    La asignación, (asignación paralela en Dafny) se utiliza para asignar valores a variables y toma la forma \inlinedafny{x, y := E, E';}. Donde a la izquierda del operador \inlinedafny{:=} aparecen una o más variables y a derecha un número igual de expresiones.
 
-    Las variables que aparecen en el LHS deben haber sido declaradas previamente con una sentencia de declaración de variables. Que toma la forma \inlinedafny{var x;}
+    Las variables que aparecen en el lado izquierdo deben haber sido declaradas previamente con una sentencia de declaración de variables. Que toma la forma \inlinedafny{var x;}
 
-    Las expresiones del RHS pueden ser cualquier tipo de expresión en Dafny, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
+    Las expresiones del lado derecho pueden ser cualquier tipo de expresión en Dafny, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
 
-    [WIP]: (Semántica de la asignación en términos de predicados, WP, obligación de prueba, pasamano al solver, asignación verificada automáticamente)
+    Una asignación transforma el estado del programa, dando nuevos valores a las variables del lado izquierdo equivalentes al resultado de evaluar las expresiones correspondientes del lado derecho en el estado actual.
+
+    Nos resultará natural utilizar la asignación para completar el cuerpo de nuestro programa:
+    \dafnyfile{ejemplos/02_superar.dfy}
+    Si corremos:
+    \begin{verbatim}
+        $ dafny verify ejemplos/02_superar.dfy
+    \end{verbatim}
+    veremos que Dafny automáticamente verifica la correctitud de este programa. Cómo lo hace? Cómo resuelve Dafny que a partir de la precondición, si ejecutamos la asignación \inlinedafny{y := x + 1} se cumple la postcondición?
+
+    Para entender esto pensemos primero en qué postcondición puede asegurarnos la ejecución de la asignación. Por su definición, la asignación solo puede garantizarnos que luego de la ejecución se cumple $\{ y = x + 1 \}$, no más. Sin embargo, esto es suficiente para probar por aritmética que $\{ y > x \}$.
+    En cambio, si la implementación hubiera sido
+    \dafnyfile{ejemplos/03_superar_incorrecto.dfy}
+    nuestra única garantía post ejecución sería $\{ y = x * 2 \}$, que esta vez no basta para probar $\{ y > x \}$, puesto que si $\{x = 0\}$ entonces, luego de la ejecución tendríamos $\{y = x\}$ y no $\{ y > x \}$. En este caso, para que el programa sea correcto, necesitaríamos como mínima precondición $\{ x > 0 \}$, lo cuál no está garantizado en la especificación de nuestro programa.
+    En efecto, si corremos:
+    \begin{verbatim}
+        $ dafny verify ejemplos/03_superar_incorrecto.dfy
+    \end{verbatim}
+    Recibiremos como output:
+    \begin{spverbatim}
+    examples/03_superar_incorrecto.dfy(3,0): Error: a postcondition could not be proved on this return path
+    \end{spverbatim}
+
+    Dafny explota el concepto de mínima precondición (o precondición más débil), de la asignación respecto a la postcondición deseada para generar obligaciones de prueba.
+
+    En términos generales, la precondición más debil de la asignación $x := E$ respecto de una postcondición $Q$, la cuál llamaremos $wp.(x := E).Q$ (por \textit{weakest precondition} en inglés), se puede obtener mecánicamente por la sustitución sintáctica $Q(x := E)$, es decir el predicado Q, en donde reemplazamos todas las ocurrencias de $x$ por $E$.
+
+    \begin{align*}
+        [ wp.(x:=E).Q \equiv Q[x:=E] ]
+    \end{align*}
+
+    Otra forma de interpretar esta definición, es que lo único que podemos esperar de la asignación, es que realice la transformación de estado que le corresponde, el resto de la postcondición tiene que valer por cuenta de la precondición.
+
+    En nuestros ejemplos:
+
+    $wp.(y := x + 1).\{ y > x \} \equiv \{ x + 1 > x \} \equiv \{ True \}$
+
+    $wp.(y := x * 2).\{ y > x \} \equiv \{ x * 2 > x \} \equiv \{ x > 0 \}$
+
+    Para verificar la correctitud de un programa u otro, solo resta probar que la precondición del programa implica la $wp$ correspondiente. Esta implicación se puede probar para el primer caso, y no se puede probar para el segundo. Dafny delega esta prueba en algoritmos de verificación llamados Solvers SMT (Satisfiability modulo theories).
 
     \subsection{El valor absoluto de un número entero}
     [WIP]: (Introduccion del if)
