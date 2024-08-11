@@ -4,6 +4,7 @@
 
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{hyperref}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{dafny}[2008/06/22 Dafny mode for listings]
 
@@ -100,14 +101,14 @@
     xleftmargin=8pt,xrightmargin=8pt,#1}}{}
 \def\inlinedafny{%
     \lstinline[language=dafny,basicstyle=\ttfamily,columns=fixed]}
-\newcommand{\dafnyfile}[1]{
+\newcommand{\dafnyfile}[2]{
   \lstinputlisting[language=dafny,%
     numbers=left,
     numberstyle=\color{white}\ttfamily,
     backgroundcolor=\color{backcolour},
     keywordstyle=\color{codepurple},
-    caption=\texttt{\detokenize{#1}},
+    caption=\href{https://github.com/germanferrero/tesis/tree/main/#2}{\texttt{#1}},
     captionpos=b,
     basicstyle=\color{white}\ttfamily,
-    frame=lines,xleftmargin=2em, framexleftmargin=2em,xrightmargin=8pt,columns=fixed]{#1}
+    frame=lines,xleftmargin=2em, framexleftmargin=2em,xrightmargin=8pt,columns=fixed]{#2}
 }

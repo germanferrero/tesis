@@ -7,6 +7,9 @@
 \usepackage{xcolor}
 \usepackage{dafny}
 \usepackage{spverbatim}
+\newcommand{\disgrecion}[1]{#1}
+\newcommand{\declConst}[2]{\text{const } #1 : #2}
+\newcommand{\declVar}[2]{\text{var } #1 : #2}
 
 \renewcommand{\lstlistingname}{Dafny}
 \linespread{1.1}
@@ -32,13 +35,13 @@
     En el capítulo 3 los formalizamos (...)
     En el capítulo 4 realizamos pruebas formales de correctitud utilizando Dafny. (...)[END-WIP]
 
-    \chapter{Introducción a la programación imperativa}
+    \chapter{Introducción a la programación imperativa en Dafny}
     [WIP](...)
 
     \subsection{Superar un número entero}
     \subsubsection*{La especificación de un programa}
 
-    Queremos obtener un programa $S$ que dado un número entero cualquiera nos devuelva otro mayor. Este simple programa, que finalmente resultará en una línea de código similar a esta:
+    Queremos obtener un programa que dado un número entero cualquiera nos devuelva otro mayor. Este simple programa, que finalmente resultará en una línea de código similar a esta:
     \begin{verbatim}
         y = x + 1  # Pseudocódigo
     \end{verbatim}
@@ -46,81 +49,73 @@
 
     En primer lugar, necesitamos ``recibir'' o ``leer'' de alguna forma el número en cuestión, para conocer su valor, y luego poder ``devolver'' o ``escribir'' de alguna forma otro valor mayor, una vez que lo calculemos.
     En la programación imperativa el mecanismo que utilizaremos para satisfacer ambas necesidades es el de \textit{transformación de estado}.
-    Un \textit{estado} será una colección de nombres de variables y sus valores. Al \textit{ejecutar} un programa lo que estaremos haciendo es transformar potencialmente ese estado, sea agregando nuevas variables, modificando el valor de las variables existentes, o dejándolo tal cual lo recibimos.
+    Un \textit{estado} será una colección de nombres de variables y constantes, con sus respectivos valores, a los que el programa tendrá acceso. Cada una de ellas tendrá un tipo asociado (número entero, booleano, cadena de texto, etc). Al \textit{ejecutar} un programa lo que estaremos haciendo es transformar potencialmente ese estado modificando el valor de sus variables.
 
-    En este caso podemos pensar en un programa que se ejecutará a partir de un estado con una variable $x$, que aloja el valor de la cantidad a superar y una variable $y$ donde depositaremos el resultado.
+    En este caso podemos pensar en un programa $S$ que se ejecutará a partir de un estado con una constante $x$ de tipo entero, que aloja el valor de la cantidad a superar y una variable $y$ del mismo tipo donde depositaremos el resultado.
 
-    Ahora bien,
-    ¿Qué hará el programa si $x$ no está en el estado al ser ejecutado?
-    ¿Qué hará si el valor de $x$ no es un entero?
-    ¿Qué relación esperamos se cumpla entre $x$ e $y$ luego de la ejecución?
+    Ahora bien, ¿Qué podemos asumir de $x$ e $y$ antes de ejecutar el programa? ¿Qué relación esperamos se cumpla entre $x$ e $y$ luego de la ejecución? Respondernos estas preguntas dará resultado a la \textit{especificación} del programa.
 
-    Respondernos estas preguntas puntillosamente dará resultado a la \textit{especificación} del programa.
-    Decidiremos, por ejemplo, que no nos interesa qué sucede al ejecutar $S$ si $x$ no está en el estado y por tanto que $S$ nunca se ejecutará en ese caso. Lo mismo aplica en caso de que el valor de $x$ no sea un entero. Es decir, pondremos como precondición de nuestro programa que $x$ esté definida y su valor sea un número entero y que $y$ esté definida aunque su valor sea un número entero arbitrario. Por último queremos que nuestro programa garantice que en el estado final el valor de $y$ sea estrictamente mayor a $x$. Esta será nuestra postcondición.
+    De la descripción informal que enunciamos inicialmente, no se desprende ninguna relación particular entre $x$ e $y$ que deba valer al inicio de nuestro programa (más allá de las propiedades garantizadas por la definición del estado \footnote{Notemos que la definición de estado ya provee garantías intrínsicas: las constantes no modificarán su valor inicial y los valores de las variables y constantes serán del tipo correspondiente.}). Es decir, no hay una precondición en particular.
 
-    En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}
+    Al finalizar el programa, queremos que en el estado el valor de $y$ sea estrictamente mayor a $x$. Ésta será nuestra postcondición.
 
-    Aún quedan preguntas sin resolver:
-    ¿Qué pasa si nuestro programa cumple con la postcondición, pero en el camino, no solo modificó $y$ sino también $x$? Para resolver este problema necesitamos que, para nuestro programa, $x$ no sea una variable sino una \textit{constante} (es decir, que no pueda ser modificada).
-    ¿Algún otro programa estará consultando el estado además del nuestro?¿Tenemos que especificarle a nuestro programa que no modifique variables que no debe? Por el momento, pensaremos nuestro programa como el único que leerá y escribirá el estado. Puede modificar las variables que desee, siempre que cumpla con la postcondición.
+    En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}. Juntas, funcionan como contrato entre quien desarrolla el programa y quien lo ejecuta. Quien ejecuta el programa debe asegurar la precondición y puede asumir la postcondición al finalizar la ejecución. Quien lo desarolla puede asumir la precondición y debe asegurar la postcondición.
 
-    Nos resultará muy útil emplear \textit{predicados} para escribir la precondición y la postcondición de nuestros programas. En este caso:
-
+    Nos resultará útil la siguiente notación formal para especificar programas, que utiliza \textit{predicados} para escribir la precondición y la postcondición. En este caso:
     \begin{align*}
-        [[& \text{const x} \in \mathbb{Z} \\
-          & \text{var y} \in \mathbb{Z} \\
-          & \lbrace {True} \rbrace \\
-          & S \\
-          & \lbrace {y > x} \rbrace \\
-        ]]
+        & \declConst{x}{\mathbb{Z}}, \declVar{y}{\mathbb{Z}}\\
+        & \{P: True\} \\
+        & S \\
+        & \{Q: y > x\}\\
     \end{align*}
 
-    Notese que la precondición es $True$ pues lo único que debe cumplirse es la existencia de la constante $x$ y la variable $y$ en el estado.
-    Hasta aquí, utilizando los conceptos de estado, predicados, y transformación de estados, hemos logrado especificar acabadamente qué debería hacer nuestro programa, aún sin hablar en absoluto de cómo lo hará.
+    Primero declaramos las variables y constantes a las que el programa tendrá acceso. Y luego la Terna de Hoare que toma la forma $\{P\}S\{Q\}$, donde $S$ es el programa y $P$ y $Q$ predicados que definen la precondición y postcondición respectivamente. La terna se intrepreta así: 
+    \begin{center}
+        \textit{Cada vez que ejecutemos $S$ a partir de un estado que satisface $P$ llegaremos a un estado que satisface $Q$.}
+    \end{center}
+    
+
+    En nuestro ejemplo $P$ es $True$, lo que simboliza no tener ninguna precondición en particular, puesto que cualquier estado posible satisface $True$. Y $Q$ es $y > x$.
+
+    Hasta aquí, utilizando los conceptos de estado, predicados, y transformación de estado, hemos logrado especificar acabadamente qué debe hacer nuestro programa, aún sin hablar en absoluto de cómo lo hará.
 
     \subsubsection*{La especificación de un programa en Dafny}
 
-    A lo largo de este trabajo, escribiremos programas formalmente especificados, y verificaremos a través de \textit{pruebas} que sus implementaciones sean correctas, es decir, que cumplan con su especificación.
+    A lo largo de este trabajo, escribiremos programas formalmente especificados, y verificaremos a través de \textit{pruebas} que sus implementaciones sean correctas, eso es, verificar que efectivamente vale $\{P\}S\{Q\}$.
 
-    Para ayudarnos en esta tarea, utilizaremos Dafny un lenguaje de programación con soporte para declarar especificaciones, y dotado de un entorno de desarrollo capaz de verificar los programas de manera automática.
+    Para ayudarnos en esta tarea, utilizaremos Dafny, un lenguaje de programación con soporte para declarar especificaciones, y dotado de un entorno de desarrollo capaz de verificar los programas de manera automática.
 
-    Si bien, para programas sencillos como el superar un número entero, la correctitud del programa será evidente con solo inspeccionarlo, a medida que construyamos programas más complejos descubriremos la invaluable tranquilidad de saber que la correctitud de nuestro programa ha sido verificada de manera automática.
+    Si bien para programas sencillos, como el de superar un número entero, la correctitud del programa será evidente con solo inspeccionarlo y para otros realizar las pruebas manualmente no será un gran desafío, a medida que construyamos programas más complejos descubriremos la practicidad de poder contar con un verificador automático.
 
     Escribamos entonces la especificación de nuestro programa en Dafny:
 
-    \dafnyfile{ejemplos/01_superar_especificacion.dfy}
+    \dafnyfile{Especificación de "superar un número entero"}{ejemplos/01_superar_especificacion.dfy}
 
-    Hemos utilizado el constructor \inlinedafny{method} de Dafny para especificar nuestro programa. La precondición de que exista la constante \begin{math}x \in \mathbb{Z}\end{math}, está especificada por el parámetro \inlinedafny{x:int}, los parámetros de los métodos en Dafny son inmutables. La precondición de que exista la variable \begin{math}y \in \mathbb{Z}\end{math} está especificada por la presencia de \inlinedafny{y:int} en la cláusula \inlinedafny{returns}.
-    La postcondición está especificada por la cláusula \inlinedafny{ensures y > x} que especifica la relación que el programa garantiza entre $x$ e $y$ al final de la ejecución.
+    Hemos utilizado el constructor \inlinedafny{method} de Dafny para especificar nuestro programa. La presencia de $\declConst{x}{\mathbb{Z}}$ en el estado está reflejada por el parámetro \inlinedafny{x:int}, los parámetros de los métodos en Dafny son inmutables. Mientras que $\declVar{y}{\mathbb{Z}}$ está en el estado por la inclusión de \inlinedafny{y:int} en la cláusula \inlinedafny{returns}.
+    La cláusula \inlinedafny{ensures y > x} se utiliza para especificar la postcondición.
 
     \subsubsection*{La asignación}
-    Nuestro programa no tiene un cuerpo o implementación aún. El cuerpo de un programa imperativo estará dado por una sucesión de sentencias de varios tipos, bien definidos, que transforman el estado de una manera u otra. El primer tipo de sentencia que estudiaremos es la ``asignación''.
+    Nuestro programa no tiene una implementación aún. La implementación de un programa imperativo estará dada por una sucesión de sentencias de varios tipos (que iremos introduciendo sucesivamente), y transforman el estado de una manera u otra. El primer tipo de sentencia que estudiaremos es la ``asignación''.
 
-    Una asignación, que escribiremos como $x:=E$, donde $x$ es una sucesión de nombres de variables y $E$ un número igual de expresiones, transforma el estado del programa, asignando a las variables del lado izquierdo los valores que resultan de evaluar las expresiones correspondientes del lado derecho en el estado actual.
-    \begin{align*}
-        & \text{[WIP: posible candidata para simbolizar operatoria sobre estados]} \\
-        & (x := E).\sigma = \sigma[x:=E.\sigma]
-    \end{align*}
+    Una asignación, que escribiremos como $x_1,...,x_n := E_1,...,E_n$, donde el término izquierdo es una sucesión de nombres de variables y el derecho un número igual de expresiones, transforma el estado del programa asignando a las variables del lado izquierdo los valores que resultan de evaluar las expresiones correspondientes del lado derecho en el estado actual.
 
-    En Dafny, también, la asignación toma la forma \inlinedafny{x, y := E, E';}.
-
-    Las variables que aparecen en el lado izquierdo deben haber sido declaradas previamente con una sentencia de declaración de variables, que toma la forma \inlinedafny{var x;}, o estar listadas entre los parámetros o valores de retorno del método.
+    Dafny utiliza esta misma sintaxis para la asignación. Las variables que aparecen en el lado izquierdo deben haber sido declaradas previamente con una sentencia de declaración de variables, que toma la forma \inlinedafny{var x;}, o estar listadas entre los parámetros o valores de retorno del método.
 
     Las expresiones del lado derecho pueden ser cualquier tipo de expresión en Dafny, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
 
     Nos resultará natural utilizar la asignación para completar el cuerpo de nuestro programa:
-    \dafnyfile{ejemplos/02_superar.dfy}
+    \dafnyfile{Implementación correcta de "superar un número entero"}{ejemplos/02_superar.dfy}
     Si corremos:
     \begin{verbatim}
         $ dafny verify ejemplos/02_superar.dfy
     \end{verbatim}
-    veremos que Dafny automáticamente verifica la correctitud de este programa. Cómo lo hace? Cómo resuelve Dafny que a partir de la precondición $\{True\}$, si ejecutamos la asignación \inlinedafny{y := x + 1} se cumple la postcondición $\{ y > x \}$?
+    veremos que Dafny automáticamente verifica la correctitud de este programa. Cómo lo hace? Cómo verifica Dafny que a partir de cualquier estado que satisface $True$, luego de ejecutar la asignación \inlinedafny{y := x + 1} se llega a un estado que satisface la postcondición $y > x$?
 
-    Para entender esto, pensemos primero qué garantía pude darnos la ejecución de la asignación acerca del estado resultante. Por su definición, la asignación solo puede garantizarnos que luego de la ejecución se cumple $\{ y = x + 1 \}$, no más. A su vez, esto resulta suficiente para probar, por aritmética, que $\{ y > x \}$.
+    Para entender esto, pensemos primero qué garantía puede darnos la ejecución de la asignación acerca del estado resultante. Por su definición, la asignación solo puede garantizarnos que luego de la ejecución se cumple $y = x + 1$, no más. A su vez, esto resulta suficiente para probar, por aritmética, que $y > x$.
 
     En cambio, si proponemos la implementación:
-    \dafnyfile{ejemplos/03_superar_incorrecto.dfy}
-    la única garantía provista por la asignación, post ejecución, es $\{ y = x * 2 \}$, que no garantiza, para todo estado posible, $\{ y > x \}$, puesto que hay uno: $\sigma\{y=0,x=0\}$ para el cual se cumple $\{ y = x * 2 \}$ y no se cumple $\{ y > x \}$. En este caso, para que el programa sea correcto, necesitaríamos introducir como precondición de nuestro programa $\{ x > 0 \}$.
+    \dafnyfile{Implementación incorrecta de "superar un número entero"}{ejemplos/03_superar_incorrecto.dfy}
+    la única garantía provista por la asignación, post ejecución, es $y = x * 2$, que no garantiza, para todo estado posible inicial, $y > x$, puesto que para el estado inicial $\sigma:\{y=0,x=0\}$, si bien luego de la ejecución se cumple $y = x * 2 $, no se cumple $y > x$.
 
     En efecto, si corremos:
     \begin{verbatim}
@@ -131,31 +126,40 @@
     examples/03_superar_incorrecto.dfy(3,0): Error: a postcondition could not be proved on this return path
     \end{spverbatim}
 
-    Notemos que la asignación nos impone una precondición mínima, a partir de la cual, podemos asegurar una postcondición luego de ejecutar la asignación. En el primer caso era $\{True\}$, pues la asignación por si sola aseguraba la postcondición. En el segundo caso $\{ x > 0 \}$ pues de lo contrario no podía asegurarse la postcondición.
-    En términos generales, llamaremos a esta precondición mínima o \textit{precondición más débil} de la asignación $x:=E$ respecto a una postcondición $Q$, $wp.(x := E).Q$ (por \textit{weakest precondition} en inglés).
+    Notemos que la asignación nos exige una precondición mínima, a partir de la cual, podemos asegurar una postcondición $Q$ luego de ejecutar la asignación. En el primer caso era $True$, pues la asignación por si sola aseguraba la postcondición. En el segundo caso $x > 0$ pues de lo contrario no podía asegurarse la postcondición.
+    Llamaremos a esta precondición, la \textit{precondición más débil} de la asignación respecto de $Q$ y la denotaremos $wp.(x := E).Q$ (por \textit{weakest precondition} en inglés).
 
     El primer paso que realiza Dafny para la verificación automática es calcular la $wp.(x := E).Q$.
-    Esta puede obtenerse mecánicamente mediante la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$ (i.e. $Q[x := E]$)
+    Esta puede obtenerse mecánicamente mediante la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$ (i.e. $Q[x := E]$) gracias al siguiente teorema.
 
+    \textbf{Teorema}: Weakest Precondition de la asignación
+    \footnote{Encerraremos un predicado entre corchetes [] para indicar que es válido para cualquier estado posible}
+    \footnote{La prueba puede encontrarse en Anexo I}
     \begin{align*}
         [ wp.(x:=E).Q \equiv Q[x:=E] ]
     \end{align*}
-
-    Una interpretación útil de este teorema, es que lo único que podemos esperar de la asignación, es que realice la transformación de estado que le corresponde, el resto de la postcondición tiene que valer por cuenta de la precondición.
+    Una interpretación útil de este teorema, es que lo único que podemos esperar de la asignación, es que realice la transformación de estado que le corresponde, el resto de la postcondición tiene que poder probarse a partir de la precondición.
 
     En nuestros ejemplos:
     \begin{align*}
-        & wp.(y := x + 1).\{ y > x \} \equiv \{ x + 1 > x \} \equiv \{ True \} \\
-        & wp.(y := x * 2).\{ y > x \} \equiv \{ x * 2 > x \} \equiv \{ x > 0 \}
+        & wp.(y := x + 1).( y > x )\\
+        & \equiv \text{\{ Teorema Weakest Precondition de la asignación \}}\\
+        & x + 1 > x\\
+        & \equiv \text{\{ aritmética \}}\\
+        & True\\
     \end{align*}
 
-
-    El segundo paso es demostrar que la precondición del programa del programa implica la $wp$.
-    Siguiendo con los ejemplos:
     \begin{align*}
-        & True \Rightarrow True \\
-        & True \Rightarrow x > 0
+        & wp.(y := x * 2).( y > x )\\
+        & \equiv \text{\{ Teorema Weakest Precondition de la asignación \}}\\
+        & x * 2 > x\\
+        & \equiv \text{\{ aritmética \}}\\
+        & x > 0\\
     \end{align*}
+
+
+    El segundo paso es demostrar que la precondición del programa implica la $wp$.
+    Siguiendo con los ejemplos, demostrar $True \Rightarrow True$ en un caso y $True \Rightarrow x > 0$ en el otro.
 
     Dafny delega esta prueba en herramientas llamadas SMT Solvers (Satisfiability modulo theories Solvers). En particular en uno: ``Z3'' desarrollado por Microsoft, al igual que Dafny.
 
