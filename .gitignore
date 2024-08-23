@@ -1,8 +1,12 @@
+bin
 tesis.aux
 tesis.fdb_latexmk
 tesis.fls
 tesis.log
 tesis.pdf
+tesis.bbl
+tesis.blg
+tesis.out
 tesis.synctex.gz
 borradores
 bibliografia

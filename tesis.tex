@@ -101,7 +101,7 @@
 
     Dafny utiliza esta misma sintaxis para la asignación. Las variables que aparecen en el lado izquierdo deben haber sido declaradas previamente con una sentencia de declaración de variables, que toma la forma \inlinedafny{var x;}, o estar listadas entre los parámetros o valores de retorno del método.
 
-    Las expresiones del lado derecho pueden ser cualquier tipo de expresión en Dafny, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
+    Las expresiones del lado derecho serán expresiones de Dafny válidas de cualquier tipo, pero por el momento nos concentraremos en expresiones aritméticas que combinan números y variables con los operadores aritméticos básicos $+,-,*,/,\%$
 
     Nos resultará natural utilizar la asignación para completar el cuerpo de nuestro programa:
     \dafnyfile{Implementación correcta de "superar un número entero"}{ejemplos/02_superar.dfy}
@@ -126,15 +126,16 @@
     examples/03_superar_incorrecto.dfy(3,0): Error: a postcondition could not be proved on this return path
     \end{spverbatim}
 
-    Notemos que la asignación nos exige una precondición mínima, a partir de la cual, podemos asegurar una postcondición $Q$ luego de ejecutar la asignación. En el primer caso era $True$, pues la asignación por si sola aseguraba la postcondición. En el segundo caso $x > 0$ pues de lo contrario no podía asegurarse la postcondición.
+    \subsubsection*{Precondición más débil y obligaciones de prueba}
+    Notemos que la asignación nos exige una precondición mínima, a partir de la cual, podemos asegurar una postcondición $Q$ luego de ejecutar la asignación. En el primer caso era $True$, pues la asignación por si sola aseguraba la postcondición. En el segundo caso $x > 0$ pues de lo contrario no puede asegurarse la postcondición.
     Llamaremos a esta precondición, la \textit{precondición más débil} de la asignación respecto de $Q$ y la denotaremos $wp.(x := E).Q$ (por \textit{weakest precondition} en inglés).
 
-    El primer paso que realiza Dafny para la verificación automática es calcular la $wp.(x := E).Q$.
+    El primer paso que deber realizarse para intentar la verificación automática es calcular la $wp.(x := E).Q$.
     Esta puede obtenerse mecánicamente mediante la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$ (i.e. $Q[x := E]$) gracias al siguiente teorema.
 
     \textbf{Teorema}: Weakest Precondition de la asignación
     \footnote{Encerraremos un predicado entre corchetes [] para indicar que es válido para cualquier estado posible}
-    \footnote{La prueba puede encontrarse en Anexo I}
+    \footnote{La prueba puede encontrarse en el Anexo I}
     \begin{align*}
         [ wp.(x:=E).Q \equiv Q[x:=E] ]
     \end{align*}
@@ -160,8 +161,9 @@
 
     El segundo paso es demostrar que la precondición del programa implica la $wp$.
     Siguiendo con los ejemplos, demostrar $True \Rightarrow True$ en un caso y $True \Rightarrow x > 0$ en el otro.
+    Llamaremos a estos predicados: obligaciones de prueba.
 
-    Dafny delega esta prueba en herramientas llamadas SMT Solvers (Satisfiability modulo theories Solvers). En particular en uno: ``Z3'' desarrollado por Microsoft, al igual que Dafny.
+    Sabemos que no existe un método que pueda para probar la validez (o refutar) un predicado dado cualquiera. Sin embargo existen herramientas, como los SMT Solvers (Satisfiability Modulo Theory Solvers), que pueden intentar o bien probar su validez o bien encontrar un contrajemplo \cite{10.1007/978-3-030-99524-9_23}. Dafny utiliza SMT Solvers para intentar probar las obligaciones de prueba de manera automática. Si lo logra, entonces estamos seguros de la correctitud del programa. Si no lo logra, puede que el programa sea incorrecto (e incluso contemos con un contraejemplo), o bien que Dafny necesite asistencia en la prueba. En tal caso, Dafny nos permite introducir manualmente nuevos lemas y pruebas, que luego el SMT Solver puede aprovechar para verificar nuestro programa.
 
     \subsection{El valor absoluto de un número entero}
     [WIP]: (Introduccion del if)
@@ -211,4 +213,7 @@
     La esperanza, es que al finalizar la explicación, el lector esté en mejores condiciones de identificar otros problemas que puedan resolverse programando ciclos, y la importancia que el invariante adquiere como sostén de la estrategia iterativa de resolución.
     \chapter{Dafny}
     Continuará.
+
+    \bibliography{References}
+    \bibliographystyle{plain}
 \end{document}
