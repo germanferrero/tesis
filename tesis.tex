@@ -61,7 +61,7 @@
 
     En efecto, nuestro programa será especificado por una \textit{precondición} y una \textit{postcondición}. Juntas, funcionan como contrato entre quien desarrolla el programa y quien lo ejecuta. Quien ejecuta el programa debe asegurar la precondición y puede asumir la postcondición al finalizar la ejecución. Quien lo desarolla puede asumir la precondición y debe asegurar la postcondición.
 
-    Nos resultará útil la siguiente notación formal para especificar programas, que utiliza \textit{predicados} para escribir la precondición y la postcondición. En este caso:
+    Nos resultará útil la siguiente notación formal para especificar programas, que utiliza \textit{fórmulas} para escribir la precondición y la postcondición. En este caso:
     \begin{align*}
         & \declConst{x}{\mathbb{Z}}, \declVar{y}{\mathbb{Z}}\\
         & \{P: True\} \\
@@ -69,7 +69,7 @@
         & \{Q: y > x\}\\
     \end{align*}
 
-    Primero declaramos las variables y constantes a las que el programa tendrá acceso. Y luego la Terna de Hoare que toma la forma $\{P\}S\{Q\}$, donde $S$ es el programa y $P$ y $Q$ predicados que definen la precondición y postcondición respectivamente. La terna se intrepreta así: 
+    Primero declaramos las variables y constantes a las que el programa tendrá acceso. Y luego la Terna de Hoare que toma la forma $\{P\}S\{Q\}$, donde $S$ es el programa y $P$ y $Q$ fórmulas que definen la precondición y postcondición respectivamente. La terna se intrepreta así: 
     \begin{center}
         \textit{Cada vez que ejecutemos $S$ a partir de un estado que satisface $P$ llegaremos a un estado que satisface $Q$.}
     \end{center}
@@ -77,7 +77,7 @@
 
     En nuestro ejemplo $P$ es $True$, lo que simboliza no tener ninguna precondición en particular, puesto que cualquier estado posible satisface $True$. Y $Q$ es $y > x$.
 
-    Hasta aquí, utilizando los conceptos de estado, predicados, y transformación de estado, hemos logrado especificar acabadamente qué debe hacer nuestro programa, aún sin hablar en absoluto de cómo lo hará.
+    Hasta aquí, utilizando los conceptos de estado, fórmulas, y transformación de estado, hemos logrado especificar acabadamente qué debe hacer nuestro programa, aún sin hablar en absoluto de cómo lo hará.
 
     \subsubsection*{La especificación de un programa en Dafny}
 
@@ -134,7 +134,7 @@
     Esta puede obtenerse mecánicamente mediante la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$ (i.e. $Q[x := E]$) gracias al siguiente teorema.
 
     \textbf{Teorema}: Weakest Precondition de la asignación
-    \footnote{Encerraremos un predicado entre corchetes [] para indicar que es válido para cualquier estado posible}
+    \footnote{Encerraremos una fórmula entre corchetes [] para indicar que es válida para cualquier estado posible}
     \footnote{La prueba puede encontrarse en el Anexo I}
     \begin{align*}
         [ wp.(x:=E).Q \equiv Q[x:=E] ]
@@ -161,9 +161,97 @@
 
     El segundo paso es demostrar que la precondición del programa implica la $wp$.
     Siguiendo con los ejemplos, demostrar $True \Rightarrow True$ en un caso y $True \Rightarrow x > 0$ en el otro.
-    Llamaremos a estos predicados: obligaciones de prueba.
+    Llamaremos a estas fórmulas: obligaciones de prueba.
 
-    Sabemos que no existe un método que pueda para probar la validez (o refutar) un predicado dado cualquiera. Sin embargo existen herramientas, como los SMT Solvers (Satisfiability Modulo Theory Solvers), que pueden intentar o bien probar su validez o bien encontrar un contrajemplo \cite{10.1007/978-3-030-99524-9_23}. Dafny utiliza SMT Solvers para intentar probar las obligaciones de prueba de manera automática. Si lo logra, entonces estamos seguros de la correctitud del programa. Si no lo logra, puede que el programa sea incorrecto (e incluso contemos con un contraejemplo), o bien que Dafny necesite asistencia en la prueba. En tal caso, Dafny nos permite introducir manualmente nuevos lemas y pruebas, que luego el SMT Solver puede aprovechar para verificar nuestro programa.
+    Sabemos que no existe un método que pueda probar la validez (o refutar) una fórmula dada cualquiera\footnote{En efecto la mayor parte de las teorías son \text{indecidibles}}. Sin embargo existen herramientas, como los SMT Solvers (Satisfiability Modulo Theory Solvers), que pueden intentar o bien probar su validez o bien encontrar un contrajemplo \cite{10.1007/978-3-030-99524-9_23}. Dafny utiliza SMT Solvers para intentar probar las obligaciones de prueba de manera automática. Si lo logra, entonces estamos seguros de la correctitud del programa. Si no lo logra, puede que el programa sea incorrecto (e incluso contemos con un contraejemplo), o bien que Dafny necesite asistencia en la prueba. En tal caso, Dafny nos permite introducir manualmente nuevos lemas y pruebas, que luego el SMT Solver puede aprovechar para verificar nuestro programa.
+
+    \subsection{Concatenación}
+    La concatenación es la construcción del lenguaje imperativo que nos permite componer un programa a partir de dos sentencias $S$ y $T$, que se ejecutarán una atrás de la otra.
+    Escibimos $S;T$ para denotar el programa que ejecuta primero la sentencia $S$ y luego la sentencia $T$.
+    Ejemplo:
+
+    \chapter{El pipeline de verificación de programas Dafny}
+    Los programas en Dafny, anotados con especificaciones, se compilan a Boogie, un lenguaje intermedio de verificación (IVL, por sus siglas en inglés).
+    Además de ser un lenguaje, Boogie también es una herramienta conformada por, un frontend sobre el cuál pueden construirse verificadores para múltiples lenguajes anotados con especificaciones
+    \footnote{
+        Boogie fue escrito originalmente como herramienta intermedia del proyecto Spec\#, una extensión de C\# con soporte para especificaciones. Luego tomó vida propia y hoy es utilizado para construir verificadores para otros lenguajes, como el verificador de Dafny para el lenguaje del mismo nombre, o VCC y HAVOC, dos verificadores de C.
+    },
+    y un backend a cargo de la generación de condiciones de prueba que delega a un probador de teoremas para verificar la correctitud de los programas.
+
+    El pipeline de verificación de programas Dafny se compone entonces, principalmente \footnote{Dafny además debe encargarse de garantizar trazabilidad entre el código fuente original y los resultados de la verificación obtenidos, a fin de posibilitar un reporte útil de errores.}, por estas tres etapas:
+    \begin{itemize}
+        \item La traducción del programa Dafny a un programa Boogie.
+        \item La generación de obligaciones de prueba a partir del programa Boogie.
+        \item La descarga de esas obligaciones de prueba en un SMT Solver.
+    \end{itemize}
+
+    La traducción del programa Dafny a Boogie no es trivial, la pieza de código que se encarga de ello reside en el repositorio de Dafny, tiene aproximadamente un millón de líneas escritas en C\#, y codifica cada elemento del lenguaje de Dafny en elementos de Boogie.\footnote{El código fuente para la traducción puede encontrarse mayormente en el \href{https://github.com/dafny-lang/dafny/tree/v4.7.0/Source/DafnyCore/Verifier}{directorio ``Verifier''} del repositorio de Dafny, en donde la clase ``BoogieGenerator'' se construye modularmente a través de múltiples archivos } Ambos lenguajes cuentan con un conjunto extenso de features.
+
+    Utilizando la línea de comandos de Dafny podemos obtener la traducción a código Boogie de la siguiente manera
+    \begin{verbatim}
+        dafny verify my_program.dfy --bprint:my_program.bpl
+    \end{verbatim}
+    Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny}, en el cuál se axiomatizan en Boogie todos los elementos de Dafny, (tipos, expresiones, etc), seguido de la traducción en sí de nuestro programa Dafny.
+
+    La generación de obligaciones de prueba consiste en una serie de transformaciones del programa Boogie inicial hacia una versión tal, que permite la construcción directa de consultas al probador de teoremas a partir de las sentencias del programa obtenido.
+
+    Este pipeline fue descripto por Barnett y Leino\cite{10.1145/1108792.1108813} y se recomienda su lectura para entenderlo acabadamente, aquí haremos un repaso de los conceptos principales.
+    El pipeline se basa en programas no estructurados que siguen la siguiente gramática:
+    \begin{align*}
+        \text{Ingresar gramática...}
+    \end{align*}
+    La transformación de programas estructurados a esta gramática se logra reemplazando loops con \verb|goto| e \verb|if| con
+    \begin{align*}
+        \text{Ingresar remplazo del if...}
+    \end{align*}
+    Las precondiciones pueden codificarse incorporando sentencias \verb|assume| al principio del bloque \textit{Start} y las postcondiciones como sentencias \verb|assert| al final de los bloques sin sucesores.
+
+    A partir de una versión no estructurada del programa siguiendo esta gramática se eliminan los ``back edges'' del grafo de control de flujo del programa, obteniendo un programa en el que no hay sentencias \verb|goto| al bloque cabecera del loop al final del bloque del cuerpo del mismo y en contrapartida el bloque del cuerpo debe representar cualquier iteración arbitraria del mismo. Para ello boogie depende fuertemente de invariantes que puedan ser incluídos como sentencias \verb|assert| justo antes de ingresar al bloque cabecera del loop, en el cuál este invariante pueda asumirse con una sentencia \verb|assume|, y también incluirse a su vez como sentencias \verb|assert| al final del cuerpo del loop.
+
+    Luego se realiza la ``pasificación'' del programa introduciendo variables auxiliares para cada ``encarnación'' o asignación de las variables del programa, asegurando que en cualquier traza de ejecución posible cada variable sea asignada una única vez, permitiendo transformar estas asignaciones únicas en sentencias de tipo \verb|assume|.
+
+    Concluídas estas dos transformaciones, se obtiene un programa compuesto por bloques
+    \begin{verbatim}
+        A: S; goto ...
+    \end{verbatim} 
+    Donde \verb|S| puede ser \verb|assume|, \verb|assert| o composición de estos dos.
+
+    La Weakest precondition de cada una de estos tipos de sentencias puede definirse como:
+    \begin{align*}
+        & wp(assert\ P, Q) = P \land Q \\
+        & wp(assume\  P, Q) \Rightarrow Q \\
+        & wp(S;T, Q) = wp(S, wp(T,Q)) \\
+    \end{align*}
+
+    Para cada bloque A, se define la variable auxiliar $A_{ok}$. $A_{ok}$ es $true$ si el programa está en un estado a partir del cual todas las ejecuciones que empiecen desde A son correctas. Se postula la ``ecuación de bloque'' para definirla formalmente:
+    \begin{align*}
+        A_{ok} \equiv wp(S, \bigwedge_{B \in Succ(A)} B_{ok})
+    \end{align*}
+    Donde $Succ(A)$ es el conjunto de bloques sucesores de $A$.
+
+    Por último, siendo $R$ la conjunción de las ecuaciones de esta forma aportadas por cada bloque del programa.
+    La obligación de prueba del programa queda definida como:
+    \begin{align*}
+        R \Rightarrow Start_{ok}
+    \end{align*}
+
+    Notar que si el probador de teoremas resuelve \textit{sat} para la negación de esta fórmula:
+    \begin{align*}
+        R \land \lnot Start_{ok}
+    \end{align*}
+    Estamos en situación de que existe un estado posible a partir del cuál incluso cumpliendo con la semántica del programa (R) la ejecución no termina de manera correcta. Por tanto el programa es incorrecto.
+
+    Utilizando la línea de comandos de Boogie podemos inspeccionar las distintas versiones del programa boogie obtenidas tras realizar cada una de las etapas del pipeline con la opción \verb|\traceverify|
+    \begin{verbatim}
+        boogie /traceverify ejemplos/my_program.bpl
+    \end{verbatim}
+
+    La obligación de prueba, tal como fue descripta arriba, debe ser despachada al probador de teoremas.
+    Con la opción \verb|/proverLog| podemos ver el registro de la consulta realizada al probador de teoremas en formato de expresiones SMT-LIB, y comentarios con las respuestas obtenidas:
+    \begin{verbatim}
+        boogie /proverLog:my_program.smt my_program.bpl
+    \end{verbatim}
+
 
     \subsection{El valor absoluto de un número entero}
     [WIP]: (Introduccion del if)
