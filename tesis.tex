@@ -171,21 +171,21 @@
     Ejemplo:
 
     \chapter{El pipeline de verificación de programas Dafny}
-    Los programas en Dafny, anotados con especificaciones, se compilan a Boogie, un lenguaje intermedio de verificación (IVL, por sus siglas en inglés).
-    Además de ser un lenguaje, Boogie también es una herramienta conformada por, un frontend sobre el cuál pueden construirse verificadores para múltiples lenguajes anotados con especificaciones
-    \footnote{
-        Boogie fue escrito originalmente como herramienta intermedia del proyecto Spec\#, una extensión de C\# con soporte para especificaciones. Luego tomó vida propia y hoy es utilizado para construir verificadores para otros lenguajes, como el verificador de Dafny para el lenguaje del mismo nombre, o VCC y HAVOC, dos verificadores de C.
-    },
-    y un backend a cargo de la generación de condiciones de prueba que delega a un probador de teoremas para verificar la correctitud de los programas.
 
-    El pipeline de verificación de programas Dafny se compone entonces, principalmente \footnote{Dafny además debe encargarse de garantizar trazabilidad entre el código fuente original y los resultados de la verificación obtenidos, a fin de posibilitar un reporte útil de errores.}, por estas tres etapas:
+    Dafny se apoya en Boogie (un lenguaje intermedio de verificación o IVL, por sus siglas en inglés), para resolver la verificación automática de programas.
+    Boogie, como otros IVL, funciona como una capa de abstracción útil en la cual, por arriba, distintos lenguajes con soporte para especificaciones implementan su traducción a Boogie\footnote{
+        Boogie fue escrito originalmente como herramienta intermedia del proyecto Spec\#, una extensión de C\# con soporte para especificaciones. Luego tomó vida propia y hoy es utilizado para construir verificadores para otros lenguajes, como el verificador de Dafny para el lenguaje del mismo nombre, o VCC y HAVOC, dos verificadores de C.
+    }, y por abajo, Boogie despacha obligaciones de prueba a probadores de teoremas automáticos. En el medio, el IVL, debe encargarse de la generación de esas obligaciones de prueba.
+
+    El pipeline de verificación de programas Dafny se compone entonces, principalmente, por estas tres etapas:
     \begin{itemize}
         \item La traducción del programa Dafny a un programa Boogie.
         \item La generación de obligaciones de prueba a partir del programa Boogie.
-        \item La descarga de esas obligaciones de prueba en un SMT Solver.
+        \item La descarga de esas obligaciones de prueba en un SMT Solver, típicamente.
     \end{itemize}
 
-    La traducción del programa Dafny a Boogie no es trivial, la pieza de código que se encarga de ello reside en el repositorio de Dafny, tiene aproximadamente un millón de líneas escritas en C\#, y codifica cada elemento del lenguaje de Dafny en elementos de Boogie.\footnote{El código fuente para la traducción puede encontrarse mayormente en el \href{https://github.com/dafny-lang/dafny/tree/v4.7.0/Source/DafnyCore/Verifier}{directorio ``Verifier''} del repositorio de Dafny, en donde la clase ``BoogieGenerator'' se construye modularmente a través de múltiples archivos } Ambos lenguajes cuentan con un conjunto extenso de features.
+    \section{La traducción de Dafny a Boogie}
+    La traducción de Dafny a Boogie no es trivial, la pieza de código que se encarga de ello tiene aproximadamente un millón de líneas escritas en C\#, y codifica cada elemento del lenguaje de Dafny en elementos de Boogie.\footnote{El código fuente para la traducción se encuentra en el \href{https://github.com/dafny-lang/dafny/tree/v4.7.0/Source/DafnyCore/Verifier}{directorio ``Verifier''} del repositorio de Dafny, en donde la clase ``BoogieGenerator'' se construye modularmente a través de múltiples archivos. Dafny además debe encargarse de garantizar trazabilidad entre el código fuente original y los resultados de la verificación obtenidos, a fin de posibilitar un reporte útil de errores.} La expresividad de Boogie posibilita la traducción de lenguajes con múltiples features como Dafny.
 
     Utilizando la línea de comandos de Dafny podemos obtener la traducción a código Boogie de la siguiente manera
     \begin{verbatim}
@@ -193,61 +193,97 @@
     \end{verbatim}
     Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny}, en el cuál se axiomatizan en Boogie todos los elementos de Dafny, (tipos, expresiones, etc), seguido de la traducción en sí de nuestro programa Dafny.
 
-    La generación de obligaciones de prueba consiste en una serie de transformaciones del programa Boogie inicial hacia una versión tal, que permite la construcción directa de consultas al probador de teoremas a partir de las sentencias del programa obtenido.
+    \section{La generación de obligaciones de prueba}
+    La generación de obligaciones de prueba consiste en una serie de transformaciones del programa Boogie inicial, hacia una versión tal que permita la construcción de una fórmula lógica a partir de las sentencias del programa de forma directa.
 
-    Este pipeline fue descripto por Barnett y Leino\cite{10.1145/1108792.1108813} y se recomienda su lectura para entenderlo acabadamente, aquí haremos un repaso de los conceptos principales.
+    Este pipeline fue descripto por Barnett y Leino\cite{10.1145/1108792.1108813} y se recomienda su lectura para entenderlo en detalle. Aquí haremos un repaso de los conceptos principales que allí se describen.
+
+    \subsection*{ El lenguaje no estructurado de partida}
     El pipeline se basa en programas no estructurados que siguen la siguiente gramática:
     \begin{align*}
-        \text{Ingresar gramática...}
+        Program \;\;&::=\;\; Block^{+} \\
+          Block \;\;&::=\;\; BlockId :\; Stmt;\;\textbf{goto } BlockId^{*} \\
+           Stmt \;\;&::=\;\; VarId := Expr\;|\;\textbf{havoc } VarId \\
+                &\;\;\;\;\;\;\;\;|\ \textbf{assert } Expr\;|\;\textbf{assume } Expr \\
+                &\;\;\;\;\;\;\;\;|\ Stmt ; Stmt \;|\; \textbf{skip} \\
     \end{align*}
-    La transformación de programas estructurados a esta gramática se logra reemplazando loops con \verb|goto| e \verb|if| con
+    En este pequeño lenguaje un programa está compuesto por uno o más bloques. Al primero de ellos lo denominamos $Start$. Cada bloque está identificado por un $BlockId$, tiene un cuerpo compuesto por una o más sentencias y un conjunto de cero o más bloques \textit{sucesores}. Cuando se ejecuta un bloque se, ejecuta primero su cuerpo, y luego se continúa arbitrariamente con alguno de los bloques sucesores. 
+
+    El operador ``$:=$'' denota la asignación, $\textbf{havoc}$ la asignación de un valor arbitrario a una variable. El operador ``$;$'' se utiliza para componer. Las sentencias $\textbf{assert}$ y $\textbf{assume}$ tienen un rol clave en la generación de obligaciones de prueba y $\textbf{skip}$ es simplemente un atajo para $\textbf{assert True}$.
+
+    La transformación de programas estructurados a esta gramática se logra reemplazando ciclos con $\textbf{goto}$'s y condicionales de la forma:
     \begin{align*}
-        \text{Ingresar remplazo del if...}
+        \textbf{if}\ (E)\ \{S\}\ \textbf{else}\ \{T\}
     \end{align*}
-    Las precondiciones pueden codificarse incorporando sentencias \verb|assume| al principio del bloque \textit{Start} y las postcondiciones como sentencias \verb|assert| al final de los bloques sin sucesores.
+    con:
+    \begin{align*}
+        Start:&\;\;\;\textbf{skip};\ \textbf{goto}\ Then,\ Else \\
+        Then:&\;\;\;\textbf{assume}\ E;\ S;\ \textbf{goto}\ End \\
+        Else:&\;\;\;\textbf{assume}\ \lnot E;\ T;\ \textbf{goto}\ End \\
+        End:&\;\;\;...
+    \end{align*}
+    Las precondiciones pueden codificarse incorporando sentencias $\textbf{assume}$ al principio del bloque $Start$ y las postcondiciones como sentencias $\textbf{assert}$ al final de los bloques sin sucesores.
+    Cada programa da lugar a un conjunto de trazas de ejecución posibles empezando desde el bloque $Start$. Un programa es correcto si ninguna de ellas contiene una sentencia $\textbf{assert}$ que evalúe a $False$.
 
-    A partir de una versión no estructurada del programa siguiendo esta gramática se eliminan los ``back edges'' del grafo de control de flujo del programa, obteniendo un programa en el que no hay sentencias \verb|goto| al bloque cabecera del loop al final del bloque del cuerpo del mismo y en contrapartida el bloque del cuerpo debe representar cualquier iteración arbitraria del mismo. Para ello boogie depende fuertemente de invariantes que puedan ser incluídos como sentencias \verb|assert| justo antes de ingresar al bloque cabecera del loop, en el cuál este invariante pueda asumirse con una sentencia \verb|assume|, y también incluirse a su vez como sentencias \verb|assert| al final del cuerpo del loop.
+    \subsection*{La eliminación de loops}
+    A partir de una versión no estructurada del programa siguiendo esta gramática, los ciclos quedan codificados en la forma:
+    \begin{align*}
+        LoopHead:\;\;\;&\textbf{assert}\ \text{loop invariant};\\
+                       &\textbf{goto}\ Body,\ After \\
+        Body:\;\;\;&\textbf{assume}\ \text{loop guard};\\
+                   &S;\\
+                   &\textbf{goto}\ LoopHead \\
+        After:\;\;\;&\textbf{assume}\ \lnot \text{loop guard};\\
+                    & ...
+    \end{align*}
 
-    Luego se realiza la ``pasificación'' del programa introduciendo variables auxiliares para cada ``encarnación'' o asignación de las variables del programa, asegurando que en cualquier traza de ejecución posible cada variable sea asignada una única vez, permitiendo transformar estas asignaciones únicas en sentencias de tipo \verb|assume|.
+    A continuación se eliminan los loops, eliminando los ``back edges'' (introducidos por las sentencias de tipo $\textbf{goto}\ LoopHead$). Para esto, primero se mueve la aserción del invariante al bloque predecesor de $LoopHead$, reemplazándolo por sentencias $\textbf{havoc}$ sobre las variables que pueden ser modificadas por el loop, seguido de una sentencias $\textbf{assume}$ para el invariante. De esta forma las trazas que pasen por el bloque $Body$ representan cualquier iteración arbitraria del ciclo y la sentencia $\textbf{goto}\ LoopHead$ puede eliminarse del cuerpo.
+    Notar que esta transformación denota una fuerte dependencia en la definición de invariantes para los ciclos que, de no ser provistos por el usuario, se generan automáticamente.
 
-    Concluídas estas dos transformaciones, se obtiene un programa compuesto por bloques
+    \subsection*{La pasificación o eliminación de las asignaciones}
+    Una vez eliminados los loops, se realiza la ``pasificación'' del programa que consiste en eliminar las asignaciones y en su lugar utilizar sentencias $\textbf{assume}$. Para ello primero se introducen variables auxiliares para cada ``encarnación'' o asignación de las variables del programa, asegurando que en cualquier traza de ejecución posible cada variable sea asignada una única vez, lo que permite a continuación transformar estas asignaciones únicas en sentencias $\textbf{assume}$.
+
+    \subsection*{La construcción de la obligación de prueba}
+    Concluídas estas dos transformaciones, se obtiene un programa compuesto por bloques de la forma:
     \begin{verbatim}
         A: S; goto ...
     \end{verbatim} 
-    Donde \verb|S| puede ser \verb|assume|, \verb|assert| o composición de estos dos.
-
-    La Weakest precondition de cada una de estos tipos de sentencias puede definirse como:
+    Donde $S$ solo puede ser $\textbf{assume}$, $\textbf{assert}$ o composición de estos dos.\footnote{Las sentencias de tipo $\textbf{havoc }$ pueden eliminarse a los fines generar la obligación de prueba, pues ló único que interesa sobre las variables son sus condicionantes expresados en las sentencias de tipo $\textbf{assume}$ y $\textbf{assert}$. Las sentencias de tipo $\textbf{skip}$, recordemos, son un atajo a $\textbf{assert}\ True$.}
+    La Weakest Precondition de cada una de estos tipos de sentencias puede definirse como:
     \begin{align*}
-        & wp(assert\ P, Q) = P \land Q \\
-        & wp(assume\  P, Q) \Rightarrow Q \\
-        & wp(S;T, Q) = wp(S, wp(T,Q)) \\
+        wp(\textbf{assert}\ P,\;Q)   &= P \land Q \\
+        wp(\textbf{assume}\  P,\; Q) &= P \Rightarrow Q \\
+        wp(S;T,\;Q)                  &= wp(S,\;wp(T,\;Q)) \\
     \end{align*}
-
-    Para cada bloque A, se define la variable auxiliar $A_{ok}$. $A_{ok}$ es $true$ si el programa está en un estado a partir del cual todas las ejecuciones que empiecen desde A son correctas. Se postula la ``ecuación de bloque'' para definirla formalmente:
+    Para cada bloque A, se define la variable auxiliar $A_{ok}$. Intuitivamente $A_{ok}$ es $true$ si el programa está en un estado a partir del cual todas las ejecuciones que empiecen desde A son correctas. Se postula la ``ecuación de bloque'' para definir $A_{ok}$ formalmente:
     \begin{align*}
         A_{ok} \equiv wp(S, \bigwedge_{B \in Succ(A)} B_{ok})
     \end{align*}
     Donde $Succ(A)$ es el conjunto de bloques sucesores de $A$.
 
-    Por último, siendo $R$ la conjunción de las ecuaciones de esta forma aportadas por cada bloque del programa.
-    La obligación de prueba del programa queda definida como:
-    \begin{align*}
-        R \Rightarrow Start_{ok}
-    \end{align*}
+    Por último, siendo $R$ la conjunción de las ecuaciones de esta forma aportadas por cada bloque del programa, la obligación de prueba del programa queda definida como:
+    \begin{align}
+        R \Rightarrow Start_{ok} \label{eq:VC}
+    \end{align}
 
-    Notar que si el probador de teoremas resuelve \textit{sat} para la negación de esta fórmula:
+    Se puede ver, siguiendo los detalles que, si el probador de teoremas resuelve \textit{sat} para la negación de la fórmula \ref{eq:VC}:
     \begin{align*}
         R \land \lnot Start_{ok}
     \end{align*}
-    Estamos en situación de que existe un estado posible a partir del cuál incluso cumpliendo con la semántica del programa (R) la ejecución no termina de manera correcta. Por tanto el programa es incorrecto.
+    Estamos en situación de que existe un estado a partir del cuál, establecida la semántica del programa ($R$), hay una traza de ejecución incorrecta, es decir que el programa no cumple con su especificación.
 
-    Utilizando la línea de comandos de Boogie podemos inspeccionar las distintas versiones del programa boogie obtenidas tras realizar cada una de las etapas del pipeline con la opción \verb|\traceverify|
+    \subsection*{Conclusión}
+
+    La generación de obligaciones de prueba que realiza Boogie, busca crear fórmulas lógicas que sean acotadas en tamaño, y eviten redundancia para facilitar la tarea del probador de teoremas.
+  
+    Utilizando la línea de comandos de Boogie podemos inspeccionar las distintas versiones del programa obtenidas tras realizar cada una de las etapas del pipeline con la opción \verb|\traceverify|
     \begin{verbatim}
         boogie /traceverify ejemplos/my_program.bpl
     \end{verbatim}
 
-    La obligación de prueba, tal como fue descripta arriba, debe ser despachada al probador de teoremas.
-    Con la opción \verb|/proverLog| podemos ver el registro de la consulta realizada al probador de teoremas en formato de expresiones SMT-LIB, y comentarios con las respuestas obtenidas:
+    \section{La delegación de las obligaciones de prueba}
+    Las obligaciones de prueba, que resultan del proceso descripto en la sección anterior, deben ser despachadas al probador de teoremas.
+    Con la opción \verb|/proverLog| podemos ver el registro de la consulta realizada por Boogie al probador de teoremas, en formato de expresiones SMT-LIB y, como comentarios, las respuestas obtenidas:
     \begin{verbatim}
         boogie /proverLog:my_program.smt my_program.bpl
     \end{verbatim}
