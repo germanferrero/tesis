@@ -810,6 +810,164 @@ lemma {:axiom} mcd_del_modulo()
 
     E invocarlos al inicio del método principal, pero Dafny no logra verificar el programa de esta manera. A esto me refería con la pregunta de \textbf{cómo o cuándo} puede aplicar Dafny el conocimiento que le agregamos. Hay que facilitarle a Dafny los lemmas de forma tal que su firma o interfaz pueda ser correspondida con las variables del contexto en donde necesita usarlos para la prueba.
 
+    \chapter{Búsqueda de subcadenas}
+    El algoritmo de búsqueda de subcadena consiste en encontrar una cadena de caracteres $w$ dentro de otra cadena $s$ y devolver el índice del primer caracter de $w$ dentro de $s$. Podemos especificarlo en Dafny de la siguiente manera:
+
+    \begin{dafny}
+predicate esta_en(s: string, w: string, k: int)
+{
+  0 < |w| <= |s| &&
+  0 <= k <= |s| - |w| &&
+  forall i: int :: k <= i < k + |w| ==> s[i] == w[i - k]
+}
+
+method busqueda_subcadena(s: string, w: string) returns (k: int)
+  requires exists j :: esta_en(s, w, j)
+  ensures esta_en(s, w, k)
+    \end{dafny}
+
+    Luego podemos escribir tests para el predicado \textit{esta\_en} para asegurarnos que nuestro programa está bien especificado.
+
+    \begin{dafny}
+method test_esta_en_cuando_esta(){
+  assert esta_en("casa", "casa", 0);
+  assert esta_en("casa", "cas", 0);
+  assert esta_en("casa", "ca", 0);
+  assert esta_en("casa", "c", 0);
+  assert esta_en("casa", "asa", 1);
+  assert esta_en("casa", "as", 1);
+  assert esta_en("casa", "a", 1);
+  assert esta_en("casa", "sa", 2);
+  assert esta_en("casa", "s", 2);
+  assert esta_en("casa", "a", 3);
+}
+    \end{dafny}
+
+    Dafny es capaz de verificar todos estos casos de forma directa. Veamos qué sucede para el caso en que $w$ no está en $s$.
+
+    \begin{dafny}
+method test_esta_en_cuando_no_esta(){
+    assert !esta_en("casa", "d", 0);
+}
+    \end{dafny}
+
+    En este caso el verificador no logra asegurar que ``d'' no está en ``casa''. Los casos de test no son ejecuciones de código. Son obligaciones de prueba para el verificador y como tales, a veces se resuelven de forma directa y a veces hay que ayudar al verificador con lemmas o hints para la prueba.
+
+    En este caso, podemos introducir un lemma que establece que si $w$ está en $s$ en la posición $k$ entonces el primer caracter de $w$ y el caracter de $k$ de $s$ coinciden.
+
+    \begin{dafny}
+lemma si_esta_coincide_el_primer_caracter()
+    ensures forall s:string, w: string, k: int ::
+                esta_en(s, w, k)) ==> s[k] == w[0]
+{
+}
+
+method test_esta_en_cuando_no_esta(){
+    assert !esta_en("casa", "d", 0) by {
+        si_esta_coincide_el_primer_caracter();
+    }
+}
+    \end{dafny}
+
+    Con la especificación testeada proseguimos a proponer un invariante y una guarda. Realizaremos la implementación más simple de la búsqueda de subcadenas, en la cuál iteraremos todas las posiciones de $s$ desde la primera y verificaremos el predicado \textit{esta\_en} evaluado en esta posición hasta encontrar la primera para la cuál se cumple. Tendremos como precondición que $w$ está en $s$ para algún índice $j$.
+
+    Inicialmente proponemos guarda: \inlinedafny{!esta_en(s, w, i)} donde i es la variable de iteración e invariante $true$. Ya que la negación de la guarda por sí misma asegura la postcondición si retornamos $i$.
+
+    \begin{dafny}
+predicate esta_en(s: string, w: string, k: int)
+{
+  0 < |w| <= |s| &&
+  0 <= k <= |s| - |w| &&
+  forall i: int :: k <= i < k + |w| ==> s[i] == w[i - k]
+}
+
+predicate invariante(){
+  true
+}
+
+method inicializacion(s: string, w: string, ghost k: int) returns (i: int)
+  requires esta_en(s, w, k)
+  ensures invariante()
+
+method cuerpo(s: string, w: string, ghost k: int, i: int) returns (i': int)
+  requires !esta_en(s, w, i)
+  requires invariante()
+  ensures invariante()
+  ensures i' > i
+
+method busqueda_subcadena(s: string, w: string) returns (k: int)
+  requires exists j :: esta_en(s, w, j)
+  ensures esta_en(s, w, k)
+{
+  ghost var gk: int :| esta_en(s, w, gk);
+  var i: int;
+  i := inicializacion(s, w, gk);
+  while (!esta_en(s, w, i))
+    decreases gk - i
+    invariant invariante()
+  {
+    i := cuerpo(s, w, gk, i);
+  }
+  return i;
+}
+    \end{dafny}
+
+    Hemos utilizado una variable de tipo gohst para referenciar $gk$ la posición, sea cual sea, en la que sabemos que $w$ está presente dentro de $s$. Proponemos como función de cota $gk - i$.
+    También hemos especificado la inicialización de $i$ y el cuerpo de forma tal que aseguren el invariante y el decrecimiento de la función de cota.
+
+    El verificador devuelve el siguiente error: "decreases expression must be bounded below by 0 at end of loop iteration". Dafny logra verificar que $gk -i$ decrece, pero no sabe si está limitada por 0 por lo bajo. Agregamos al invariante entonces $i \leq gk$. Ahora Dafny verifica la implementación del método principal, y podemos abocarnos a implementar inicialización y cuerpo.
+
+    Inicializar $i$ en $0$ basta para cumplir el invariante:
+
+    \begin{dafny}
+method inicializacion(s: string, w: string, ghost k: int) returns (i: int)
+  requires esta_en(s, w, k)
+  ensures invariante(i, k)
+{
+  return 0;
+}
+    \end{dafny}
+
+    Pero el nuevo invariante no puede asegurarse con la implementación del cuerpo que sabemos suficiente: incrementar la variable de iteración $i$ en $1$.
+
+    \begin{dafny}
+method cuerpo(s: string, w: string, ghost k: int, i: int) returns (i': int)
+  requires !esta_en(s, w, i)
+  requires invariante(i, k)
+  ensures invariante(i', k)
+  ensures i' > i
+{
+  i' := i + 1;
+}
+    \end{dafny}
+    El verificador devuelve el error: "this postcondition could not be proved on a return path
+    Could not prove: i <= k", para el método cuerpo.
+    Es que, para saber que $i+1<=k$ falta una pieza clave que es saber \inlinedafny{esta_en(s, w, k)}, que junto con \inlinedafny{!esta_en(s, w, i)}, la negación de la guarda y el invariante $i \leq k$, aseguran que $i < k$ y por tanto $i+1 \leq k$.
+
+    Si incluímos \inlinedafny{esta_en(s, w, k)} al invariante, tenemos la implementación completa verificada.
+
+    \dafnyfile{Búsqueda de subcadena en Dafny}{ejemplos/busqueda_subcadena.dfy}
+
+    Algunos aprendizajes de la implementación de este algoritmo fueron:
+    \begin{itemize}
+        \item Hay que evitar utilizar precondiciones en los predicados. Es decir es mejor escribir:
+        \begin{dafny}
+predicate esta_en(s: string, w: string, k: int)
+{
+    0 < |w| <= |s| && 0 <= k <= |s| - |w| &&
+    forall i: int :: k <= i < k + |w| ==> s[i] == w[i - k]
+}
+        \end{dafny}
+        \begin{dafny}
+predicate esta_en(s: string, w: string, k: int)
+    requires 0 < |w| <= |s| && 0 <= k <= |s| - |w|
+{
+  forall i: int :: k <= i < k + |w| ==> s[i] == w[i - k]
+}
+            \end{dafny}
+        Estos dos predicados pueden lucir equivalentes, pero el primero podemos utilizarlo siempre (por ejemplo en una cláusula de requires), mientras que el segundo le impone al verificador probar la precondición en contextos en donde tal vez, producto de la modularización, el verificador no puede asegurarla. Si uno mantiene la precondición en el predicado, se ve obligado a sumar una cláusula requires adicional pidiendo también por esta precondición, cada vez que queremos requerir el predicado.
+        \item En la práctica podemos empezar postulando un invariante inicial que no sea lo suficientemente fuerte para garantizar la prueba, y tengamos que realizar algunas iteraciones de fortalecimiento de invariante hasta lograrla. En particular, tener de partida en el invariante el rango posible para la variable de iteración y las propiedades conocidas sobre los parámetros de entrada y las variables ghost definidas puede ser una buena decisión por defecto.
+    \end{itemize}
     \chapter{Misc}
     \section{El valor absoluto de un número entero}
     [WIP]: (Introduccion del if)
