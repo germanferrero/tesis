@@ -14,70 +14,76 @@
 \definecolor{backcolour}{RGB}{31,31,31}
 
 \lstdefinelanguage{dafny}{
-  morekeywords = {method,returns,requires,ensures, int},
-  literate=%
-    {:}{$\colon$}1
-    {::}{$\bullet$}2
-    {:=}{$:$$=$}2
-    {!}{$\lnot$}1
-    {!!}{$\not\cap$}1
-    {!=}{$\neq$}1
-    {&&}{$\land$}1
-    {||}{$\lor$}1
-    {<=}{$\le$}1
-    {>=}{$\ge$}1
-    % the following isn't actually Dafny, but it gives the option to produce nicer latex
-    {|=>}{$\Rightarrow$}2
-    {<=set}{$\subseteq$}1
-    {+set}{$\cup$}1
-    {*set}{$\cap$}1
-    {==>}{$\Longrightarrow$}3 
-    {=>}{$\Rightarrow$}2
-    {<==>}{$\Longleftrightarrow$}4 
-    {forall}{$\forall$}1
-    {exists}{$\exists$}1
-    {!in}{$\not\in$}1
-    {\\in}{$\in$}1
-    % the following isn't actually Dafny, but it gives the option to produce nicer latex
-    {<<}{$\langle$}1
-    {>>}{$\rangle$}1
-    {(==)}{${}^{(=)}$}2
-    {...}{$\ldots$}1
-    {\\alpha}{$\alpha$}1
-    {\\beta}{$\beta$}1
-    {\\gamma}{$\gamma$}1
-    {\\delta}{$\delta$}1
-    {\\epsilon}{$\epsilon$}1
-    {\\zeta}{$\zeta$}1
-    {\\eta}{$\eta$}1
-    {\\theta}{$\theta$}1
-    {\\iota}{$\iota$}1
-    {\\kappa}{$\kappa$}1
-    {\\lambda}{$\lambda$}1
-    {\\mu}{$\mu$}1
-    {\\nu}{$\nu$}1
-    {\\xi}{$\xi$}1
-    {\\pi}{$\pi$}1
-    {\\rho}{$\rho$}1
-    {\\sigma}{$\sigma$}1
-    {\\tau}{$\tau$}1
-    {\\upsilon}{$\upsilon$}1
-    {\\phi}{$\phi$}1
-    {\\chi}{$\chi$}1
-    {\\psi}{$\psi$}1
-    {\\omega}{$\omega$}1
-    {\\Gamma}{$\Gamma$}1
-    {\\Delta}{$\Delta$}1
-    {\\Theta}{$\Theta$}1
-    {\\Lambda}{$\Lambda$}1
-    {\\Xi}{$\Xi$}1
-    {\\Pi}{$\Pi$}1
-    {\\Sigma}{$\Sigma$}1
-    {\\Upsilon}{$\Upsilon$}1
-    {\\Phi}{$\Phi$}1
-    {\\Psi}{$\Psi$}1
-    {\\Omega}{$\Omega$}1
-    ,
+  morekeywords = {method,returns,requires,ensures,int,nat,while,decreases,invariant,if,else, lemma, axiom, function, forall, exists, assert, predicate, ghost, return},
+  numbers=left,
+  numberstyle=\color{white}\ttfamily,
+  backgroundcolor=\color{backcolour},
+  keywordstyle=\color{codepurple},
+  basicstyle=\color{white}\ttfamily,
+  frame=lines,xleftmargin=2em, framexleftmargin=2em,xrightmargin=8pt,
+  % literate=%
+  %   {:}{$\colon$}1
+  %   {::}{$\bullet$}2
+  %   {:=}{$:$$=$}2
+  %   {!}{$\lnot$}1
+  %   {!!}{$\not\cap$}1
+  %   {!=}{$\neq$}1
+  %   {&&}{$\land$}1
+  %   {||}{$\lor$}1
+  %   {<=}{$\le$}1
+  %   {>=}{$\ge$}1
+  %   % the following isn't actually Dafny, but it gives the option to produce nicer latex
+  %   {|=>}{$\Rightarrow$}2
+  %   {<=set}{$\subseteq$}1
+  %   {+set}{$\cup$}1
+  %   {*set}{$\cap$}1
+  %   {==>}{$\Longrightarrow$}3 
+  %   {=>}{$\Rightarrow$}2
+  %   {<==>}{$\Longleftrightarrow$}4 
+  %   {forall}{$\forall$}1
+  %   {exists}{$\exists$}1
+  %   {!in}{$\not\in$}1
+  %   {\\in}{$\in$}1
+  %   % the following isn't actually Dafny, but it gives the option to produce nicer latex
+  %   {<<}{$\langle$}1
+  %   {>>}{$\rangle$}1
+  %   {(==)}{${}^{(=)}$}2
+  %   {...}{$\ldots$}1
+  %   {\\alpha}{$\alpha$}1
+  %   {\\beta}{$\beta$}1
+  %   {\\gamma}{$\gamma$}1
+  %   {\\delta}{$\delta$}1
+  %   {\\epsilon}{$\epsilon$}1
+  %   {\\zeta}{$\zeta$}1
+  %   {\\eta}{$\eta$}1
+  %   {\\theta}{$\theta$}1
+  %   {\\iota}{$\iota$}1
+  %   {\\kappa}{$\kappa$}1
+  %   {\\lambda}{$\lambda$}1
+  %   {\\mu}{$\mu$}1
+  %   {\\nu}{$\nu$}1
+  %   {\\xi}{$\xi$}1
+  %   {\\pi}{$\pi$}1
+  %   {\\rho}{$\rho$}1
+  %   {\\sigma}{$\sigma$}1
+  %   {\\tau}{$\tau$}1
+  %   {\\upsilon}{$\upsilon$}1
+  %   {\\phi}{$\phi$}1
+  %   {\\chi}{$\chi$}1
+  %   {\\psi}{$\psi$}1
+  %   {\\omega}{$\omega$}1
+  %   {\\Gamma}{$\Gamma$}1
+  %   {\\Delta}{$\Delta$}1
+  %   {\\Theta}{$\Theta$}1
+  %   {\\Lambda}{$\Lambda$}1
+  %   {\\Xi}{$\Xi$}1
+  %   {\\Pi}{$\Pi$}1
+  %   {\\Sigma}{$\Sigma$}1
+  %   {\\Upsilon}{$\Upsilon$}1
+  %   {\\Phi}{$\Phi$}1
+  %   {\\Psi}{$\Psi$}1
+  %   {\\Omega}{$\Omega$}1
+  %   ,
   sensitive=true,  % case sensitive
   morecomment=[l]{//},
   morecomment=[s]{/*}{*/},
@@ -86,14 +92,13 @@
   firstnumber=1,
   numberstyle=\tiny,
   stepnumber=1,
-  basicstyle=\verbatim@font,
   commentstyle=\itshape,
-  keywordstyle=\bfseries,
-  ndkeywordstyle=\bfseries,
+  % keywordstyle=\bfseries,
+  % ndkeywordstyle=\bfseries,
 }
 \lstnewenvironment{dafny}[1][]{%
   \lstset{language=dafny,
-    floatplacement={tbp},captionpos=b,
+    floatplacement={tbp},captionpos=b,breaklines=true,
     frame=lines,xleftmargin=8pt,xrightmargin=8pt,#1}}{}
 \lstnewenvironment{dafnyNoLines}[1][]{%
   \lstset{language=dafny,
@@ -110,5 +115,5 @@
     caption=\href{https://github.com/germanferrero/tesis/tree/main/#2}{\texttt{#1}},
     captionpos=b,
     basicstyle=\color{white}\ttfamily,
-    frame=lines,xleftmargin=2em, framexleftmargin=2em,xrightmargin=8pt,columns=fixed]{#2}
+    frame=lines,xleftmargin=2em, framexleftmargin=2em,xrightmargin=8pt,columns=fixed,breaklines=true]{#2}
 }
