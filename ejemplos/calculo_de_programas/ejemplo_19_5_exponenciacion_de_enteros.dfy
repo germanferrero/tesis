@@ -4,6 +4,12 @@ function exponenciacion_de_enteros_f(A: nat, B: nat): nat
     if (B == 0) then 1 else A * exponenciacion_de_enteros_f(A, B-1)
 }
 
+method test_exponenciacion_de_enteros_f(){
+    assert exponenciacion_de_enteros_f(2, 2) == 4;
+    assert exponenciacion_de_enteros_f(2, 3) == 8;
+    assert exponenciacion_de_enteros_f(3, 2) == 9;
+}
+
 method exponenciacion_de_enteros(A: nat, B: nat) returns (r: nat)
     ensures r == exponenciacion_de_enteros_f(A, B)
 {
