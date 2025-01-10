@@ -378,63 +378,65 @@
     \chapter{Máximo común divisor}
 
     Queremos escribir un programa, verificado, que compute el máximo común divisor entre dos números enteros positivos $m$ y $n$,
-    con $m >= n$. Formalmente, definimos el máximo común divisor $mcd$ como:
+    con $m \geqslant n$. Formalmente, definimos el máximo común divisor $mcd$ como:
 
     \begin{center}
         \begin{math}
-            mcd \mid m \land mcd \mid n \land (\forall d: d \mid m \land d \mid n :: d \leq mcd)
+            mcd \mid m \land mcd \mid n \land (\forall d: d \mid m \land d \mid n : d \leq mcd)
         \end{math}
     \end{center}
 
-    Mi primera exploración en la búsqueda de un algoritmo que compute el $mcd$, antes de que Internet me recuerde que Euclides propuso uno muy bueno en el 300AC, fue recordar la factorización en primos de $m$ y $n$. Dada por:
+    Mi primera exploración en la búsqueda de un algoritmo que compute el m.c.d entre $m$ y $n$, antes de que Internet me recuerde que Euclides propuso uno muy bueno en el 300AC, fue recordar la factorización en primos de $m$ y $n$. Dada por:
 
     \begin{center}
         \begin{math}
-            m = \prod_{i=0}^{i=maxPm} p_{i}^{m_i}\ , \ \ \ n = \prod_{i=0}^{i=maxPm} p_{i}^{m_i}
+            m = \prod_{i=0}^{i=maxPm} p_{i}^{m_i}\ , \ \ \ n = \prod_{i=0}^{i=maxPn} p_{i}^{n_i}
         \end{math}
     \end{center}
 
-    en donde $p_0=2$, $p_1= 3$, ... y $p_{maxPm}$, $p_{maxPn}$ son los primos más grandes que aparecen en la factorización de $m$ y $n$ respectivamente. Y $m_i$, $n_i$ los exponentes del primo $p_i$ en sus factorizaciones, (siendo $x_i=0$, el caso en que el $p_i$ no aparece en la factorización).
+    donde $p_0=2$, $p_1= 3$, ... y $p_{maxPm}$, $p_{maxPn}$ son los primos más grandes que aparecen en la factorización de $m$ y $n$ respectivamente. Y $m_i$, $n_i$ los exponentes del primo $p_i$ en sus factorizaciones, (siendo $x_i=0$, si $p_i$ no aparece en la factorización).
 
-    Y recordar también que $mcd$ será:
+    Utilizando estas definiciones el m.c.d. entre ellos será:
 
     \begin{center}
         \begin{math}
-            mcd = \prod_{i=0}^{i=min(maxPm, maxPn)} p_{i}^{min(m_i, n_i)}
+            mcd(m, n) = \prod_{i=0}^{i=min(maxPm, maxPn)} p_{i}^{min(m_i, n_i)}
         \end{math}
     \end{center}
 
-    Con esto podemos definir la factorización de un número $X$ hasta el primo $k$ como:
+    Proponemos como estrategia de resolución, empezar con la peor solución $mcd' = 1$ e iterar sobre los números primos ($p_0$, $p_1$, ..., $p_{min(maxPm, maxPn)}$) multiplicando $mcd'$ por $p_{i}^{min(m_{i}, n_{i})}$ en cada iteración $i$.
+
+    Si definimos la factorización de un número $x$ hasta el $k$-ésimo primo como:
     \begin{center}
         \begin{math}
-            SubFact(x, k) = \frac{x}{\prod_{i=k+1}^{i=maxPx} p_{i}^{x_i}} 
+            SubFact(x, k) = \frac{x}{\prod_{i=k}^{i=maxPx} p_{i}^{x_i}} 
         \end{math}
     \end{center}
 
-    Con esto, podemos proponer el invariante:
+    Podemos proponer el siguiente invariante para la estrategia propuesta:
     \begin{center}
         \begin{math}
-            I: mcd \mid SubFact(m, i) \land mcd \mid SubFact(n, i) \land (\forall d: d \mid SubFact(m, i) \land d \mid SubFact(n, i) :: d \leq mcd) 
+            Inv:\ \  0 \leqslant i \leqslant min(maxPm, maxPn) \land mcd' \mathrel{|} SubFact(m, i) \land mcd' \mathrel{|} SubFact(n, i) \land (\forall d: d \mathrel{|} SubFact(m, i) \land d \mathrel{|} SubFact(n, i) : d \leq mcd') 
         \end{math}
     \end{center}
 
-    Si se cumple en la iteración $i$, luego podemos mantenerlo para la iteración $i+1$ actualizando $mcd$ con:
+    Podemos probar que la siguiente actualización de $mcd'$ e $i$, mantiene el invariante
 
-    \begin{center}
-        \begin{math}
-            mcd := mcd * p_{i+1}^{min(m_{i+1}, n_{i+1})}
-        \end{math}
-    \end{center}
+    % \begin{center}
+    \begin{align*}
+        & mcd' := mcd' * p_{i}^{min(m_{i}, n_{i})} \\
+        & i := i + 1
+    \end{align*}
+    % \end{center}
 
-    Para lo cuál necesitamos contar con $p_{i+1}$, $m_{i+1}$ y $n_{i+1}$. Podemos obtener $p_{i+1}$, de forma naive tal vez, iterando sobre los enteros mayores a $p_{i}$, hasta encontrar alguno que no sea divisible por ningún primo entre $p_0$ y $p_{i}$, para lo cual deberíamos contar en cada iteración con la lista completa de primos hasta $p_{i}$. Por su parte, $m_{i+1}$ y $n_{i+1}$ pueden calcularse iterando sobre el exponente de $p_{i+1}$ y frenando cuando el resultado deje de dividir a $m$ y $n$ respectivamente.
+    Para realizar esta actualización necesitamos contar con $p_{i}$, $m_{i}$ y $n_{i}$.
+    Podemos suponer que contamos con dos funciones auxiliares $primo(k)$ que devuelve el $k$-ésimo número primo y $factorizacion(x)$ que devuelve la factorización de $x$ como una lista de exponentes de los números primos hasta el primo más grande con exponente distinto de 0 (ej: $factorizacion(8) == [3]$, $factorizacion(12) == [2,1]$).
 
-    Debieramos avanzar en el loop hasta que $p_i$ sea mayor o igual a $min(\sqrt(m), \sqrt(n))$.
-
-    Hasta aquí pareciera que el loop propuesto funcionaría, aunque la complejidad algorítmica es mayor a la del algoritmo que Euclides propuso hace ya 2324 años.
+    La resolución propuesta es correcta. Sin embargo la complejidad algorítmica es mayor a la de la solución propuesta por Euclides hace ya 2324 años.
 
     \section{El algoritmo de Euclides}
     Hay alguna técnica de obtención de invariantes que me hubiera llevado a la misma realización que tuvo Euclides? Puede el método reemplazar a la creatividad?
-    Euclides - sospecho - no llegó a proponer su algoritmo manipulando ecuaciones, sino observando la geometría de líneas con una longitud múltiplo de alguna unidad. De la misma forma en que Pitágoras llegó a su famoso teorema de pitágoras observando triángulos. De nuevo, sospecho.
+    Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando la geometría de líneas con una longitud múltiplo de alguna unidad. De la misma forma en que Pitágoras llegó a su famoso teorema de pitágoras observando triángulos. De nuevo, sospecho.
 
     Entonces, tenemos que pensar la verificación formal de programas necesariamente como un método para derivar programas? O podemos dejarle ese papel a la creatividad y el ingenio, y utilizar las técnicas de verificación formal para \textbf{probar} que los programas son correctos.
 
@@ -467,8 +469,6 @@
 
     Que $d$ pueda componer a ambas, es otra forma de decir que $d \mid m$ y $d \mid n$. Que sea la más larga entre las que pueden componerlas quiere decir que $d = mcd(m,n)$.
 
-    Euclides razonó:
-
     Si la más pequeña puede componer a la más grande ($n \mid m$), entonces ya está: $d=n=mcd(m,n)$, pues cualquier otra varilla que compone a $n$ es necesariamente menor o igual a $n$.
 
     \begin{figure}[h]
@@ -497,7 +497,7 @@
 
     Sino, tenemos que $n$ entra alguna cantidad $q$ de veces en $m$ y luego queda un resto $r$ (Figura \ref{varillas_euclides_resto}).
 
-    En este caso, la varilla de largo $d$ que estamos buscando debe componer también a $r$. Veamos por qué. Tenemos por un lado que $d$ compone a $n$ y $d$ compone a $m$. Por otro, $m$ compuesta por una cantidad $q$ de varillas $n$ y un resto $r$.
+    En este caso, la varilla de largo $d$ que estamos buscando debe componer también a $r$. Veamos por qué. Tenemos por un lado que $d$ compone a $n$ y $d$ compone a $m$. Por otro, $m$ está compuesta por una cantidad $q$ de varillas $n$ y un resto $r$.
     Las $q$ varillas de largo $n$ las sabemos compuestas por $d$, por tanto lo que resta ($r$), debe poder componerse con $d$ para que el total $m$ quede compuesto por $d$ a su vez. Si quedara un resto al intentar componer $r$ con $d$, tendríamos que $d$ no compone $m$ (Figura \ref{varillas_euclides_mcd_del_resto}).
 
     \begin{figure}[h]
@@ -549,21 +549,11 @@
         \label{varillas_euclides_mcd_del_resto}
     \end{figure}
 
-    Sea $r = m \% n$. Tenemos entonces dos casos:
-    \begin{itemize}
-        \item $r = 0 \land d = n$ ó
-        \item $r > 0 \land d \mid r $
-    \end{itemize}
+    Sea $r = m \% n$. Tenemos entonces dos casos: a) $r = 0 \land d = n$ ó b) $r > 0 \land d \mid r $. En el caso b), como $d \mid n$ y $d \mid r$, tenemos que $d \leq mcd(n, r)$. Veamos además que $mcd(n,r) \leq d$. Si tomamos $d'=mcd(n,r)$, tendríamos también que $d' \mid m$, pues $m = q * n + r$, por tanto $d' \leqslant d = mcd(n,m)$, con lo cual $d = mcd(n,r)$.
 
-    en el segundo, como $d \mid n$ y $d \mid r$, tenemos que $d \leq mcd(n, r)$. Veamos además que $mcd(n,r) \leq d$. Si tomamos $d'=mcd(n,r)$, tendríamos también que $d' \mid m$, pues $m = q * n + r$, por tanto $d' <= d = mcd(n,m)$, con lo cual $d = mcd(n,r)$.
+    Es decir que los dos casos son: a) $r = 0 \land d = n$ ó b) $r > 0 \land d = mcd(n, r) $
 
-    Es decir que los dos casos son:
-    \begin{itemize}
-        \item $r = 0 \land d = n$ ó
-        \item $r > 0 \land d = mcd(n, r) $
-    \end{itemize}
-
-    En el primer caso no queda nada por hacer, en el segundo podemos repetir el razonamiento reemplazando $m$ por $n$ y $n$ por $r$. Y como en cada iteración el resto de la división de $m$ y $n$ siempre será menor al de la iteración anterior y a su vez, por ser resto de una división, está acotado por abajo en $0$, sabemos que en algún momento terminaremos.
+    En el caso a) no queda nada por hacer, en el caso b) podemos repetir el razonamiento reemplazando $m$ por $n$ y $n$ por $r$. Y como en cada iteración el resto de la división de $m$ y $n$ siempre será menor al de la iteración anterior y a su vez, por ser resto de una división, está acotado por abajo en $0$, sabemos que en algún momento terminaremos.
 
     \subsection{Implementación en Dafny}
     Implementar el algoritmo de máximo común divisor de Euclides en Dafny, de manera tal que el verificador de Dafny logre verificar nuestra implementación despierta nuevas preguntas y potenciales respuestas sobre \textbf{qué} conocimiento posee el verificador de Dafny y \textbf{cómo o cuándo} puede aplicarlo.
@@ -608,7 +598,7 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
 
     \subsubsection*{Testear la especificación}
     Al escribir software verificado, restringimos el espacio para el error humano de la implementación a la definición de la especificación.
-    Fácilmente podemos caer en el error de escribir una especificación erronea para el problema que teníamos que resolver, y terminar en escenarios confusos a la hora de verificar la implementación. Puesto que el verificador no puede saber del error que cometimos en la especificación mientras que nosotros nos encontramos interpretando la salida de la verificación asumiendo que la especificación es correcta.
+    Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como una deficiencia de la implementación o de la capacidad del verificador para realizar la prueba de correctitud, cuando en realidad el problema está arrastrado desde la especificación misma.
     Afortunadamente en Dafny podemos testear la especificación.
     El verificador es capaz de validar el predicado ``es\_el\_mcd'' para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la correctitud de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
 
@@ -634,7 +624,7 @@ method test_es_el_mcd_numeros_chicos(){
 
     \begin{dafny}
 predicate invariante(d: int, m': int, n': int, r: int) {
-    && es_el_mcd(d, m', n')
+    es_el_mcd(d, m', n')
     && r == m' % n'
     && (r == 0 ==> d == n')
 }
@@ -643,14 +633,14 @@ predicate invariante(d: int, m': int, n': int, r: int) {
     En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $r$ se reduce en cada iteración. Proponemos entonces como guarda del loop $r > 0$. En el paso de especificar inicialización y cuerpo del loop, veremos además que el verificador logra demostrar que el invariante junto con la negación de la guarda implican la postcondición.
 
     \subsubsection*{Declarar las variables necesarias}
-    Hay cuatro variables implicadas en el invariante: $d: int$, $m': int$, $n': int$ y $r: int$.
+    Hay cuatro variables de tipo $int$ implicadas en el invariante: $d$, $m'$, $n'$ y $r$.
     Las últimas tres: $m'$, $n'$ y $r$ tomarán valores concretos en la inicialización y serán actualizadas en cada iteración, mientras que para $d$ no conocemos su valor hasta el final. Lo único que sabemos de $d$ es que al iniciar el programa refiere al $mcd$ de $m$ y $n$ (los parámetros de entrada), y luego en cada iteración $d$ es también el $mcd$ de las varillas que estamos analizando. Esto convierte a $d$ en una variable especial, que es necesaria para la verificación pero no se computará en tiempo de ejecución del programa. En Dafny estas variables se llaman \textit{ghost variables} y se definen así:
 
     \begin{dafny}
 ghost var d: int :| p(d);
     \end{dafny}
 
-    que leemos como ``Sea d tal que el predicado p vale para d''. Utilizando una ghost variable podemos referirnos con $d$ al $mcd$ de $m$ y $n$.
+    \noindent que leemos como ``Sea d tal que el predicado p vale para d''. Utilizando una ghost variable podemos referirnos con $d$ al $mcd$ de $m$ y $n$.
 
     \begin{dafny}
 ghost var d: int :| mcd(d, m, n);
@@ -670,7 +660,7 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
 
     Aquí hemos comentado la postcondición de manera intencional. Comentando la postcondición, podemos averiguar si el verificador encuentra algún problema ``previo'' al incumplimiento de la postcondición teniendo en cuenta las líneas de implementación que hemos escrito hasta el momento.
     En este caso, notamos que Dafny devuelve el error: ``cannot establish the existence of LHS values that satisfy the such-that predicate'' para la línea 5. \footnote{Si no comentábamos la postcondición, el verificador nos hubiera devuelto un error relativo al incumplimiento de la postcondición y solo nos enteraríamos de este problema previo más adelante, al especificar inicialización y cuerpo del loop. Tal vez esta sea una oportunidad de mejora en el reporte de errores del verificador.}
-    Nosotros sabemos que para dos números enteros positivos existe un máximo común divisor pero Dafny no lo sabe. Podemos decírselo definiendo un axioma que establezca que el máximo común divisor entre m y n existe e invocándolo justo antes de la definición de $d$. \footnote{Un axioma en Dafny, es un lemma que no conlleva una prueba. Si quitamos :axiom, Dafny nos pedirá que en el cuerpo del lemma escribamos su prueba. Podríamos optar por escribir una demostración del lemma para lo cual nos sería útil la lectura de la nota \href{https://leino.science/papers/krml275.html}{Iterating over a Collection} de la serie ``Dafny Power User'' en donde Rustan Leino muestra cómo probar propiedades básicas sobre colecciones como la existencia de un elemento mínimo.}
+    Nosotros sabemos que para dos números enteros positivos existe un máximo común divisor pero Dafny no lo sabe. Podemos decírselo definiendo un axioma que establezca que el máximo común divisor entre $m$ y $n$ existe e invocándolo justo antes de la definición de $d$. \footnote{Un axioma en Dafny es un lemma que no conlleva una prueba. Si quitamos :axiom, Dafny nos pedirá que escribamos la prueba en el cuerpo del lemma.}
 
     \begin{dafny}
 lemma {:axiom} existe_un_mcd(m:int, n:int)
@@ -808,7 +798,7 @@ lemma {:axiom} mcd_del_modulo()
     ensures forall d, m, n : int :: 0 < d <= n <= m ==> (es_el_mcd(d, m, n) <==> es_el_mcd(d, m, m % n))
     \end{dafny}
 
-    E invocarlos al inicio del método principal, pero Dafny no logra verificar el programa de esta manera. A esto me refería con la pregunta de \textbf{cómo o cuándo} puede aplicar Dafny el conocimiento que le agregamos. Hay que facilitarle a Dafny los lemmas de forma tal que su firma o interfaz pueda ser correspondida con las variables del contexto en donde necesita usarlos para la prueba.
+    E invocarlos al inicio del método principal, pero Dafny no logra verificar el programa de esta manera. A esto me refería con la pregunta de \textbf{cómo o cuándo} puede aplicar Dafny el conocimiento que le agregamos. Conviene facilitarle a Dafny los lemas de forma tal que sus parámetros de entrada (en este caso $d$, $m$ y $n$) puedan ser correspondidos con las variables del contexto en donde el lemma resulta útil.
 
     \chapter{Búsqueda de subcadenas}
     El algoritmo de búsqueda de subcadena consiste en encontrar una cadena de caracteres $w$ dentro de otra cadena $s$ y devolver el índice del primer caracter de $w$ dentro de $s$. Podemos especificarlo en Dafny de la siguiente manera:
@@ -1015,8 +1005,33 @@ predicate esta_en(s: string, w: string, k: int)
 
     Este desarrollo alternativo, pone foco en presentar al lector una estrategia de resolución iterativa del problema, acudiendo a la experiencia común entre las personas de ``pasar cosas'' de un lugar a otro, y cómo esa estrategia puede traducirse en un programa concreto.
     La esperanza, es que al finalizar la explicación, el lector esté en mejores condiciones de identificar otros problemas que puedan resolverse programando ciclos, y la importancia que el invariante adquiere como sostén de la estrategia iterativa de resolución.
-    \chapter{Dafny}
-    Continuará.
+
+
+    \chapter{Alimentando la introducción}
+    El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia de Algoritmos y Estructuras de Datos I, de nuestra Lic. en Cs. de la Computación.
+
+    Los párrafos introductorios de esta materia, y de la correlativa anterior: Introducción a los algoritmos, tanto en la bibliografía de referencia como en los programas de la materias advierten que el foco está puesto en aprender métodos formales, desde los bloques constructivos básicos, como la lógica proposicional y el cálculo de predicados, hasta la definición de programas imperativos en términos de estos bloques. Trazando un camino detallado desde los axiomas de la lógica y la aritmética hacia programas especificados formalmente y los métodos para verificar que estos últimos son correctos. Es decir que podemos escribir pruebas, utilizando axiomas y reglas de inferencia, de que efectivamente cumplen con su especificación.
+
+    En estos textos se contrapone el hecho de obtener programas precisamente especificados y con demostración de su correctitud, con la creación de programas vagamente especificados y/o verificados únicamente para algunos casos puntuales de entrada y salida mediante el uso de tests.
+
+    De manera conjunta se presenta la técnica de \textit{derivación} de programas como metodología para construir programas a partir de su especificación mediante la manipulación simbólica de la fórmula de especificación, de manera en que la construcción del programa y la demostración de su correctitud se desarrollan de manera simultánea. Resaltando que las técnicas de manipulación simbólica en efecto ayudan a conseguir los programas necesarios.
+
+    De alguna manera se invisibiliza, por omisión, la posibilidad de construir programas a partir de otras técnicas, que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas  sus expresiones, la analogía con otros saberes ya aprendidos o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. Programas que podemos espeficicar formalmente desde un inicio y demostrar correctos a posteriori. Obteniendo a fin de cuentas software verificado.
+
+    En este trabajo de tesis, ponemos en discusión el alto grado de focalización en las técnicas de manipulación simbólica y construcción de demostraciones como metodología para encontrar programas. Sostenemos que ésta y otras técnicas no son mutuamente excluyentes, sino que pueden ser combinadas, y en la práctica efectivamente así sucede, dentro de un mismo proceso de construcción de programas.
+
+    Creemos que en el afán de focalizar en las bondades de la derivación formal, que requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y uso intensivo de nuestra memoria para encontrar patrones entre los axiomas y las expresiones con las que estamos trabajando, a menudo propiciamos el naufragio de muchas y muchos de nosotros que perfectamente hubieramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos.
+
+    Que dar lugar a todas las metodologías posibles que puedan surgir de los estudiantes, los docentes y de la interacción entre ambos, a la hora de construir programas (bien especificados), no pone en riesgo al fin, la comprensión de que los mismos pueden ser demostrados correctos a partir de una lista de axiomas y un conjunto de reglas de inferencia. Que una demostración de correctitud es más valiosa una batería de tests. Ni tampoco la comprensión de cómo esas demostraciones se desarrollan.
+
+    Demostrar programas, en el caso de la programación imperativa, conlleva una comprensión profunda de conceptos fundamentales como precondición, postcondición, invariantes de un ciclo, tipos de datos, estado y transformación de estado. Incluso también de los conceptos de axioma, consistencia del conjunto de axiomas, y prueba.
+    A la vez que requiere también del trabajo meticuloso a la hora de hilvanar axiomas y reglas de inferencia para la construcción de la demostración.
+
+    Desde nuestra mirada, ambas cosas son importantes, pero lo primero es constituyente y lo segundo es secundario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas y la necesidad de construirlas, pero manteniendo el foco en lo primero.
+
+    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas refuerzan la necesidad de que dominemos los conceptos fundamentales, a la vez que resuelven el trabajo tedioso por nosotros.
+
+    Apalancarnos en estas herramientas puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día, donde la estrategia algorítmica surja de maneras diversas, de las cuales los estudiantes puedan hacer sentido, y la construcción de la demostración sea el resultado de la interacción entre el estudiante y la herramienta. En la cual el estudiante deberá aportar la comprensión de los conceptos fundacionales y la herramienta resolverá el trabajo mecánico, y amenudo penoso, que para muchos de nosotros obstruye el aprendizaje de la programación.
 
     \bibliography{References}
     \bibliographystyle{plain}
