@@ -19,23 +19,37 @@
 \title{Construcción formal de programas asistida por Dafny}
 \begin{document}
     \chapter{Introducción}
-    En el libro Cálculo de Programas (en adelante simplemente ``el libro''), se busca introducir al estudiante en la construcción de programas imperativos a través de un método formal para derivar el programa a partir de su especificación. La misma debe estar definida por una precondición y una postcondición, ambas escritas como fórmulas del cálculo de predicados estudiado en la materia pre correlativa ``Introducción a los Algoritmos''. El método consiste en tender puentes entre los bloques constructivos de un lenguaje imperativo (\textit{if}, \textit{for}, asignación, \textit{skip}, etc) y el cálculo de predicados. De manera tal que uno pueda plantear el esqueleto de un programa de manera creativa, y concluir los detalles razonando - o calculando - sobre el terreno ya conocido del cálculo de predicados.
+    El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia Algoritmos y Estructuras de Datos I, de nuestra Lic. en Cs. de la Computación.
 
-    En mi opinión el libro tiene algunas características que merecen revisión:
-    \begin{itemize}
-    \item Utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
-    \item En ocasiones pasa por alto el origen de las estrategias creativas necesarias para construir programas, introduciendo ``esqueletos'' de programas sin mucho preámbulo, y restringiendo el foco de atención a la derivación de las sentencias que constituyen el resto del programa y sí pueden derivarse mediante el método formal.
-    \item Los programas obtenidos y sus pruebas, no están escritos en computadora, y por tanto no pueden ser ejecutados ni verificados de forma automática.
-    \end{itemize}
+    Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y se expande hacia la definición de un lenguaje imperativo minimal cuya semántica es definida en términos de un transformador de predicados.
+    En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y postcondición de estos programas se expresan como predicados válidos del sistema formal y la definición semántica de cada una de las sentencias del lenguaje está también definida mediante fórmulas de este sistema.
 
-    Nuestra hipótesis, es que resultaría más provechoso para el proceso de aprendizaje, primero, introducir la programación imperativa con ejemplos en un lenguaje no formal. Luego, con el lector y su intuición a bordo, identificar en los ejemplos la utilidad de los conceptos básicos (transformación de estado, precondición, postcondición, invariante, etc) y finalmente proceder a la formalización de los mismos para luego poder probar (formalmente), la corrección de los programas obtenidos y resolver problemas más complejos asistidos por una metodología similar a la del libro pero adaptada al uso de Dafny, un lenguaje de programación con soporte para la declaración de especificaciones, pruebas y un entorno de desarrollo capaz de verificar los programas de manera automática.
+    Los estudiantes conciben así un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su correctitud.
 
-    A lo largo de este trabajo desarrollamos esta estrategia alternativa.
-    % TODO: Revisar más adelante qué texto resume mejor cada capítulo.%
-    [WIP]
-    En el capítulo 2 presentamos ejemplos de problemas simples que pueden resolverse con programación imperativa. Apelamos a la intuición y la creatividad para construir los programas e identificamos en ellos los conceptos fundamentales.
-    En el capítulo 3 los formalizamos (...)
-    En el capítulo 4 realizamos pruebas formales de correctitud utilizando Dafny. (...)[END-WIP]
+    Las materias resaltan el valor adicional que se obtiene al especificar y verificar formalmente los programas en comparación con especificarlos vagamente o probar su correctitud solo para algunos casos específicos mediante la práctica usual de \textit{testing} de software.
+
+    Consideramos esta enseñanza de la programación a través de métodos formales de altísimo valor, y buscamos con este trabajo potenciarla.
+
+    Durante el cursado de estas materias, y particularmente en Algoritmos y Estructuras de Datos I, los estudiantes destinan gran parte del tiempo de cursada y práctica fuera del claustro a la formulación de demostraciones dentro del sistema formal aprendido. Un alto porcentaje de los ejercicios de los prácticos de la materia conllevan la demostración de teoremas y es también el condimento central a la hora de las evaluaciones.
+
+    Demostrar teoremas requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y ejercitación en la búsqueda de patrones para encontrar posibles aplicaciones de los axiomas y reglas de inferencia del sistema formal en cada uno de los pasos de la demostración.
+    Esta es una actividad que si bien refuerza nuestro entendimiento de cómo se opera un sistema formal y por qué podemos confiar en él, a menudo satura nuestra capacidad cognitiva, dejando poco espacio para el aprendizaje de otros aspectos, o en otros planos, del tema que estamos estudiando.
+
+    Un escenario que nos despierta particular interés es el de la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo en que se construye su demostración.
+    Esta técnica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que resaltamos las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
+
+    Nuestra hipóteis de trabajo es que el énfasis actual puesto en la operatoria del sistema formal es tal vez excesivo y contraproducente.
+
+    Demostrar programas (en el caso de la programación imperativa), implica una comprensión profunda de conceptos fundamentales como tipos de datos, estado y transformación de estado, precondición, postcondición, invariante de un ciclo, función de cota, etc. Incluso también de los conceptos de axioma, consistencia del conjunto de axiomas, y prueba.
+    A la vez, hacerlo con lapiz y papel acarrea un trabajo meticuloso para hilvanar axiomas y reglas de inferencia en la construcción de la demostración, como mencionamos anteriormente.
+
+    Desde nuestra mirada, ambas cosas son importantes, pero lo primero es constituyente y lo segundo es secundario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas enmarcadas en un sistema formal y la necesidad de construirlas, pero manteniendo el foco en lo primero.
+
+    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas refuerzan la necesidad de que dominemos los conceptos fundamentales, a la vez que resuelven el trabajo tedioso por nosotros, liberando nuestra capacidad cognitiva para hacer sentido de los programas que desarrollamos y de las piezas fundamentales que posibilitan su verificación.
+
+    Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubieramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas  sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. Sostenemos además, que estas técnicas pueden combinarse con la derivación a partir de la especificación formal en un mismo proceso de desarrollo.
+
+    Finalmente consideramos que, en el primer año de la carrera durante el cuál se desarrollan estas materias, delegar parte de la generación de pruebas en las herramientas de verificación de software que tenemos hoy a nuestro alcance puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día. Estudiantes que desarrollen un sentido más profundo de los conceptos fundamentales y los pongan en práctica a lo largo del resto de la carrera. E incluso, en un estadio más avanzado de la misma y con otro entendimiento del valor que supone, estén en mejores condiciones para profundizar su conocimiento en sistemas formales.
 
     \chapter{Introducción a la programación imperativa en Dafny}
     [WIP](...)
@@ -193,7 +207,7 @@
     \begin{verbatim}
         dafny verify my_program.dfy --bprint:my_program.bpl
     \end{verbatim}
-    Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny}, en el cuál se axiomatizan en Boogie todos los elementos de Dafny, (tipos, expresiones, etc), seguido de la traducción en sí de nuestro programa Dafny.
+    Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny}, en el cual se axiomatizan en Boogie todos los elementos de Dafny, (tipos, expresiones, etc), seguido de la traducción en sí de nuestro programa Dafny.
 
     \section{La generación de obligaciones de prueba}
     La generación de obligaciones de prueba consiste en una serie de transformaciones del programa Boogie inicial, hacia una versión tal que permita la construcción de una fórmula lógica a partir de las sentencias del programa de forma directa.
@@ -1248,35 +1262,25 @@ predicate esta_en(s: string, w: string, k: int)
     Este desarrollo alternativo, pone foco en presentar al lector una estrategia de resolución iterativa del problema, acudiendo a la experiencia común entre las personas de ``pasar cosas'' de un lugar a otro, y cómo esa estrategia puede traducirse en un programa concreto.
     La esperanza, es que al finalizar la explicación, el lector esté en mejores condiciones de identificar otros problemas que puedan resolverse programando ciclos, y la importancia que el invariante adquiere como sostén de la estrategia iterativa de resolución.
 
+    \section{Vieja Introducción}
+    En el libro Cálculo de Programas (en adelante simplemente ``el libro''), se busca introducir al estudiante en la construcción de programas imperativos a través de un método formal para derivar el programa a partir de su especificación. La misma debe estar definida por una precondición y una postcondición, ambas escritas como fórmulas del cálculo de predicados estudiado en la materia pre correlativa ``Introducción a los Algoritmos''. El método consiste en tender puentes entre los bloques constructivos de un lenguaje imperativo (\textit{if}, \textit{for}, asignación, \textit{skip}, etc) y el cálculo de predicados. De manera tal que uno pueda plantear el esqueleto de un programa de manera creativa, y concluir los detalles razonando - o calculando - sobre el terreno ya conocido del cálculo de predicados.
 
-    \chapter{Alimentando la introducción}
-    El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia Algoritmos y Estructuras de Datos I, de nuestra Lic. en Cs. de la Computación.
+    En mi opinión el libro tiene algunas características que merecen revisión:
+    \begin{itemize}
+    \item Utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
+    \item En ocasiones pasa por alto el origen de las estrategias creativas necesarias para construir programas, introduciendo ``esqueletos'' de programas sin mucho preámbulo, y restringiendo el foco de atención a la derivación de las sentencias que constituyen el resto del programa y sí pueden derivarse mediante el método formal.
+    \item Los programas obtenidos y sus pruebas, no están escritos en computadora, y por tanto no pueden ser ejecutados ni verificados de forma automática.
+    \end{itemize}
 
-    Los párrafos introductorios de esta materia, y de la correlativa anterior: Introducción a los Algoritmos, tanto en la bibliografía de referencia como en los programas de la materias advierten que el foco está puesto en aprender métodos formales, desde los bloques constructivos básicos, como la lógica proposicional y el cálculo de predicados, hasta la definición de programas imperativos en términos de estos bloques. Trazando un camino riguroso desde los axiomas de la lógica y la aritmética hacia programas especificados y verificados formalmente. Es decir que podemos escribir pruebas, utilizando axiomas y reglas de inferencia, de que efectivamente cumplen con su especificación.
+    Nuestra hipótesis, es que resultaría más provechoso para el proceso de aprendizaje, primero, introducir la programación imperativa con ejemplos en un lenguaje no formal. Luego, con el lector y su intuición a bordo, identificar en los ejemplos la utilidad de los conceptos básicos (transformación de estado, precondición, postcondición, invariante, etc) y finalmente proceder a la formalización de los mismos para luego poder probar (formalmente), la corrección de los programas obtenidos y resolver problemas más complejos asistidos por una metodología similar a la del libro pero adaptada al uso de Dafny, un lenguaje de programación con soporte para la declaración de especificaciones, pruebas y un entorno de desarrollo capaz de verificar los programas de manera automática.
 
-    En estos textos se contrapone el hecho de obtener programas especificados y verificados formalmente, con la creación de programas vagamente especificados y/o verificados únicamente para algunos casos puntuales de entrada y salida mediante el uso de tests.
+    A lo largo de este trabajo desarrollamos esta estrategia alternativa.
+    % TODO: Revisar más adelante qué texto resume mejor cada capítulo.%
+    [WIP]
+    En el capítulo 2 presentamos ejemplos de problemas simples que pueden resolverse con programación imperativa. Apelamos a la intuición y la creatividad para construir los programas e identificamos en ellos los conceptos fundamentales.
+    En el capítulo 3 los formalizamos (...)
+    En el capítulo 4 realizamos pruebas formales de correctitud utilizando Dafny. (...)[END-WIP]
 
-    De manera conjunta se presenta la técnica de \textit{derivación} de programas como metodología para construir programas a partir de su especificación mediante la manipulación simbólica de la fórmula de especificación, de manera en que la construcción del programa y la demostración de su correctitud se desarrollan de manera simultánea. Resaltando que las técnicas de manipulación simbólica en efecto ayudan a conseguir los programas necesarios.
-
-    De alguna manera se invisibiliza, por omisión, la posibilidad de construir programas a partir de otras técnicas, que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas  sus expresiones, la analogía con otros saberes ya aprendidos o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. Programas que podemos espeficicar formalmente desde un inicio y demostrar correctos a posteriori. Obteniendo a fin de cuentas software verificado.
-
-    En este trabajo de tesis, ponemos en discusión el grado de énfasis en las técnicas de manipulación simbólica y construcción de demostraciones como metodología para encontrar programas. Sostenemos que ésta y otras técnicas no son mutuamente excluyentes, sino que pueden ser combinadas, y en la práctica efectivamente así sucede, dentro de un mismo proceso de construcción de programas.
-
-    Creemos que en el afán de enseñar las bondades de la derivación formal, que requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y uso intensivo de nuestra memoria para encontrar patrones entre los axiomas y las expresiones con las que estamos trabajando, a menudo propiciamos el naufragio de muchas y muchos de nosotros que perfectamente hubieramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos.
-
-    Que dar lugar a otros caminos para la construcción de programas (que puedan surgir incluso de los estudiantes, los docentes, o la interacción entre ambos), no pone en riesgo al fin, la comprensión de que la correctitud de estos programas puede demostrarse a partir de una lista de axiomas y un conjunto de reglas de inferencia, que una demostración de correctitud es más valiosa que una batería de tests. Así como tampoco pone en riesgo la comprensión de cómo podemos construir esas demostraciones.
-
-    Demostrar programas (en el caso de la programación imperativa), conlleva una comprensión profunda de conceptos fundamentales como precondición, postcondición, invariantes de un ciclo, tipos de datos, estado y transformación de estado. Incluso también de los conceptos de axioma, consistencia del conjunto de axiomas, y prueba.
-    A la vez, hacerlo con lapiz y papel requiere un meticuloso a la hora de hilvanar axiomas y reglas de inferencia para la construcción de la demostración.
-
-    Desde nuestra mirada, ambas cosas son importantes, pero lo primero es constituyente y lo segundo es secundario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas y la necesidad de construirlas, pero manteniendo el foco en lo primero.
-
-    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas refuerzan la necesidad de que dominemos los conceptos fundamentales, a la vez que resuelven el trabajo tedioso por nosotros.
-
-    Apalancarnos en estas herramientas puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día, donde la estrategia algorítmica surja de maneras diversas, de las cuales los estudiantes puedan hacer sentido, y la construcción de la demostración sea el resultado de la interacción entre el estudiante y la herramienta. En la cual el estudiante deberá aportar la comprensión de los conceptos fundacionales y la herramienta resolverá el trabajo mecánico, y amenudo penoso, que para muchos de nosotros obstruye el aprendizaje de la programación.
-
-    \chapter{Organización del contenido}
-    El primer capítulo "No hay caminos para la programación" 
     \bibliography{References}
     \bibliographystyle{plain}
 \end{document}
