@@ -60,9 +60,9 @@
     En este capítulo desarrollamos los conceptos de programación formal que resultan necesarios a la hora de escribir programas imperativos en Dafny.
 
     \section{Condiciones de contexto para la propuesta}
-    Visualizamos un estudiantado que tenga una primera experiencia con algún lenguaje de programación imperativa, que les permita familiarizarse de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el ciclo (\textit{while/for}). Logrando así, obtener programas imperativos simples y ejecutarlos en una computadora. Esperaríamos de esta experiencia práctica que los estudiantes generen una idea, por imprecisa que fuere, sobre qué es un programa imperativo.
+    Visualizamos un estudiantado que tenga una primera experiencia con algún lenguaje de programación imperativa, que les permita familiarizarse de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el ciclo (\textit{while/for}). Logrando así, obtener programas imperativos simples y ejecutarlos en una computadora. Esperaríamos de esta experiencia práctica que los estudiantes generen una idea, por imprecisa que fuere, sobre qué es un programa imperativo, para qué sirve cada comando del lenguaje, y también tengan la experiencia de escribir baterías de tests no exhaustivos.
 
-    A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas y los comandos del lenguaje como objetos formales.
+    A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas y los comandos del lenguaje como objetos formales cuya correctitud puede ser demostrada.
     En esta segunda instancia los estudiantes razonan sobre estos objetos, ya no en un plano mecánico, operativo, sino en el plano semántico, a partir de las definiciones en semántica de la programación imperativa desarrolladas por Hoare y Dijkstra.
 
     En lo que resta de este capítulo repasamos estas definiciones con foco en aquellos conceptos que nos provean los elementos necesarios para desarrollar software verificado en Dafny.
@@ -72,7 +72,7 @@
     Al hacerlo, además, logramos separar conceptualmente dos aspectos independientes de un programa: su especificación (qué hace), y su implementación (cómo lo hace).
     Si tenemos un lenguaje lo suficientemente preciso para especificarlo, quien lo utiliza no tiene que preocuparse por cómo está implementado sino solo por comprender su especificación, asumiendo que el programa cumple con ella.
 
-    Hoare y Dijkstra eligieron utilizar fórmulas de lógica de primer orden con sus operadores lógicos ($\land$, $\lor$, $\implies$, $\neg$) y cuantificadores ($\forall$, $\exists$) sobre las variables y constantes del programa para denotar su especificación. Y esta elección se sostiene hasta el día de hoy.
+    Hoare y Dijkstra eligieron utilizar fórmulas de lógica de primer orden con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) sobre las variables y constantes del programa para denotar su especificación. Y esta elección se sostiene hasta el día de hoy.
 
     Precisamente, para especificar un programa utilizamos la Terna de Hoare $\{P\}S\{Q\}$, en la cual $S$ es el programa, $P$ y $Q$ son fórmulas de lógica de primer orden que definen la precondición y poscondición del programa respectivamente, e interpretamos así: 
     \begin{center}
@@ -81,7 +81,7 @@
 
     Un estado, en este contexto es simplemente un mapeo de variables y constantes del programa a sus respectivos valores en un momento dado de la ejecución. La precondición es útil para indicar los requisitos que el programa impone sobre el estado a fin de garantizar la poscondición.
 
-    Ahora que contamos con un formalismo preciso para describir qué debe hacer un programa, queda responder cómo hacemos para garantizar que efectivamente lo hace.
+    Ahora que contamos con un lenguaje preciso para describir qué debe hacer un programa, queda responder cómo hacemos para garantizar que efectivamente lo hace.
 
     La respuesta a este interrogante, da lugar a las técnicas de verificación automática de software que, en el caso de Dafny, se basan en las definiciones de Dijkstra acerca de la semántica de los programas.
 
@@ -89,10 +89,10 @@
     Dijkstra introdujo el concepto de \textit{weakest precondition} de un programa respecto de una poscondición $wp.S.Q$ como una fórmula de lógica de primer orden que captura las mínimas condiciones que debe cumplir un estado inicial para que, al ejecutar $S$ a partir de ese estado, se arribe a un estado final en el que se satisface $Q$. A su vez estableció la siguiente equivalencia con la Terna de Hoare que nos dice que un programa cumple con su especificación si y solo si la precondición $P$ implica la \textit{weakest precondition} de $S$ respecto de $Q$.
     \begin{equation}
         \label{eq:terna-de-hoare}
-        \{P\}S\{Q\} \equiv P \implies wp.S.Q
+        \{P\}S\{Q\} \equiv P \Rightarrow wp.S.Q
     \end{equation}
 
-    De esta manera, si encontramos una demostración de $P \implies wp.S.Q$, por ejemplo, a partir de un conjunto de axiomas que asumimos como tales y un conjunto de reglas de inferencia correctamente utilizadas, habremos garantizado que el programa cumple con su especificación. O en términos de nuestra pregunta original, que el programa hace lo que tiene que hacer.
+    De esta manera, si encontramos una demostración de $P \Rightarrow wp.S.Q$, por ejemplo, a partir de un conjunto de axiomas que asumimos como tales y un conjunto de reglas de inferencia correctamente utilizadas, habremos garantizado que el programa cumple con su especificación. O en términos de nuestra pregunta original, que el programa hace lo que tiene que hacer.
 
     Dafny utiliza el cálculo de \textit{weakest precondition} formulado por Dijkstra para obtener una obligación de prueba similar a la de \ref{eq:terna-de-hoare} que luego delega a un probador automático de teoremas para completar la verificación.
     Aunque el procedimiento concreto para la construcción de la obligación de prueba en Dafny conlleva una serie de extensiones a las ideas de Dijkstra (que cubriremos oportunamente en el capítulo \ref{ch:pipeline-dafny}), sus definiciones originales para obtener la $wp.S.Q$ en un lenguaje imperativo minimal que llamó ``guarded-commands''\cite{EWD:EWD418}, por un lado son la base para la construcción de la obligación de prueba en Dafny, y por otro reúnen todos los conceptos teóricos que debemos tener en cuenta a la hora de escribir programas anotados en Dafny y lograr su verificación automática.
@@ -116,42 +116,67 @@
 
     En cuanto a la alternativa, tenemos
     \begin{align*}
-        wp.(if\ B\ then\ S\ else\ T).Q \equiv (B \implies wp.S.Q) \land (\lnot B \implies wp.T.Q)
+        wp.(if\ B\ then\ S\ else\ T).Q \equiv (B \Rightarrow wp.S.Q) \land (\lnot B \Rightarrow wp.T.Q)
     \end{align*}
     De lo cual se desprende el siguiente teorema análogo al ``teorema 1'' en el trabajo de Dijkstra:
     \begin{align*}
-        &(P \land B \implies wp.S.Q) \land (P \land \lnot B \implies wp.T.Q) \\
-        &\implies \\
-        &(P \implies wp.(if\ B\ then\ S\ else\ T).Q)
+        &(P \land B \Rightarrow wp.S.Q) \land (P \land \lnot B \Rightarrow wp.T.Q) \\
+        &\Rightarrow \\
+        &(P \Rightarrow wp.(if\ B\ then\ S\ else\ T).Q)
     \end{align*}
     Pensando ya en la práctica de verificar problemas con Dafny este teorema nos dice que, cuando estemos frente a una alternativa y queramos que el verificador pueda asegurar cierta condición $Q$ luego de la misma, debemos tener en cuenta que el verificador buscará probar por un lado, que lo que sabe hasta el momento en conjunción con $B$ implica la $wp.S.Q$ y por el otro, que lo que sabe hasta el momento en conjunción con $\lnot B$ implica la $wp.T.Q$. Es decir, cuando estemos frente a una alternativa, podemos averiguar si el verificador está logrando asegurar una condición $Q$ en cada caso por separado.
 
-    Al definir la $wp$ para la repetición Dijkstra lisa y llanamente se confundió, y nos dejó una definición no acertada y por ende inútil. Lo que sí descubrimos útil más tarde es el siguiente teorema.
-    \vspace{1em}
+    La definición de Dijkstra para la $wp$ de la repetición no resultaba ser una fórmula de primer orden, por lo cual el cálculo quedaba incompleto.\footnote{Una explicación de esto puede encontrarse en el Capítulo 10 de la historia de la lógica de Hoare publicada por Krzysztof R. Apt \cite{10.1007/s00165-019-00501-3}}.
 
-    \noindent\textbf{Teorema de invarianza}
+    Si hago un intento propio de definir la $wp$ para la repetición, lo más general que se me ocurre pensar es lo siguiente:
 
-    \noindent Sean $I$, $B$, $Q$ y $S$ tales que:
+    Existen $R_n$, $R_{n-1}$, ... $R_0$ para algún $n \geqslant 0$, todas ellas fórmulas de primer orden para las cuales:
     \begin{align*}
-        \{I \land B\} S \{I\} \land ((I \land \lnot B) \implies Q)
-    \end{align*}
-    Para los cuales existe una función $t: Estados \to Int$ tal que
-    \begin{align*}
-        & (i) I \land B \implies t \geqslant 0 \\
-        & (ii) \{I \land B \land t=T\} S \{t < T\}
-    \end{align*}
-    Entonces:
-    \begin{align*}
-        (P \implies I) \implies \{P\}while\ B\ do\ S\{Q\}
+    \{P\}while\ B\ do\ S\{Q\} \equiv \ & P \Rightarrow R_n \\
+                                     & \land R_n \Rightarrow (B \land wp.S.R_{n-1}) \\
+                                     & \land R_{n-1} \Rightarrow (B \land wp.S.R_{n-2}) \\
+                                     & \land ... \land \\
+                                     & \land R_1 \Rightarrow (B \land wp.S.R_0) \\
+                                     & \land R_0 \Rightarrow (\lnot B \land Q)
     \end{align*}
 
-    Este teorema nos habla por un lado de una fórmula hipotética $I$, que llamamos invariante de ciclo y que cumple con las siguientes propiedades: 1) Siempre que ejecutamos el cuerpo del ciclo a partir de un estado que satisface el invariante en conjunción con la guarda llegamos a un estado que satisface el invariante. 2) El invariante en conjunción con la negación de la guarda implican la poscondición $Q$.
+    Es decir, pensando en un ciclo varias iteraciones, para que el ciclo nos lleve de un estado que satisface $P$ a un estado que satisface $Q$ debe haber una primera condición $R_n$ impuesta por $P$, que alcance para que $S$ nos asegure una segunda condición $R_{n-1}$ (y además $B$ por que estamos pensando en un ciclo con varias iteraciones) y así sucesivamente, hasta llegar al punto en que la última ejecución de $S$ nos asegura un estado en donde se satisface una condición $R_0$ que implica que la guarda no ahora no vale y además vale $Q$.
 
-    Y por otro lado, nos habla de la existencia de una función $t$, que llamamos función de cota, la cual asegure que el ciclo eventualmente terminará de ejecutarse. Definido así a partir de $(i)$, que acota la función por lo bajo, y $(ii)$ que asegura su decrecimiento en cada paso.
+    Pero estamos hablando aquí de la existencia de fórmulas, y no de valores, por tanto estamos abandonando la lógica de primer orden, tal como sucedía, aunque de manera menos explícita, con la definición de $wp$ de Dijkstra.
 
-    Contando con un invariante y la existencia de una función de cota que reúnan tales condiciones, el teorema nos dice que: si la precondición $P$ alcanza para establecer el invariante (esto es, $P \implies I$) entonces cada vez que ejecutemos el ciclo a partir de un estado que satisface la precondición $P$, llegaremos a un estado que satisface la poscondición $Q$ (esto es, $\{P\}while\ B\ do\ S\{Q\}$).
+    Este problema se resuelve típicamente introduciendo los conceptos de invariante y función de cota como parámetros de entrada del cálculo. El invariante es una condición que se cumple a la entrada y salida del ciclo y durante cada una de las iteraciones. La función de cota es la que nos asegura que el ciclo terminará eventualmente. En vez de exigirle al cálculo que resuelva la existencia de las fórmulas $R_n$... $R_0$, le ofreceremos una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$ a partir de las cuales se podrían construir $R_n$...$R_0$. Por ejemplo de la siguiente manera:
+    \begin{align*}
+        & R_n \equiv I \land t \leqslant E_t \\ 
+        & R_i \equiv  I \land t \leqslant (E_t - (n - i)) \ \ \ \forall i : 0 \leqslant i < n
+    \end{align*}
 
-    No debemos preocuparnos por no contar con una definición de la $wp$ para la repetición. Dafny resuelve este problema eliminando la repetición del lenguaje intermedio al que traduce los programas que escribimos (y sobre el cuál se realiza el cálculo de \textit{weakest preconditions}), de modo tal que sigue siendo posible obtener la $wp.S.Q$ a partir de la $wp$ de los comandos del lenguaje (de nuevo, los detalles los veremos en el capítulo \ref{ch:pipeline-dafny}). Lo que sí resulta primordial en el proceso de verificación es probar que el invariante se establece al inicio del loop, que se mantiene luego de ejecutar el cuerpo del mismo y que al salir, en conjunción con la negación de la guarda, implica la poscondición deseada.
+    Por suerte, no será necesario representar cada una de ellas en la fórmula final que, como veremos a continuación, tendrá un tamaño independiente de $n$.
+
+    Aplicamos algunas modificaciones a \textit{wp} para obtener un cálculo completo que aquí llamaremos \textit{wpi}.
+    Reemplazamos nuestro comando repetición por el siguiente: $while\ B\ \{I\}\{E_t\}\ do\ S$, es decir, una versión anotada que nos asegurará que cada ciclo lleva consigo una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$. Definimos $wpi.C.Q \equiv wp.C.Q$ para todo comando $C$ distinto de la repetición, y para la repetición de la siguiente manera:
+
+    \begin{align*}
+        wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q \equiv\ & I \land (I \land B) \Rightarrow wp.S.I \\
+            & \land (I \land B) \Rightarrow E_t \geqslant 0 \\
+            & \land (I \land B) \Rightarrow wpi.(t := E_t; S)(E_t \leqslant t-1) \\
+            & \land (I \land \lnot B) \Rightarrow Q
+    \end{align*}
+    Donde $t$ es una variable que no aparece en $S$.
+    Podemos establecer ahora:
+    \begin{align*}
+        (P \Rightarrow wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q) \Rightarrow \{P\}\ while\ B\ do\ S\ \{Q\}
+    \end{align*}
+
+    Notar que utilizamos $\Rightarrow$ en vez de $\equiv$ aquí, ya que el ciclo podría perfectamente satisfacer la especificación sin estar bien anotado. Por eso mismo obviamos el invariante y la función de cota en el término de la derecha. Escribimos entonces:
+
+    \begin{equation}
+        \label{eq:wpi-implies-hoare-triple}
+        (P \Rightarrow wpi.S.Q) \Rightarrow \{P\}S\{Q\}
+    \end{equation}
+
+    Lo cual es suficiente y nos brinda un cálculo completo para intentar probar correctitud de programas imperativos anotados.
+
+    Una prueba de \eqref{eq:wpi-implies-hoare-triple} se adjunta en el Anexo I.
 
     \section{Invariante y función de cota}
     Vale la pena detenernos a reflexionar aquí sobre los conceptos de invariante y función de cota.
@@ -160,10 +185,10 @@
     Imaginemos dos personas a las que le pedimos que edifiquen una columna de $2mts$ cada una por separado. Para realizar esa columna se necesitan $N$ bloques de cemento. Una vez que empezaron su tarea, volteamos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna bloque a bloque, de abajo hacia arriba, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la columna por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ bloques, y una función de cota: con cada bloque colocado, falta uno menos para llegar a $N$.
     Poder enunciar el invariante y la función de cota, incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo y ciertamente aumenta nuestras posibilidades de implementarlo correctamente.
 
-    Dafny depende fuertemente de que el invariante del ciclo esté definido para probar su correctitud. Y salvo en casos triviales en los que puede inferirlo por su cuenta\footnote{Haciendo uso de técnicas de aproximación de dominios abstractos que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables.\cite{10.1007/11804192_17}}, será nuestra tarea proveer el invariante del ciclo para que Dafny pueda realizar la verificación.
+    Dafny depende fuertemente de que el invariante del ciclo esté definido para probar su correctitud. Y salvo en casos triviales en los que puede inferirlo por su cuenta\footnote{Haciendo uso de técnicas de aproximación de dominios abstractos que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables.\cite{10.1007/11804192_17}}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
 
     \section{Recapitulación}
-    \wip{hicimos la pregunta, la respondimos, vimos como especificar, como se prueba, que cosas son importantes para la prueba, palabritas sobre la diferencia entre escribir la prueba a mano y ayudar a dafny a que la obtenga por su cuenta (de alguna forma, en vez de estar escribiendo nosotros los detalles de la prueba nos estamos ocupando, en un plano más conceptual, de que los elementos probatorios estén reunidos), profit.}
+    \wip{hicimos la pregunta, la respondimos, vimos como especificar, como se prueba, que cosas son importantes para la prueba, introdujimos el cálculo $wpi$ que nos habla de programas anotados con invariantes, ya no de programas, y ahora sí permite el calculo de una \textit{ weakest precondition} para programas imperativos con ciclos. Palabritas sobre la diferencia entre escribir la prueba a mano y ayudar a Dafny a que la obtenga por su cuenta (de alguna forma, en vez de estar escribiendo nosotros los detalles de la prueba nos estamos ocupando, en un plano más conceptual, de que los elementos probatorios estén reunidos), profit.}
 
     \chapter{Metodología para escribir programas en Dafny}
 
@@ -1299,6 +1324,33 @@ predicate esta_en(s: string, w: string, k: int)
     \section{Vieja Introducción}
     En el libro Cálculo de Programas (en adelante simplemente ``el libro''), se busca introducir al estudiante en la construcción de programas imperativos a través de un método formal para derivar el programa a partir de su especificación. La misma debe estar definida por una precondición y una postcondición, ambas escritas como fórmulas del cálculo de predicados estudiado en la materia pre correlativa ``Introducción a los Algoritmos''. El método consiste en tender puentes entre los bloques constructivos de un lenguaje imperativo (\textit{if}, \textit{for}, asignación, \textit{skip}, etc) y el cálculo de predicados. De manera tal que uno pueda plantear el esqueleto de un programa de manera creativa, y concluir los detalles razonando - o calculando - sobre el terreno ya conocido del cálculo de predicados.
 
+    \section{Corrección del teorema de invarianza del libro}
+    En cálculo de programas el teorema de invarianza está mal expresado. Confunde alguna precondición válida $P$ del ciclo respecto a una poscondición $Q$ con el invariante.
+    La versión corregida sería la siguiente.
+
+    \vspace{1em}
+
+    \noindent\textbf{Teorema de invarianza}
+
+    \noindent Sean $I$, $B$, $Q$ y $S$ tales que:
+    \begin{align*}
+        \{I \land B\} S \{I\} \land ((I \land \lnot B) \Rightarrow Q)
+    \end{align*}
+    Para los cuales existe una función $t: Estados \to Int$ tal que
+    \begin{align*}
+        & (i) I \land B \Rightarrow t \geqslant 0 \\
+        & (ii) \{I \land B \land t=T\} S \{t < T\}
+    \end{align*}
+    Entonces:
+    \begin{align*}
+        (P \Rightarrow I) \Rightarrow \{P\}while\ B\ do\ S\{Q\}
+    \end{align*}
+
+    Este teorema nos habla por un lado de una fórmula hipotética $I$, que llamamos invariante de ciclo y que cumple con las siguientes propiedades: 1) Siempre que ejecutamos el cuerpo del ciclo a partir de un estado que satisface el invariante en conjunción con la guarda llegamos a un estado que satisface el invariante. 2) El invariante en conjunción con la negación de la guarda implican la poscondición $Q$.
+
+    Y por otro lado, nos habla de la existencia de una función $t$, que llamamos función de cota, la cual asegure que el ciclo eventualmente terminará de ejecutarse. Definido así a partir de $(i)$, que acota la función por lo bajo, y $(ii)$ que asegura su decrecimiento en cada paso.
+
+    Contando con un invariante y la existencia de una función de cota que reúnan tales condiciones, el teorema nos dice que: si la precondición $P$ alcanza para establecer el invariante (esto es, $P \Rightarrow I$) entonces cada vez que ejecutemos el ciclo a partir de un estado que satisface la precondición $P$, llegaremos a un estado que satisface la poscondición $Q$ (esto es, $\{P\}while\ B\ do\ S\{Q\}$).
     En mi opinión el libro tiene algunas características que merecen revisión:
     \begin{itemize}
     \item Utiliza, de manera casi exclusiva, un lenguaje formal que privilegia la especificidad, pero sacrifica legibilidad y facilidad de interpretación.
