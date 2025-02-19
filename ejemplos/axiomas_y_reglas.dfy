@@ -1,11 +1,13 @@
 module axioma_de_la_asignacion {
+    function E(x: int): int
     predicate P(x: int)
 
-    method test(x: int) returns (y: int)
+    method test()
     {
-        assume {:axiom} P(2 * x - 1);
-        y := 2 * x - 1;
-        assert P(y);
+        var x: int := 0;
+        assume {:axiom} P(E(x));
+        x := E(x);
+        assert P(x);
     }
 }
 
@@ -14,14 +16,14 @@ module regla_del_fortalecimiento_de_la_precondicion {
     predicate P'(x: int)
     predicate Q(x: int)
 
-    method {:axiom} S(x: int)
+    method S(x: int)
         requires P'(x)
         ensures Q(x)
 
     method test(x: int)
     {
-        assume {:axiom} forall x: int :: P(x) ==> P'(x);
-        assume {:axiom} P(x);
+        assume forall x: int :: P(x) ==> P'(x);
+        assume P(x);
         S(x);
         assert Q(x); 
     }
@@ -32,14 +34,14 @@ module regla_del_debilitamiento_de_la_poscondicion {
     predicate Q(x: int)
     predicate Q'(x: int)
 
-    method {:axiom} S(x: int)
+    method S(x: int)
         requires P(x)
         ensures Q'(x)
 
     method test(x: int)
     {
-        assume {:axiom} forall x: int :: Q'(x) ==> Q(x);
-        assume {:axiom} P(x);
+        assume forall x: int :: Q'(x) ==> Q(x);
+        assume P(x);
         S(x);
         assert Q(x); 
     }

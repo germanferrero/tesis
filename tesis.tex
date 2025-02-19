@@ -18,6 +18,31 @@
 \newcommand{\declVar}[2]{\text{var } #1 : #2}
 \newcommand{\wip}[1]{\begin{center} [WIP]#1[END WIP] \end{center}}
 \renewcommand{\lstlistingname}{Dafny}
+
+\newcounter{example}[chapter]
+\renewcommand{\theexample}{\thechapter.\arabic{example}}
+
+% Command to create an example with the desired format
+\newcommand{\example}[1]{
+  \refstepcounter{example} % Increment the example counter
+  \vspace{1em}
+  \noindent\textbf{Ejemplo \theexample: #1}
+}
+
+\newcommand{\hoare}[3]{\ensuremath{[#1]#2[#3]}}
+\newcommand{\hoareTheorem}[3]{\ensuremath{\vdash[#1]#2[#3]}}
+\newcommand{\verticalHoare}[3]{
+    \begin{align*}
+        [#1]
+        #2
+        [#3]
+    \end{align*}
+}
+\newcommand{\inferenceRule}[2]{
+    \begin{equation*}
+        \frac{#1}{#2}
+    \end{equation*}
+}
 \linespread{1.1}
 \author{Germán Ferrero}
 \title{Construcción formal de programas asistida por Dafny}
@@ -60,123 +85,162 @@
     En este capítulo desarrollamos los conceptos de programación formal que resultan necesarios a la hora de escribir programas imperativos en Dafny.
 
     \section{Condiciones de contexto para la propuesta}
-    Visualizamos un estudiantado que tenga una primera experiencia con algún lenguaje de programación imperativa, que les permita familiarizarse de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el ciclo (\textit{while/for}). Logrando así, obtener programas imperativos simples y ejecutarlos en una computadora. Esperaríamos de esta experiencia práctica que los estudiantes generen una idea, por imprecisa que fuere, sobre qué es un programa imperativo, para qué sirve cada comando del lenguaje, y también tengan la experiencia de escribir baterías de tests no exhaustivos.
+    Visualizamos un estudiantado que tenga una primera experiencia con algún lenguaje de programación imperativa, que les permita familiarizarse de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el de ciclo (\textit{while/for}). Logrando así, obtener programas imperativos simples y ejecutarlos en una computadora. Esperaríamos de esta experiencia práctica que los estudiantes generen una idea, por imprecisa que fuere, sobre qué es un programa imperativo, para qué sirve cada comando del lenguaje, y también tengan la experiencia de escribir baterías de tests no exhaustivos.
 
     A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas y los comandos del lenguaje como objetos formales cuya correctitud puede ser demostrada.
-    En esta segunda instancia los estudiantes razonan sobre estos objetos, ya no en un plano mecánico, operativo, sino en el plano semántico, a partir de las definiciones en semántica de la programación imperativa desarrolladas por Hoare y Dijkstra.
+    En esta segunda instancia los estudiantes razonan sobre estos objetos, ya no en un plano mecánico, operativo, sino en el plano semántico, a partir de las definiciones de Floyd y Hoare.
 
     En lo que resta de este capítulo repasamos estas definiciones con foco en aquellos conceptos que nos provean los elementos necesarios para desarrollar software verificado en Dafny.
 
     \section{Especificación de un programa}
-    La primera pregunta que surge al analizar un programa es tal vez: ¿El programa hace lo que tiene que hacer? Para poder responder esta pregunta primero debemos ser precisos al definir qué debe hacer el programa. A esta tarea la llamamos \textit{especificar} el programa. Escribir la especificación de un programa antes de pensar en implementarlo es (o debiera ser) una práctica ineludible, ya que hacerlo resulta de vital importancia para luego implementar el programa correctamente.
-    Al hacerlo, además, logramos separar conceptualmente dos aspectos independientes de un programa: su especificación (qué hace), y su implementación (cómo lo hace).
-    Si tenemos un lenguaje lo suficientemente preciso para especificarlo, quien lo utiliza no tiene que preocuparse por cómo está implementado sino solo por comprender su especificación, asumiendo que el programa cumple con ella.
+    La primera pregunta que surge al analizar un programa es tal vez: ¿El programa hace lo que tiene que hacer? Para poder responder esta pregunta primero debemos poder definir qué debe hacer el programa. Para ello, es conveniente contar con un lenguaje suficientemente expresivo y preciso en el cual expresar tal definición. Expresivo en cuanto a que el mismo lenguaje nos permita definir qué hacen distintos tipos de programas, y preciso en cuanto a que la definición no de lugar a ambigüedades.
+    A esta tarea la llamamos \textit{especificar} un programa. Escribir la especificación de un programa antes de pensar en implementarlo es (o debiera ser) una práctica ineludible, ya que hacerlo nos reasegura que entendemos qué es lo que debemos implementar.
 
-    Hoare y Dijkstra eligieron utilizar fórmulas de lógica de primer orden con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) sobre las variables y constantes del programa para denotar su especificación. Y esta elección se sostiene hasta el día de hoy.
+    Una forma de definir qué hace un programa es hacerlo en términos de condiciones que se cumplirán para ciertas variables del mismo, luego de su ejecución. Lo cual da lugar a la siguiente definición de qué es un programa, al menos en cuanto a cómo se relaciona con otros objetos.
 
-    Precisamente, para especificar un programa utilizamos la Terna de Hoare $\{P\}S\{Q\}$, en la cual $S$ es el programa, $P$ y $Q$ son fórmulas de lógica de primer orden que definen la precondición y poscondición del programa respectivamente, e interpretamos así: 
-    \begin{center}
-        \textit{Cada vez que ejecutemos $S$ a partir de un estado que satisface $P$ llegaremos a un estado que satisface $Q$.}
-    \end{center}
+    En programación imperativa, un programa es un transformador de estados. Un estado es una valuación de las variables y constantes a las que un programa tendrá acceso, y ejecutar el programa, significará una transformación de ese estado inicial, en otro estado final.
 
-    Un estado, en este contexto es simplemente un mapeo de variables y constantes del programa a sus respectivos valores en un momento dado de la ejecución. La precondición es útil para indicar los requisitos que el programa impone sobre el estado a fin de garantizar la poscondición.
+    Utilizaremos condiciones sobre las variables y constantes para describir el estado final.
+    Notar que si preservamos en constantes los valores de entrada de interés, luego en las condiciones sobre el estado final podremos expresar la relación que deben guardar los valores de salida de interés respecto a los de entrada.
+
+    El lenguaje para expresar estas condiciones será el de la lógica matemática con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) aplicados a las variables y constantes del programa o a expresiones construídas a partir de ellas.
+
+    Este mismo lenguaje nos permite especificar condiciones que deben cumplirse en el estado inicial para que se considere válido ejecutar el programa.
+
+    Utilizamos la ``Terna de Hoare'', \hoare{P}{S}{Q} para especificar programas donde $P$ es una precondición, $S$ un programa y $Q$ una poscondición, y la interpretamos así:
+
+    ``Cada vez que se ejecuta $S$ a partir de un estado que satisface $P$, el programa termina en un estado que satisface $Q$''
+
+    \example{Especificación de la división entera}
+
+    Un programa $S$ que ejecute la división entera de dos números $X$ e $Y$, puede ser especificado con la siguiente terna:
+    \verticalHoare{Y \neq 0}{S}{X = q * Y + r \land |r| < |Y|}
+    Donde $X$ e $Y$ serán constantes y $q$ y $r$ variables, todas de tipo entero.
+    Notar que la precondición impide la división por $0$ y que $q$ y $r$ tomarán respectivamente los valores del cociente y resto de la división de $X$ por $Y$ luego de ejecutar $S$.
+
+    \vspace{1em}
+
+    Al especificar un programa logramos también separar conceptualmente dos aspectos independientes del mismo: su especificación (qué hace), y su implementación (cómo lo hace).
+    Gracias a la precisión del lenguaje utilizado para especificar, quienes quieran saber qué hace el programa solo necesitarán leer y entender su especificación, sin necesidad de revisar su implementación para descubrirlo. Esto es una gran ventaja, ya que la especificación de un programa suele ser más concisa que su implementación.
 
     Ahora que contamos con un lenguaje preciso para describir qué debe hacer un programa, queda responder cómo hacemos para garantizar que efectivamente lo hace.
 
-    La respuesta a este interrogante, da lugar a las técnicas de verificación automática de software que, en el caso de Dafny, se basan en las definiciones de Dijkstra acerca de la semántica de los programas.
-
     \section{Prueba de correctitud}
-    Dijkstra introdujo el concepto de \textit{weakest precondition} de un programa respecto de una poscondición $wp.S.Q$ como una fórmula de lógica de primer orden que captura las mínimas condiciones que debe cumplir un estado inicial para que, al ejecutar $S$ a partir de ese estado, se arribe a un estado final en el que se satisface $Q$. A su vez estableció la siguiente equivalencia con la Terna de Hoare que nos dice que un programa cumple con su especificación si y solo si la precondición $P$ implica la \textit{weakest precondition} de $S$ respecto de $Q$.
-    \begin{equation}
-        \label{eq:terna-de-hoare}
-        \{P\}S\{Q\} \equiv P \Rightarrow wp.S.Q
-    \end{equation}
+    Con ``programación formal'' nos referimos a resolver este problema mediante la generación de una demostración de correctitud bajo un sistema formal de deducción. Es decir, una secuencia de pasos lógicos que logren deducir la correctitud del programa a partir de un un conjunto mínimo de axiomas y reglas de inferencia.
 
-    De esta manera, si encontramos una demostración de $P \Rightarrow wp.S.Q$, por ejemplo, a partir de un conjunto de axiomas que asumimos como tales y un conjunto de reglas de inferencia correctamente utilizadas, habremos garantizado que el programa cumple con su especificación. O en términos de nuestra pregunta original, que el programa hace lo que tiene que hacer.
+    Si logramos generar una demostración de \hoare{P}{S}{Q} diremos que la terna es un teorema y lo denotaremos \hoareTheorem{P}{S}{Q}.
 
-    Dafny utiliza el cálculo de \textit{weakest precondition} formulado por Dijkstra para obtener una obligación de prueba similar a la de \ref{eq:terna-de-hoare} que luego delega a un probador automático de teoremas para completar la verificación.
-    Aunque el procedimiento concreto para la construcción de la obligación de prueba en Dafny conlleva una serie de extensiones a las ideas de Dijkstra (que cubriremos oportunamente en el capítulo \ref{ch:pipeline-dafny}), sus definiciones originales para obtener la $wp.S.Q$ en un lenguaje imperativo minimal que llamó ``guarded-commands''\cite{EWD:EWD418}, por un lado son la base para la construcción de la obligación de prueba en Dafny, y por otro reúnen todos los conceptos teóricos que debemos tener en cuenta a la hora de escribir programas anotados en Dafny y lograr su verificación automática.
+    Al igual que un teorema matemático, por ejemplo $\vdash x = x * y + 0$, donde la igualdad vale para cualquier valor de $x$ e $y$, un teorema de la forma \hoareTheorem{P}{S}{Q} significa que la terna vale para cualquier estado posible que satisfaga $P$.
 
-    A continuación describimos una versión alternativa\footnote{El lenguaje de Dijkstra incluye la posibilidad de tener múltiples guardas para los comandos alternativa y repetición, cada una asociada con un programa que se ejecuta si la guarda es seleccionada, lo cual hace que la ejecución de estos comandos sea no determinística en la teoría, y que la definición de su $wp$, aunque un poco más compleja que la que veremos aquí, resulte muy útil para derivar programas a partir de ella.} del lenguaje ``guarded-commands'' compuesta por los siguientes comandos:
-    \begin{itemize}
-        \item El comando $skip$ que no realiza modificación alguna en el estado.
-        \item La asignación: $x := E$ que asigna para la variable $x$ el valor de la expresión $E$ evaluada en el estado actual.
-        \item La concatenación: $S;T$ que ejecuta el programa $S$ y a continuación el programa $T$.
-        \item La alternativa: $if\ B\ then\ S\ else\ T$ donde $B$ es una expresión booleana llamada guarda y $S$ y $T$ son programas. Al ejecutarse la alternativa, se evalúa $B$, si evalúa a $True$ se ejecuta $S$, de lo contrario se ejecuta $T$.
-        \item Y la repetición: $while\ B\ then\ S$ donde de nuevo $B$ es una guarda y $S$ un programa. En la repetición mientras $B$ evalúe a $True$ se ejecuta su $S$ y se repite el proceso. Si desde el inicio no $B$ evalúa a $False$ el comando equivale a $skip$.
-    \end{itemize}
+    Notemos que, a diferencia del \textit{testing} de programas que prueba correctitud para algunos casos particulares no exhaustivos, una demostración formal probará la correctitud del programa para todos los casos posibles. Lo cual incrementa drásticamente la confianza que podemos depositar en los programas.
 
-    Además de la descripción mecánica anterior, podemos definir para cada comando $C$ su semántica en términos del transformar de predicados $wp.C$, que para cualquier predicado $Q$ arbitrario devuelve la $wp.C.Q$.
+    Los primeros esfuerzos por definir un sistema formal de deducción para la programación imperativa se condensaron en lo que conocemos como la lógica de Hoare.
+    La misma establece axiomas y reglas de inferencia para un lenguaje simple equipado con los comandos esenciales del paradigma imperativo: la asignación, el \textit{if} y el \textit{while}. Repasaremos la lógica de Hoare en seguida con la ayuda de Dafny.
 
-    Para el comando $skip$ tenemos que $wp.skip.Q \equiv Q$, es decir si queremos que $Q$ valga luego de ejecutar un comando que no hace nada, pues necesitamos que $Q$ valga antes de ejecutarlo también.
+    \section{Herramientas de verificación automática}
+    Hilvanar axiomas y reglas de inferencia para lograr una demostración de un programa, incluso de uno simple, es una tarea tediosa. Y es por eso que desde entonces hay un gran esfuerzo de investigación y desarrollo en técnicas de mecanización de la generación de demostraciones y la automatización de estos mecanismos que dio lugar a las herramientas actuales de verificación automática de software, como Dafny.
 
-    En el caso de la asignación tenemos $wp.(x:=E).Q \equiv Q[x:=E]$ donde $Q[x:=E]$ es el resultado de la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$. Es decir si queremos que $Q$ valga luego de ejecutar la asignación $x:=E$, entonces $Q$ debía valer antes de ejecutar la asignación (llamemos a este estado $P$) salvo por el hecho de que, si hay cláusulas con referencias a $x$ en $Q$, en $P$ debían valer pero no para $x$ sino para $E$.
+    De ellas, debemos esperar que oculten la complejidad de los mecanismos que hilvanan axiomas y reglas de inferencia en milisegundos, y que nos permitan escribir software verificado siempre que tengamos pleno entendimiento de los axiomas y reglas que rigen la automatización que realizan.
 
-    Para la concatenación $S;T$ tenemos $wp.S;T.Q \equiv wp.S.(wp.T.Q)$, que debe ilustrarnos la naturaleza compositiva de la $wp.S.Q$ para cualquier programa $S$ a partir de los comandos que lo conforman.
+    Al esconder dicha complejidad, estas herramientas nos facilitan el acceso a la programación formal permitiéndonos ejercitar la especificación de programas y el uso de un sistema deductivo para demostrar su correctitud, enfocando el esfuerzo cognitivo en el plano semántico en vez del mecánico.
 
-    En cuanto a la alternativa, tenemos
-    \begin{align*}
-        wp.(if\ B\ then\ S\ else\ T).Q \equiv (B \Rightarrow wp.S.Q) \land (\lnot B \Rightarrow wp.T.Q)
-    \end{align*}
-    De lo cual se desprende el siguiente teorema análogo al ``teorema 1'' en el trabajo de Dijkstra:
-    \begin{align*}
-        &(P \land B \Rightarrow wp.S.Q) \land (P \land \lnot B \Rightarrow wp.T.Q) \\
-        &\Rightarrow \\
-        &(P \Rightarrow wp.(if\ B\ then\ S\ else\ T).Q)
-    \end{align*}
-    Pensando ya en la práctica de verificar problemas con Dafny este teorema nos dice que, cuando estemos frente a una alternativa y queramos que el verificador pueda asegurar cierta condición $Q$ luego de la misma, debemos tener en cuenta que el verificador buscará probar por un lado, que lo que sabe hasta el momento en conjunción con $B$ implica la $wp.S.Q$ y por el otro, que lo que sabe hasta el momento en conjunción con $\lnot B$ implica la $wp.T.Q$. Es decir, cuando estemos frente a una alternativa, podemos averiguar si el verificador está logrando asegurar una condición $Q$ en cada caso por separado.
+    A continuación haremos un repaso de la Lógica de Hoare al tiempo que pondremos a prueba Dafny, en cuanto a su capacidad para aplicar los axiomas y reglas de inferencia del sistema. Este ejercicio, nos proveerá del conocimiento necesario para escribir programas reales en Dafny en el siguiente capítulo.
 
-    La definición de Dijkstra para la $wp$ de la repetición no resultaba ser una fórmula de primer orden, por lo cual el cálculo quedaba incompleto.\footnote{Una explicación de esto puede encontrarse en el Capítulo 10 de la historia de la lógica de Hoare publicada por Krzysztof R. Apt \cite{10.1007/s00165-019-00501-3}}.
+    \section{Lógica de Hoare en Dafny}
+    La lógica de Hoare está compuesta por un axioma, el de axioma de la asignación, y un conjunto de reglas de inferencia. Para presentar las reglas de inferencia utilizaremos la siguiente notación:
+    \inferenceRule{\vdash S_1, ..., \vdash S_n}{\vdash S}
+    Que indica que la \textit{conclusión} $\vdash S$ puede deducirse a partir de las \textit{hipótesis} $\vdash S_1, ..., \vdash S_n$, las cuales serán o bien todos teoremas de la lógica de Hoare (en la forma $\vdash[P]S[Q]$) o bien una combinación de teoremas de la lógica de Hoare con teoremas de la lógica matemática.
 
-    Si hago un intento propio de definir la $wp$ para la repetición, lo más general que se me ocurre pensar es lo siguiente:
+    \subsection*{Axioma de la asignación}
+    La asignación es el comando que toma la forma $x := E$ donde $x$ es una variable y $E$ es una expresión que posiblemente contiene la variable $x$, y utilizamos para asignar a $x$ el valor que resulte de evaluar $E$ al momento de la asignación. Utilizando la notación $P[x:=E]$ para denotar el predicado que resulta de reemplazar sintácticamente en $P$ todas las ocurrencias de $x$ por $E$, el axioma de la asignación es:
+    \begin{center}
+        \hoareTheorem{P[x:=E]}{x:=E}{P}
+    \end{center}
 
-    Existen $R_n$, $R_{n-1}$, ... $R_0$ para algún $n \geqslant 0$, todas ellas fórmulas de primer orden para las cuales:
-    \begin{align*}
-    \{P\}while\ B\ do\ S\{Q\} \equiv \ & P \Rightarrow R_n \\
-                                     & \land R_n \Rightarrow (B \land wp.S.R_{n-1}) \\
-                                     & \land R_{n-1} \Rightarrow (B \land wp.S.R_{n-2}) \\
-                                     & \land ... \land \\
-                                     & \land R_1 \Rightarrow (B \land wp.S.R_0) \\
-                                     & \land R_0 \Rightarrow (\lnot B \land Q)
-    \end{align*}
+    Y lo que nos dice es que un predicado con posibles cláusulas sobre $x$ siempre valdrá  luego de asignar $E$ a $x$ si antes de la asignación valía un predicado similar a $P$ pero en donde esas cláusulas referían a $E$ en vez de a $x$.
 
-    Es decir, pensando en un ciclo varias iteraciones, para que el ciclo nos lleve de un estado que satisface $P$ a un estado que satisface $Q$ debe haber una primera condición $R_n$ impuesta por $P$, que alcance para que $S$ nos asegure una segunda condición $R_{n-1}$ (y además $B$ por que estamos pensando en un ciclo con varias iteraciones) y así sucesivamente, hasta llegar al punto en que la última ejecución de $S$ nos asegura un estado en donde se satisface una condición $R_0$ que implica que la guarda no ahora no vale y además vale $Q$.
+    Podemos escribir un simple programa en Dafny para probar cómo este resuelve verificaciones que implican conocimiento del axioma de la asignación:
 
-    Pero estamos hablando aquí de la existencia de fórmulas, y no de valores, por tanto estamos abandonando la lógica de primer orden, tal como sucedía, aunque de manera menos explícita, con la definición de $wp$ de Dijkstra.
+    \example{Axioma de la asignación en Dafny}
+    \begin{dafny}
+function E(x: int): int
+predicate P(x: int)
 
-    Este problema se resuelve típicamente introduciendo los conceptos de invariante y función de cota como parámetros de entrada del cálculo. El invariante es una condición que se cumple a la entrada y salida del ciclo y durante cada una de las iteraciones. La función de cota es la que nos asegura que el ciclo terminará eventualmente. En vez de exigirle al cálculo que resuelva la existencia de las fórmulas $R_n$... $R_0$, le ofreceremos una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$ a partir de las cuales se podrían construir $R_n$...$R_0$. Por ejemplo de la siguiente manera:
-    \begin{align*}
-        & R_n \equiv I \land t \leqslant E_t \\ 
-        & R_i \equiv  I \land t \leqslant (E_t - (n - i)) \ \ \ \forall i : 0 \leqslant i < n
-    \end{align*}
+method axioma_de_la_asignacion()
+{
+    var x: int := 0;
+    assume P(E(x));
+    x := E(x);
+    assert P(x);
+}
+    \end{dafny}
 
-    Por suerte, no será necesario representar cada una de ellas en la fórmula final que, como veremos a continuación, tendrá un tamaño independiente de $n$.
+    En dafny una \textit{función} (\inlinedafny{function}) se utiliza para calcular valores a partir de sus parámetros de entrada, no tiene efectos secundarios y puede tener definiciones recursivas. Un \textit{predicado}(\inlinedafny{predicate}) es equivalente a una función cuyo valor de retorno es un booleano. Un \textit{método}(\inlinedafny{method}) podrá tener parámetros de entrada y de retorno, tener efectos secundarios y utilizar en su cuerpo comandos imperativos.
 
-    Aplicamos algunas modificaciones a \textit{wp} para obtener un cálculo completo que aquí llamaremos \textit{wpi}.
-    Reemplazamos nuestro comando repetición por el siguiente: $while\ B\ \{I\}\{E_t\}\ do\ S$, es decir, una versión anotada que nos asegurará que cada ciclo lleva consigo una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$. Definimos $wpi.C.Q \equiv wp.C.Q$ para todo comando $C$ distinto de la repetición, y para la repetición de la siguiente manera:
+    En el ejemplo definimos una función $E$ sobre una variable de tipo entero $x$ que devuelve a su vez un valor entero.
+    Un predicado $P$ sobre una variable de tipo entero.
+    Y un método sin parámetros de entrada ni de retorno en donde ponemos a prueba la habilidad de Dafny para utilizar el axioma de la asignación.
+    No es obligatorio definir un cuerpo para $E$ y $P$ lo que nos permite en este ejemplo referirnos a una función arbitraria y a un predicado arbitrario.
+    En la línea 7 establecemos la hipótesis de que $P$ vale para $E(x)$ haciendo uso del commando \inlinedafny{assume}.
+    En la línea 8 realizamos la asignación.
+    Y en la línea 9 le exigimos a Dafny probar que $P$ vale para $x$ en ese punto del programa mediante el commando \inlinedafny{assert}.
+    Efectivamente Dafny logra verificarlo, lo cual simbolizamos con la línea verde vertical a la izquierda (WIP: agregar la línea).\footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo.}
+    \vspace{1em}
 
-    \begin{align*}
-        wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q \equiv\ & I \land (I \land B) \Rightarrow wp.S.I \\
-            & \land (I \land B) \Rightarrow E_t \geqslant 0 \\
-            & \land (I \land B) \Rightarrow wpi.(t := E_t; S)(E_t \leqslant t-1) \\
-            & \land (I \land \lnot B) \Rightarrow Q
-    \end{align*}
-    Donde $t$ es una variable que no aparece en $S$.
-    Podemos establecer ahora:
-    \begin{align*}
-        (P \Rightarrow wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q) \Rightarrow \{P\}\ while\ B\ do\ S\ \{Q\}
-    \end{align*}
+    \subsubsection*{Regla del fortalecimiento de la precondición}
+    Esta regla indica que si tenemos un programa que nos lleva de $P'$ a $Q$ entonces ese mismo programa también nos lleva a $Q$ desde cualquier precondición más fuerte que $P'$.
+    \inferenceRule{\hoareTheorem{P'}{S}{Q}\ \ \vdash P \rightarrow P'}{\hoareTheorem{P}{S}{Q}}
 
-    Notar que utilizamos $\Rightarrow$ en vez de $\equiv$ aquí, ya que el ciclo podría perfectamente satisfacer la especificación sin estar bien anotado. Por eso mismo obviamos el invariante y la función de cota en el término de la derecha. Escribimos entonces:
+    \example{Regla del fortalecimiento de la precondición en Dafny}
+    \begin{dafny}
+        
+predicate P(x: int)
+predicate P'(x: int)
+predicate Q(x: int)
 
-    \begin{equation}
-        \label{eq:wpi-implies-hoare-triple}
-        (P \Rightarrow wpi.S.Q) \Rightarrow \{P\}S\{Q\}
-    \end{equation}
+method S(x: int)
+    requires P'(x)
+    ensures Q(x)
 
-    Lo cual es suficiente y nos brinda un cálculo completo para intentar probar correctitud de programas imperativos anotados.
+method regla_del_fortalecimiento_de_la_precondicion(x: int)
+{
+    assume forall x: int :: P(x) ==> P'(x);
+    assume P(x);
+    S(x);
+    assert Q(x); 
+}
+    \end{dafny}
 
-    Una prueba de \eqref{eq:wpi-implies-hoare-triple} se adjunta en el Anexo I.
+    Aquí hemos utilizado las sentencias \inlinedafny{requires} y \inlinedafny{ensures} para especificar la precondición y poscondición respectivamente del programa $S$. Durante el proceso de verificación del método $regla\_del\_fortalecimiento\_de\_la\_precondicion$, donde se invoca a $S$, Dafny asumirá que $S$ cumple con su especificación, sin inspeccionar su implementación. Esto resulta muy útil en la práctica para partir el programa en programas más pequeños, lograr primero una implementación verificada del método principal, postergando la implementación de las partes.
+
+    Para verificar el \textit{assert} de la línea 15. Dafny tuvo que aplicar la regla del fortalecimiento de la precondición a partir de la hipótesis de la línea 12 y de la especificación de $S$.
+
+    De este ejemplo y del anterior, podemos notar que aunque en la teoría solemos referirnos con un predicado $P$ a una fórmula sobre el conjunto de las variables del programa, en Dafny debemos especificar sobre cuáles opera específicamente, lo cual naturalmente facilita el trabajo de la herramienta a la hora de verificar.
+    \vspace{1em}
+    
+    \subsubsection*{Regla del debilitamiento de la poscondición}
+    La regla del debilitamiento de la poscondición nos dice que si un programa $S$ nos lleva de $P$ a $Q$, el mismo programa nos lleva de $P$ a cualquier poscondición más débil que $Q$. Podemos ver a Dafny utilizando esta regla con un ejemplo análogo al anterior.
+
+    \example{Regla del debilitamiento de la poscondición en Dafny}
+    \begin{dafny}
+predicate P(x: int)
+predicate Q(x: int)
+predicate Q'(x: int)
+
+method S(x: int)
+    requires P(x)
+    ensures Q'(x)
+
+method test(x: int)
+{
+    assume forall x: int :: Q'(x) ==> Q(x);
+    assume P(x);
+    S(x);
+    assert Q(x); 
+}
+    \end{dafny}
+
+    \vspace{1em}
 
     \section{Invariante y función de cota}
     Vale la pena detenernos a reflexionar aquí sobre los conceptos de invariante y función de cota.
@@ -1139,6 +1203,93 @@ predicate esta_en(s: string, w: string, k: int)
     \end{verbatim}
 
     \chapter{Misc (a eliminar)}
+
+    \section{WP y condiciones de verificacion}
+    De esta manera, si encontramos una demostración de $P \Rightarrow wp.S.Q$, por ejemplo, a partir de un conjunto de axiomas que asumimos como tales y un conjunto de reglas de inferencia correctamente utilizadas, habremos garantizado que el programa cumple con su especificación. O en términos de nuestra pregunta original, que el programa hace lo que tiene que hacer.
+
+    Dafny utiliza el cálculo de \textit{weakest precondition} formulado por Dijkstra para obtener una obligación de prueba similar a la de \ref{eq:terna-de-hoare} que luego delega a un probador automático de teoremas para completar la verificación.
+    Aunque el procedimiento concreto para la construcción de la obligación de prueba en Dafny conlleva una serie de extensiones a las ideas de Dijkstra (que cubriremos oportunamente en el capítulo \ref{ch:pipeline-dafny}), sus definiciones originales para obtener la $wp.S.Q$ en un lenguaje imperativo minimal que llamó ``guarded-commands''\cite{EWD:EWD418}, por un lado son la base para la construcción de la obligación de prueba en Dafny, y por otro reúnen todos los conceptos teóricos que debemos tener en cuenta a la hora de escribir programas anotados en Dafny y lograr su verificación automática.
+
+    A continuación describimos una versión alternativa\footnote{El lenguaje de Dijkstra incluye la posibilidad de tener múltiples guardas para los comandos alternativa y repetición, cada una asociada con un programa que se ejecuta si la guarda es seleccionada, lo cual hace que la ejecución de estos comandos sea no determinística en la teoría, y que la definición de su $wp$, aunque un poco más compleja que la que veremos aquí, resulte muy útil para derivar programas a partir de ella.} del lenguaje ``guarded-commands'' compuesta por los siguientes comandos:
+    \begin{itemize}
+        \item El comando $skip$ que no realiza modificación alguna en el estado.
+        \item La asignación: $x := E$ que asigna para la variable $x$ el valor de la expresión $E$ evaluada en el estado actual.
+        \item La concatenación: $S;T$ que ejecuta el programa $S$ y a continuación el programa $T$.
+        \item La alternativa: $if\ B\ then\ S\ else\ T$ donde $B$ es una expresión booleana llamada guarda y $S$ y $T$ son programas. Al ejecutarse la alternativa, se evalúa $B$, si evalúa a $True$ se ejecuta $S$, de lo contrario se ejecuta $T$.
+        \item Y la repetición: $while\ B\ then\ S$ donde de nuevo $B$ es una guarda y $S$ un programa. En la repetición mientras $B$ evalúe a $True$ se ejecuta su $S$ y se repite el proceso. Si desde el inicio no $B$ evalúa a $False$ el comando equivale a $skip$.
+    \end{itemize}
+
+    Además de la descripción mecánica anterior, podemos definir para cada comando $C$ su semántica en términos del transformar de predicados $wp.C$, que para cualquier predicado $Q$ arbitrario devuelve la $wp.C.Q$.
+
+    Para el comando $skip$ tenemos que $wp.skip.Q \equiv Q$, es decir si queremos que $Q$ valga luego de ejecutar un comando que no hace nada, pues necesitamos que $Q$ valga antes de ejecutarlo también.
+
+    En el caso de la asignación tenemos $wp.(x:=E).Q \equiv Q[x:=E]$ donde $Q[x:=E]$ es el resultado de la sustitución sintáctica en $Q$ de todas las ocurrencias de $x$ por $E$. Es decir si queremos que $Q$ valga luego de ejecutar la asignación $x:=E$, entonces $Q$ debía valer antes de ejecutar la asignación (llamemos a este estado $P$) salvo por el hecho de que, si hay cláusulas con referencias a $x$ en $Q$, en $P$ debían valer pero no para $x$ sino para $E$.
+
+    Para la concatenación $S;T$ tenemos $wp.S;T.Q \equiv wp.S.(wp.T.Q)$, que debe ilustrarnos la naturaleza compositiva de la $wp.S.Q$ para cualquier programa $S$ a partir de los comandos que lo conforman.
+
+    En cuanto a la alternativa, tenemos
+    \begin{align*}
+        wp.(if\ B\ then\ S\ else\ T).Q \equiv (B \Rightarrow wp.S.Q) \land (\lnot B \Rightarrow wp.T.Q)
+    \end{align*}
+    De lo cual se desprende el siguiente teorema análogo al ``teorema 1'' en el trabajo de Dijkstra:
+    \begin{align*}
+        &(P \land B \Rightarrow wp.S.Q) \land (P \land \lnot B \Rightarrow wp.T.Q) \\
+        &\Rightarrow \\
+        &(P \Rightarrow wp.(if\ B\ then\ S\ else\ T).Q)
+    \end{align*}
+    Pensando ya en la práctica de verificar problemas con Dafny este teorema nos dice que, cuando estemos frente a una alternativa y queramos que el verificador pueda asegurar cierta condición $Q$ luego de la misma, debemos tener en cuenta que el verificador buscará probar por un lado, que lo que sabe hasta el momento en conjunción con $B$ implica la $wp.S.Q$ y por el otro, que lo que sabe hasta el momento en conjunción con $\lnot B$ implica la $wp.T.Q$. Es decir, cuando estemos frente a una alternativa, podemos averiguar si el verificador está logrando asegurar una condición $Q$ en cada caso por separado.
+
+    La definición de Dijkstra para la $wp$ de la repetición no resultaba ser una fórmula de primer orden, por lo cual el cálculo quedaba incompleto.\footnote{Una explicación de esto puede encontrarse en el Capítulo 10 de la historia de la lógica de Hoare publicada por Krzysztof R. Apt \cite{10.1007/s00165-019-00501-3}}.
+
+    Si hago un intento propio de definir la $wp$ para la repetición, lo más general que se me ocurre pensar es lo siguiente:
+
+    Existen $R_n$, $R_{n-1}$, ... $R_0$ para algún $n \geqslant 0$, todas ellas fórmulas de primer orden para las cuales:
+    \begin{align*}
+    \{P\}while\ B\ do\ S\{Q\} \equiv \ & P \Rightarrow R_n \\
+                                     & \land R_n \Rightarrow (B \land wp.S.R_{n-1}) \\
+                                     & \land R_{n-1} \Rightarrow (B \land wp.S.R_{n-2}) \\
+                                     & \land ... \land \\
+                                     & \land R_1 \Rightarrow (B \land wp.S.R_0) \\
+                                     & \land R_0 \Rightarrow (\lnot B \land Q)
+    \end{align*}
+
+    Es decir, pensando en un ciclo varias iteraciones, para que el ciclo nos lleve de un estado que satisface $P$ a un estado que satisface $Q$ debe haber una primera condición $R_n$ impuesta por $P$, que alcance para que $S$ nos asegure una segunda condición $R_{n-1}$ (y además $B$ por que estamos pensando en un ciclo con varias iteraciones) y así sucesivamente, hasta llegar al punto en que la última ejecución de $S$ nos asegura un estado en donde se satisface una condición $R_0$ que implica que la guarda no ahora no vale y además vale $Q$.
+
+    Pero estamos hablando aquí de la existencia de fórmulas, y no de valores, por tanto estamos abandonando la lógica de primer orden, tal como sucedía, aunque de manera menos explícita, con la definición de $wp$ de Dijkstra.
+
+    Este problema se resuelve típicamente introduciendo los conceptos de invariante y función de cota como parámetros de entrada del cálculo. El invariante es una condición que se cumple a la entrada y salida del ciclo y durante cada una de las iteraciones. La función de cota es la que nos asegura que el ciclo terminará eventualmente. En vez de exigirle al cálculo que resuelva la existencia de las fórmulas $R_n$... $R_0$, le ofreceremos una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$ a partir de las cuales se podrían construir $R_n$...$R_0$. Por ejemplo de la siguiente manera:
+    \begin{align*}
+        & R_n \equiv I \land t \leqslant E_t \\ 
+        & R_i \equiv  I \land t \leqslant (E_t - (n - i)) \ \ \ \forall i : 0 \leqslant i < n
+    \end{align*}
+
+    Por suerte, no será necesario representar cada una de ellas en la fórmula final que, como veremos a continuación, tendrá un tamaño independiente de $n$.
+
+    Aplicamos algunas modificaciones a \textit{wp} para obtener un cálculo completo que aquí llamaremos \textit{wpi}.
+    Reemplazamos nuestro comando repetición por el siguiente: $while\ B\ \{I\}\{E_t\}\ do\ S$, es decir, una versión anotada que nos asegurará que cada ciclo lleva consigo una fórmula para el invariante $I$ y una expresión aritmética para la cota $E_t$. Definimos $wpi.C.Q \equiv wp.C.Q$ para todo comando $C$ distinto de la repetición, y para la repetición de la siguiente manera:
+
+    \begin{align*}
+        wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q \equiv\ & I \land (I \land B) \Rightarrow wp.S.I \\
+            & \land (I \land B) \Rightarrow E_t \geqslant 0 \\
+            & \land (I \land B) \Rightarrow wpi.(t := E_t; S)(E_t \leqslant t-1) \\
+            & \land (I \land \lnot B) \Rightarrow Q
+    \end{align*}
+    Donde $t$ es una variable que no aparece en $S$.
+    Podemos establecer ahora:
+    \begin{align*}
+        (P \Rightarrow wpi.(while\ B\ \{I\}\{E_t\}\ do\ S).Q) \Rightarrow \{P\}\ while\ B\ do\ S\ \{Q\}
+    \end{align*}
+
+    Notar que utilizamos $\Rightarrow$ en vez de $\equiv$ aquí, ya que el ciclo podría perfectamente satisfacer la especificación sin estar bien anotado. Por eso mismo obviamos el invariante y la función de cota en el término de la derecha. Escribimos entonces:
+
+    \begin{equation}
+        \label{eq:wpi-implies-hoare-triple}
+        (P \Rightarrow wpi.S.Q) \Rightarrow \{P\}S\{Q\}
+    \end{equation}
+
+    Lo cual es suficiente y nos brinda un cálculo completo para intentar probar correctitud de programas imperativos anotados.
+
+    Una prueba de \eqref{eq:wpi-implies-hoare-triple} se adjunta en el Anexo I.
 
     \section{Referencias que quiero usar}
 
