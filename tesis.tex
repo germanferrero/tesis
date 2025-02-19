@@ -29,8 +29,8 @@
   \noindent\textbf{Ejemplo \theexample: #1}
 }
 
-\newcommand{\hoare}[3]{\ensuremath{[#1]#2[#3]}}
-\newcommand{\hoareTheorem}[3]{\ensuremath{\vdash[#1]#2[#3]}}
+\newcommand{\hoare}[3]{\ensuremath{[#1]\ #2\ [#3]}}
+\newcommand{\hoareTheorem}[3]{\ensuremath{\vdash[#1]\ #2\ [#3]}}
 \newcommand{\verticalHoare}[3]{
     \begin{align*}
         [#1]
@@ -151,7 +151,7 @@
     \inferenceRule{\vdash S_1, ..., \vdash S_n}{\vdash S}
     Que indica que la \textit{conclusión} $\vdash S$ puede deducirse a partir de las \textit{hipótesis} $\vdash S_1, ..., \vdash S_n$, las cuales serán o bien todos teoremas de la lógica de Hoare (en la forma $\vdash[P]S[Q]$) o bien una combinación de teoremas de la lógica de Hoare con teoremas de la lógica matemática.
 
-    \subsection*{Axioma de la asignación}
+    \subsection{Axioma de la asignación}
     La asignación es el comando que toma la forma $x := E$ donde $x$ es una variable y $E$ es una expresión que posiblemente contiene la variable $x$, y utilizamos para asignar a $x$ el valor que resulte de evaluar $E$ al momento de la asignación. Utilizando la notación $P[x:=E]$ para denotar el predicado que resulta de reemplazar sintácticamente en $P$ todas las ocurrencias de $x$ por $E$, el axioma de la asignación es:
     \begin{center}
         \hoareTheorem{P[x:=E]}{x:=E}{P}
@@ -187,7 +187,7 @@ method axioma_de_la_asignacion()
     Efectivamente Dafny logra verificarlo, lo cual simbolizamos con la línea verde vertical a la izquierda (WIP: agregar la línea).\footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo.}
     \vspace{1em}
 
-    \subsubsection*{Regla del fortalecimiento de la precondición}
+    \subsection{Regla del fortalecimiento de la precondición}
     Esta regla indica que si tenemos un programa que nos lleva de $P'$ a $Q$ entonces ese mismo programa también nos lleva a $Q$ desde cualquier precondición más fuerte que $P'$.
     \inferenceRule{\hoareTheorem{P'}{S}{Q}\ \ \vdash P \rightarrow P'}{\hoareTheorem{P}{S}{Q}}
 
@@ -217,9 +217,10 @@ method regla_del_fortalecimiento_de_la_precondicion(x: int)
 
     De este ejemplo y del anterior, podemos notar que aunque en la teoría solemos referirnos con un predicado $P$ a una fórmula sobre el conjunto de las variables del programa, en Dafny debemos especificar sobre cuáles opera específicamente, lo cual naturalmente facilita el trabajo de la herramienta a la hora de verificar.
     \vspace{1em}
-    
-    \subsubsection*{Regla del debilitamiento de la poscondición}
+
+    \subsection{Regla del debilitamiento de la poscondición}
     La regla del debilitamiento de la poscondición nos dice que si un programa $S$ nos lleva de $P$ a $Q$, el mismo programa nos lleva de $P$ a cualquier poscondición más débil que $Q$. Podemos ver a Dafny utilizando esta regla con un ejemplo análogo al anterior.
+    \inferenceRule{\hoareTheorem{P}{S}{Q'}\ \ \vdash Q' \rightarrow Q}{\hoareTheorem{P}{S}{Q}}
 
     \example{Regla del debilitamiento de la poscondición en Dafny}
     \begin{dafny}
@@ -242,17 +243,163 @@ method test(x: int)
 
     \vspace{1em}
 
-    \section{Invariante y función de cota}
-    Vale la pena detenernos a reflexionar aquí sobre los conceptos de invariante y función de cota.
-    Si nuestro programa incluye un ciclo que realiza algún trabajo interesante, este ciclo tendrá un invariante y una función de cota, lo hagamos explícito o no. Utilizamos ciclos para encontrar respuestas o construir soluciones (en definitiva, lograr alguna transformación de estado deseada) de manera iterativa y constructiva. El invariante del ciclo es su propiedad intrínseca que nos dice que efectivamente estamos construyendo, paso a paso, esa transformación. Y la función de cota es la que nos dice que eventualmente concluiremos el trabajo.
+    \subsection{Regla de la composición}
+    La regla de la composición indica que si un programa $S1$ nos lleva de un predicado $P$ a un predicado $R$, desde el cual otro programa $S2$ nos lleva hasta un predicado $Q$, entonces secuenciar $S2$ luego de $S1$, nos da un programa que nos lleva del predicado $P$ al predicado $Q$.
+ 
+    \inferenceRule{\hoareTheorem{P}{S_1}{R}\ \ \hoareTheorem{R}{S_2}{Q}}{\hoareTheorem{P}{S_1;S_2}{Q}}
+
+    \example{Regla de la composición en Dafny}
+
+    El siguiente ejemplo ilustra la capacidad de Dafny para aplicar la regla de la composición.
+    \begin{dafny}
+predicate P(x: int)
+predicate Q(x: int)
+predicate R(x: int)
+
+method S1(x: int)
+    requires P(x)
+    ensures R(x)
+
+method S2(x: int)
+    requires R(x)
+    ensures Q(x)
+
+method regla_de_la_composicion(x: int)
+{
+    assume P(x);
+    S1(x);
+    S2(x);
+    assert Q(x);
+}
+    \end{dafny}
+
+    Con frecuencia resultará útil en la práctica insertar un \textit{assert} de algún predicado $R$ en el algún punto intermedio de nuestro programa cuando intuyamos que la verificación debería lograrse aplicando esta regla. Al hacerlo no solo comprobamos que el verificador puede asegurar ese predicado en ese punto, sino que también lo ayudamos a tenerlo en cuenta (ahora como teorema) para probar lo que sigue.
+
+    \vspace{1em}
+
+    \subsection{Regla del \textit{if}}
+    Esta regla nos dice que si ambas ramificaciones del \textit{if} junto con la información agregada por la correspondiente valuación de la guarda nos llevan de la precondición a la poscondición, entonces el \textit{if}, como constructo que las compone, también lo hace.
+
+    \inferenceRule{\hoareTheorem{P \land B}{S}{Q}\ \ \hoareTheorem{P \land \lnot B}{T}{Q}}{\hoareTheorem{P}{if\ B\ then\ S\ else\ T}{Q}}
+
+    \example{Regla del \textit{if} en Dafny}
+
+    En este ejemplo Dafny utiliza las especificaciones de los métodos $S$ y $T$ y la regla del \textit{if} para realizar la verificación.
+    \begin{dafny}
+predicate P(x: int)
+predicate Q(x: int)
+function B(x: int): bool
+
+method S(x: int)
+    requires P(x) && B(x)
+    ensures Q(x)
+
+method T(x: int)
+    requires P(x) && !B(x)
+    ensures Q(x)
+
+method regla_del_if(x: int)
+{
+    assume P(x);
+    if B(x) {
+        S(x);
+    } else {
+        T(x);
+    }
+    assert Q(x);
+}
+    \end{dafny}
+    En la práctica, para que Dafny pueda utilizar esta regla, debemos asegurarnos de que puede establecer la hipótesis correspondiente a cada rama. Es decir, que si Dafny no está logrando la verificación, debemos inspeccionar cada caso del \textit{if} por separado para ver si la poscondición se cumple al final de su cuerpo.
+
+    \vspace{1em}
+
+    \subsection{El \textit{while}, el invariante y la función de cota}
+    El $while$ es la sentencia de la programación imperativa que nos permite escribir programas realmente interesantes, cuya estrategia resolutiva se desenvuelve en uno o más ciclos que computan de manera creativa algún valor deseado. En estos programas los ciclos son típicamente la parte más difícil tanto de elaborar como de verificar.
+
+    Para trabajar con ciclos en términos formales debemos abrazar dos conceptos: el invariante del ciclo y su función de cota.
+    El invariante es una condición que se cumple a la entrada del ciclo, a la salida del mismo, y durante cada una de las iteraciones. La función de cota es una expresión numérica que se modifica en cada iteración del ciclo y atestigua que el ciclo termina eventualmente.
+
+    Si nuestro programa incluye un ciclo que realiza algún trabajo interesante, este ciclo tiene un invariante y una función de cota, lo hayamos hecho explícito o no. Utilizamos ciclos para encontrar respuestas o construir soluciones (en definitiva, lograr alguna transformación de estado deseada) de manera iterativa y constructiva. El invariante del ciclo es su propiedad intrínseca que nos dice que efectivamente estamos construyendo, paso a paso, esa transformación. Y la función de cota es la que nos dice que eventualmente concluiremos el trabajo.
 
     Imaginemos dos personas a las que le pedimos que edifiquen una columna de $2mts$ cada una por separado. Para realizar esa columna se necesitan $N$ bloques de cemento. Una vez que empezaron su tarea, volteamos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna bloque a bloque, de abajo hacia arriba, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la columna por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ bloques, y una función de cota: con cada bloque colocado, falta uno menos para llegar a $N$.
-    Poder enunciar el invariante y la función de cota, incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo y ciertamente aumenta nuestras posibilidades de implementarlo correctamente.
 
-    Dafny depende fuertemente de que el invariante del ciclo esté definido para probar su correctitud. Y salvo en casos triviales en los que puede inferirlo por su cuenta\footnote{Haciendo uso de técnicas de aproximación de dominios abstractos que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables.\cite{10.1007/11804192_17}}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
+    Enunciar el invariante y la función de cota incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo, aumenta nuestras posibilidades de implementarlo correctamente y es indispensable al construir una demostración de su correctitud.
 
-    \section{Recapitulación}
-    \wip{hicimos la pregunta, la respondimos, vimos como especificar, como se prueba, que cosas son importantes para la prueba, introdujimos el cálculo $wpi$ que nos habla de programas anotados con invariantes, ya no de programas, y ahora sí permite el calculo de una \textit{ weakest precondition} para programas imperativos con ciclos. Palabritas sobre la diferencia entre escribir la prueba a mano y ayudar a Dafny a que la obtenga por su cuenta (de alguna forma, en vez de estar escribiendo nosotros los detalles de la prueba nos estamos ocupando, en un plano más conceptual, de que los elementos probatorios estén reunidos), profit.}
+    Antes de pasar a la regla de inferencia del \textit{while} repasemos el problema de la división entera. Este problema se resuelve con un programa que contiene un ciclo.
+
+    \example{División entera de dos números enteros positivos}
+
+    Queremos obtener un programa que dados dos números enteros positivos $x$ e $y$, compute el cociente $q$ y el resto $r$ de la división entera de $x$ por $y$.
+    Recordemos que el cociente y el resto serán números enteros que cumplen:
+    $x = q * y + r \land 0 \leqslant r < y$.
+    Ó dicho de otra forma $q$ y $r$ son tales que $x$ se distribuye entre $y$ veces $q$ y un resto $r$ que es menor a $y$.
+    Si pensamos el problema como un proceso iterativo en el que debemos repartir una cantidad $x$ entre $y$ partes iguales, podemos decir que al principio no hemos repartido nada aún, y en cada iteración repartiremos una unidad a cada una de las partes, mientras alcance para todas. Cuando no alcance para todas, habremos terminado, y tendremos un resto $r$ entre 0 e $y$. En todo momento, lo que aún queda por repartir será el resto $r$, la guarda del ciclo será $r \geqslant y$ (aún alcanza para repartir una a cada una) y lo repartido a cada parte será $q$. Entonces al principio tendremos $r=x$ y $q=0$ y en todo momento mantendremos como invariante $x = q * y + r \land 0 \leqslant r$. Notemos que $r$ es mayor a 0 y decrecerá en cada iteración, por lo que $r$ sirve como función de cota que asegura que el ciclo terminará.
+    Al final del ciclo, obtendremos el invariante (por haberlo mantenido a cada paso) y la negación de la guarda (por haber terminado). La conjunción de ambas cosas nos dice que: $x = q * y + r \land 0 \leqslant r < y$. Por tanto $q$ y $r$ serán el cociente y resto de la división entera de $x$ por $y$.
+
+    La implementación en Dafny aún no verificada de nuestro programa luce así:
+    \begin{dafny}
+method division_entera(x: int, y: int) returns (q: int, r: int)
+    requires x > 0 && y > 0
+    ensures x == q * y + r && 0 <= r < y
+{
+    q := 0;
+    r := x;
+    while r >= y
+    {
+        q := q + 1;
+        r := r - y;
+    }
+}
+    \end{dafny}
+
+    Para que Dafny pueda verificar esta implementación deberemos \textbf{anotar} el ciclo con un invariante y función de cota apropiados. Ya que, como veremos a continuación, ambos son piezas fundamentales de la regla de inferencia del \textit{while}.
+
+    \vspace{1em}
+
+    \subsection{Regla del \textit{while}}
+
+    La regla de inferencia del \textit{while} es la siguiente:
+
+    \inferenceRule{\hoareTheorem{I \land B \land (E = n)}{S}{I \land (E < n)}\ \ \ \ \vdash I \land B \rightarrow E \geqslant 0}{\hoareTheorem{I}{while\ B\ do\ S}{I \land \lnot B}}
+
+    La primera hipótesis dice que $S$, el cuerpo del while, debe ser tal que si el invariante $I$ y la guarda $B$ se cumplen antes de ejecutar $S$ luego de ejecutar $S$ el invariante continúa valiendo y además la función de cota $E$ se redujo al menos en una unidad.
+
+    La segunda hipótesis dice que el invariante $I$ en conjunción con la guarda $B$ aseguran que la función de cota es mayor o igual a 0. Estableciendo así una cota inferior para una variable que decrece en cada iteración por la hipótesis anterior.
+
+    Si estas dos hipótesis se cumplen, entonces podemos derivar que estableciendo el invariante en la entrada del ciclo, el mismo nos llevará a un estado en el cual se cumple el invariante y la negación de la guarda.
+
+    Dafny, como lo indica la regla, depende fuertemente de que el invariante del ciclo y la función de cota estén definidos para intentar probar su correctitud. Y salvo en casos triviales en los que puede inferirlos por su cuenta\footnote{Para intentar inferir el invariante usará técnicas de aproximación de dominios abstractos que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables.\cite{10.1007/11804192_17}. Para la función de cota, como ejemplos, en caso de que la guarda sea del tipo $E<F$ probará con $F-E$, y en el caso de que sea $E!=F$ probará con $if\ E<F\ then\ F-E\ else\ E-F$.}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
+
+    Retomando el ejemplo de la división entera. Podemos lograr una implementación verificada anotando el ciclo con el invariante $x = q * y + r \land 0 \leqslant r$ (utilizando la anotación \inlinedafny{invariant}), y la función de cota $r$ (con la anotación \inlinedafny{decreases}).
+
+    \begin{dafny}
+method division_entera(x: int, y: int) returns (q: int, r: int)
+    requires x > 0 && y > 0
+    ensures x == q * y + r && 0 <= r < y
+{
+    q := 0;
+    r := x;
+    while r >= y
+        invariant x == q * y + r && 0 <= r
+        decreases r
+    {
+        q := q + 1;
+        r := r - y;
+    }
+}
+    \end{dafny}
+
+    \subsection{Reglas de conjunción y disyunción}
+    Dos reglas más completan el sistema deductivo de la Lógica de Hoare para este lenguaje imperativo simple.
+
+    La regla de conjunción de especificaciones:
+    \inferenceRule{\hoareTheorem{P}{S}{Q}\ \ \hoareTheorem{P'}{S}{Q'}}{\hoareTheorem{P \land P'}{S}{Q \land Q'}}
+
+    Y la regla de disyunción de especificaciones:
+    \inferenceRule{\hoareTheorem{P}{S}{Q}\ \ \hoareTheorem{P'}{S}{Q'}}{\hoareTheorem{P \lor P'}{S}{Q \lor Q'}}
+
+    \subsection{Recapitulación}
+    Hemos visto el axioma de la asignación y las reglas de inferencia de la Lógica de Hoare para un lenguaje imperativo simple y pusimos a prueba la capacidad de Dafny para verificar programas que requieren hacer uso de ellas. Al programar en Dafny, a través de un entorno de desarrollo apropiado, estaremos constantemente interactuando con el verificador en la tarea conjunta de lograr una implementación verificada de nuestros programas. Dafny intentará hacerlo de manera autónoma, resolviendo el tedio de articular axiomas y reglas en pos de una demostración, pero en ocasiones deberemos ayudarlo, entendiendo qué reglas de inferencia son necesarias a cada paso y verificando que las hipótesis para aplicar esas reglas se satisfacen y el verificador está al tanto de ello. Además, y siendo esto lo más importante, deberemos anotar cada ciclo con invariantes y funciones de cota.
 
     \chapter{Metodología para escribir programas en Dafny}
 
@@ -1427,48 +1574,7 @@ predicate esta_en(s: string, w: string, k: int)
     \dafnyfile{"Implementación verificada de segmento de suma máxima"}{ejemplos/calculo_de_programas/segmento_de_suma_maxima_con_indices.dfy}
 
     Dafny logra verificar automáticamente esta implementación.
-
-    \section{La división de números enteros}
-    Queremos obtener un programa que dados dos números $x$ e $y$, compute el cociente $q$ y el resto $r$ de la división entera de $x$ por $y$.
-    Recordemos que el cociente y el resto cumplen:
-    $$x = y * q + r$$
-    Ahora bien, ¿cómo podemos computar $q$ y $r$, para cualquier $x$ e $y$ dados?
-    Una alternativa razonable es construir iterativamente tanto $q$ como $r$, partiendo de valores iniciales y acercándolos en cada paso a su valor final.
-    Si en todo momento, mantenemos la cantidad de $x$ distribuída entre cierta cantidad de $y$’s (esto es $q$) y el resto que falta para llegar a cubrir $x$ (esto es $r$), entonces podemos imaginar un ciclo en el que empezamos con $q$ igual a 0 y todo $x$ está en $r$.
-    Luego en cada paso, y mientras podamos extraer una cantidad $y$ de $r$, la sustraemos de ahí y la pasamos a $q$.
-    Es decir, empezamos con:
-    \begin{verbatim}
-        q:=0;
-        r:=x;
-    \end{verbatim}
-    Y en cada paso mientras que $r \geq y$, ejecutamos
-    \begin{verbatim}
-        q:=q + 1;
-        r:=r - y;
-    \end{verbatim}
-
-    Y así sucesivamente hasta que $y$ no quepe en $r$ ( $ y > r $ ). Para entonces $q$ y $r$ serán respectivamente el cociente y el resto de la división de $x$ por $y$.
-
-    Nuestro programa final será:
-    \begin{verbatim}
-    q:=0;
-    r:=x;
-    do r >=y
-        q:=q+1;
-        r:=r-y;
-    od
-    \end{verbatim}
-    Notemos en este programa simple, que:
-    \begin{itemize}
-        \item En todo momento se cumple:
-        $$x = q * y + r$$
-        Este es nuestro \textit{invariante}, y proviene de nuestra estrategia inicial de tener distribuído $x$, paso a paso, entre $q$ y $r$.
-        \item Que debemos continuar iterando mientras que $r >= y$,
-        Esta es nuestra \textit{guarda}.
-        \item Que si se cumple el invariante y la guarda deja de cumplirse entonces hemos terminado.
-        \item Y que a su vez, estamos seguros de que en algún momento la guarda dejará de cumplirse, por que en cada paso reducimos $r$.
-    \end{itemize}
-
+    (... Sobre la division entera y en cuanto al enfoque intuicion -> matematica)
     Este desarrollo alternativo, pone foco en presentar al lector una estrategia de resolución iterativa del problema, acudiendo a la experiencia común entre las personas de ``pasar cosas'' de un lugar a otro, y cómo esa estrategia puede traducirse en un programa concreto.
     La esperanza, es que al finalizar la explicación, el lector esté en mejores condiciones de identificar otros problemas que puedan resolverse programando ciclos, y la importancia que el invariante adquiere como sostén de la estrategia iterativa de resolución.
 
