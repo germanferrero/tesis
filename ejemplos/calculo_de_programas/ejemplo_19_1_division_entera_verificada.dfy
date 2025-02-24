@@ -6,7 +6,7 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
     r := x;
     while r >= y
         invariant x == q * y + r && r >= 0
-        decreases r
+        decreases r - y
     {
         q := q + 1;
         r := r - y;

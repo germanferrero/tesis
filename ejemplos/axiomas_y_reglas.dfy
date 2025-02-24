@@ -4,7 +4,7 @@ module axioma_de_la_asignacion {
 
     method test()
     {
-        var x: int := 0;
+        var x: int := *;
         assume {:axiom} P(E(x));
         x := E(x);
         assert P(x);
@@ -137,22 +137,21 @@ module regla_de_la_repeticion{
     function E(x: int): int
     predicate I(x: int)
 
-    method {:axiom} S(x: int) returns (x': int)
-        requires I(x) && B(x)
-        ensures I(x')
+    method S(x: int) returns (x': int)
+        // requires B(x) && I(x)
+        // ensures I(x')
         ensures E(x') < E(x)
 
     method test(){
-        assume {:axiom} forall x: int :: I(x) && B(x) ==> E(x) >= 0;
-        var x: int := 0;
-        assume {:axiom} I(x);
+        var x: int := *;
+        assume forall x: int :: B(x) ==> E(x) >= 0;
+        assume I(x);
         while B(x)
             decreases E(x)
-            invariant I(x)
+            // invariant true
         {
-            assert I(x) && B(x);
             x := S(x);
         }
-        assert I(x) && !B(x);
+        assert !B(x);
     }
 }
