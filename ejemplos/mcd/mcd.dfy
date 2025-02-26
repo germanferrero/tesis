@@ -22,7 +22,7 @@ predicate invariante(d: int, m': int, n': int) {
     && (m' % n' == 0 ==> d == n')
 }
 
-method {:axiom} inicializacion(ghost d: int, m: int, n: int) returns (m': int, n': int)
+method inicializacion(ghost d: int, m: int, n: int) returns (m': int, n': int)
     requires 0 < n <= m
     requires es_el_mcd(d, m, n)
     ensures invariante(d, m', n')
@@ -36,7 +36,7 @@ lemma {:axiom} mcd_del_modulo(d:int, m:int, n:int)
     requires n > 0
     ensures es_el_mcd(d, n, m % n)
 
-method {:axiom} cuerpo(ghost d: int, m: int, n: int) returns (m': int, n': int)
+method cuerpo(ghost d: int, m: int, n: int) returns (m': int, n': int)
     requires invariante(d, m, n)
     ensures invariante(d, m', n')
     ensures m' % n' < m % n
