@@ -9,6 +9,41 @@
 \usepackage{spverbatim}
 \usepackage{tikz}
 \usepackage{pst-poker}
+\usepackage{tcolorbox}
+
+\newtcolorbox{warningbox}[1]{colback=orange!5!white,colframe=orange!90!black,fonttitle=\bfseries,title=#1}
+
+\newtcolorbox{greenbox}{
+    colback=white,
+    colframe=green, % Frame color
+    arc=0pt,        % No rounded corners
+    leftrule=1mm,   % Thickness of the left rule
+    rightrule=0pt,  % No right rule
+    toprule=0pt,    % No top rule
+    bottomrule=0pt, % No bottom rule
+    boxsep=0pt,     % Space between text and box
+    left=4pt,       % Space between left rule and text
+    right=0pt,       % Space between left rule and text
+    top=0pt,        % Space between top rule and text
+    bottom=0pt,      % Space between bottom rule and text
+    beforeafter skip=0pt
+}
+
+\newtcolorbox{redbox}{
+    colback=white,
+    colframe=red, % Frame color
+    arc=0pt,        % No rounded corners
+    leftrule=1mm,   % Thickness of the left rule
+    rightrule=0pt,  % No right rule
+    toprule=0pt,    % No top rule
+    bottomrule=0pt, % No bottom rule
+    boxsep=0pt,     % Space between text and box
+    left=4pt,       % Space between left rule and text
+    right=0pt,       % Space between left rule and text
+    top=0pt,        % Space between top rule and text
+    bottom=0pt,      % Space between bottom rule and text
+    beforeafter skip=0pt
+}
 
 \newif\ifUsePstPoker
 \UsePstPokerfalse
@@ -43,6 +78,7 @@
         \frac{#1}{#2}
     \end{equation*}
 }
+
 \linespread{1.1}
 \author{Germán Ferrero}
 \title{Construcción formal de programas asistida por Dafny}
@@ -50,35 +86,35 @@
     \chapter{Introducción}
     El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia Algoritmos y Estructuras de Datos I, de nuestra Lic. en Cs. de la Computación.
 
-    Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y se expande hacia la definición de un lenguaje imperativo minimal cuya semántica es definida en términos de un transformador de predicados.
-    En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y poscondición de estos programas se expresan como predicados válidos del sistema formal y la definición semántica de cada una de las sentencias del lenguaje está también definida mediante fórmulas de este sistema.
+    Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y se expande hacia la definición de un lenguaje imperativo minimal cuya semántica es definida en términos de transformación de predicados.
+    En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y poscondición de estos programas se expresan como predicados válidos del sistema formal y la semántica de cada una de las sentencias del lenguaje está también definida en base a fórmulas de este sistema.
 
-    Los estudiantes conciben así un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su correctitud.
+    Se busca así que los estudiantes conciban un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su correctitud.
 
     Las materias resaltan el valor adicional que se obtiene al especificar y verificar formalmente los programas en comparación con especificarlos vagamente o probar su correctitud solo para algunos casos específicos mediante la práctica usual de \textit{testing} de software.
 
     Consideramos esta enseñanza de la programación a través de métodos formales de altísimo valor, y buscamos con este trabajo potenciarla.
 
-    Durante el cursado de estas materias, y particularmente en Algoritmos y Estructuras de Datos I, los estudiantes destinan gran parte del tiempo de cursada y práctica fuera del claustro a la formulación de demostraciones dentro del sistema formal aprendido. Un alto porcentaje de los ejercicios de los prácticos de la materia conllevan la demostración de teoremas y es también el condimento central a la hora de las evaluaciones.
+    Durante el cursado de estas materias, y particularmente en Algoritmos y Estructuras de Datos I, los estudiantes destinan gran parte del tiempo de cursada y práctica fuera del claustro a la formulación de demostraciones dentro del sistema formal aprendido. Un alto porcentaje de los ejercicios de los prácticos de la materia conllevan la demostración de teoremas y es también un condimento central a la hora de las evaluaciones.
 
     Demostrar teoremas requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y ejercitación en la búsqueda de patrones para encontrar posibles aplicaciones de los axiomas y reglas de inferencia del sistema formal en cada uno de los pasos de la demostración.
     Esta es una actividad que si bien refuerza nuestro entendimiento de cómo se opera un sistema formal y por qué podemos confiar en él, a menudo satura nuestra capacidad cognitiva, dejando poco espacio para el aprendizaje de otros aspectos, o en otros planos, del tema que estamos estudiando.
 
-    Un escenario que nos despierta particular interés es el de la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo en que se construye su demostración.
-    Esta técnica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que resaltamos las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
+    Un escenario que nos despierta particular interés es el de la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo en que se construye la demostración de su correctitud.
+    Esta práctica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que resaltamos las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
 
     Nuestra hipótesis de trabajo es que el énfasis actual puesto en la operatoria del sistema formal es tal vez excesivo y contraproducente.
 
-    Demostrar programas (en el caso de la programación imperativa), implica una comprensión profunda de conceptos fundamentales como tipos de datos, estado y transformación de estado, precondición, poscondición, invariante de un ciclo, función de cota, etc. Incluso también de los conceptos de axioma, consistencia del conjunto de axiomas, y prueba.
+    Demostrar programas (en el caso de la programación imperativa), implica una comprensión profunda de conceptos fundamentales como tipos de datos, estado y transformación de estado, precondición, poscondición, invariante de un ciclo, función de cota, etc. Incluso también comprender la confianza que depositamos en los axiomas y las reglas de inferencia en cuanto a sus consistencia.
     A la vez, hacerlo con lápiz y papel acarrea un trabajo meticuloso para hilvanar axiomas y reglas de inferencia en la construcción de la demostración, como mencionamos anteriormente.
 
-    Desde nuestra mirada, ambas cosas son importantes, pero lo primero es constituyente y lo segundo es secundario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas enmarcadas en un sistema formal y la necesidad de construirlas, pero manteniendo el foco en lo primero.
+    Desde nuestra mirada, ambas cosas son importantes, pero lo primero es primordial y lo segundo es complementario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas enmarcadas en un sistema formal y la necesidad de construirlas, pero manteniendo el foco en lo primero.
 
-    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas refuerzan la necesidad de que dominemos los conceptos fundamentales, a la vez que resuelven el trabajo tedioso por nosotros, liberando nuestra capacidad cognitiva para hacer sentido de los programas que desarrollamos y de las piezas fundamentales que posibilitan su verificación.
+    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas nos permiten aprender los conceptos fundamentales, a la vez que resuelven por nosotros el trabajo tedioso, liberando nuestra capacidad cognitiva para dar sentido a los programas que desarrollamos y de las piezas fundamentales que posibilitan su verificación.
 
-    Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubiéramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas  sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. Sostenemos además, que estas técnicas pueden combinarse con la derivación a partir de la especificación formal en un mismo proceso de desarrollo.
+    Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubiéramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. En \cite{Losano}, Leticia Losano analiza las dificultades que atraviesan los estudiantes durante el cursado de Introducción a los Algoritmos, en particular en cuanto a la formulación de demostraciones. Su trabajo nos convoca y motiva en la búsqueda de alternativas. Sostenemos además, que estas técnicas alternativas podrían combinarse con la derivación formal en un mismo proceso de desarrollo.
 
-    Finalmente consideramos que, en el primer año de la carrera durante el cuál se desarrollan estas materias, delegar parte de la generación de pruebas en las herramientas de verificación de software que tenemos hoy a nuestro alcance puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día. Estudiantes que desarrollen un sentido más profundo de los conceptos fundamentales y los pongan en práctica a lo largo del resto de la carrera. E incluso, en un estadio más avanzado de la misma y con otro entendimiento del valor que supone, estén en mejores condiciones para profundizar su conocimiento en sistemas formales.
+    Finalmente consideramos que, en el primer año de la carrera durante el cual se desarrollan estas materias, delegar parte de la generación de pruebas en las herramientas de verificación de software que tenemos hoy a nuestro alcance puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día. Estudiantes que desarrollen un sentido más profundo de los conceptos fundamentales y los pongan en práctica a lo largo del resto de la carrera. E incluso, en un estadio más avanzado de la misma y con otro entendimiento del valor que supone, estén en mejores condiciones para profundizar su conocimiento en sistemas formales.
 
     \chapter{Programación formal asistida por Dafny}
 
@@ -164,6 +200,8 @@
     Podemos escribir un simple programa en Dafny para probar cómo este resuelve verificaciones que implican conocimiento del axioma de la asignación:
 
     \example{Axioma de la asignación en Dafny}
+    \vspace{1em}
+    \begin{greenbox}
     \begin{dafny}
 function E(x: int): int
 predicate P(x: int)
@@ -176,6 +214,8 @@ method axioma_de_la_asignacion()
     assert P(x);
 }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     En dafny una \textit{función} (\inlinedafny{function}) se utiliza para calcular valores a partir de sus parámetros de entrada, no tiene efectos secundarios y puede tener definiciones recursivas. Un \textit{predicado}(\inlinedafny{predicate}) es equivalente a una función cuyo valor de retorno es un booleano. Un \textit{método}(\inlinedafny{method}) podrá tener parámetros de entrada y de retorno, tener efectos secundarios y utilizar en su cuerpo comandos imperativos.
 
@@ -187,7 +227,7 @@ method axioma_de_la_asignacion()
     En la línea 7 establecemos la hipótesis de que $P$ vale para $E(x)$ haciendo uso del commando \inlinedafny{assume}.
     En la línea 8 realizamos la asignación.
     Y en la línea 9 le exigimos a Dafny probar que $P$ vale para $x$ en ese punto del programa mediante el commando \inlinedafny{assert}.
-    Efectivamente Dafny logra verificarlo, lo cual simbolizamos con la línea verde vertical a la izquierda (WIP)\footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo.} haciendo uso del axioma de la asignación. 
+    Efectivamente Dafny logra verificarlo (lo cual simbolizamos con la línea verde vertical a la izquierda \footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo.}), haciendo uso del axioma de la asignación. 
     \vspace{1em}
 
     \subsection{Regla del fortalecimiento de la precondición}
@@ -419,7 +459,7 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
         \end{math}
     \end{center}
 
-    Nuestra primera exploración en la búsqueda de un algoritmo que compute el m.c.d entre $m$ y $n$ fue recordar la factorización en primos de $m$ y $n$. Dada por:
+    Nuestra primera exploración en la búsqueda de un algoritmo que compute el m.c.d entre $m$ y $n$ fue a partir de la factorización en primos de $m$ y $n$. Dada por:
 
     \begin{center}
         \begin{math}
@@ -468,20 +508,20 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
     La resolución propuesta es correcta. Sin embargo la complejidad algorítmica es mayor a la de la solución propuesta por Euclides hace más de 2300 años.
 
     Hay alguna técnica de obtención de invariantes que nos hubiera llevado a la misma realización que tuvo Euclides? Puede el método reemplazar a la creatividad?
-    Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando la geometría de líneas con una longitud múltiplo de alguna unidad. De la misma forma en que Pitágoras llegó a su famoso teorema observando triángulos. De nuevo, sospecho.
+    Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando la geometría de líneas de longitud múltiplo de alguna unidad. De la misma forma en que Pitágoras llegó a su famoso teorema observando triángulos. De nuevo, sospecho.
 
     El mismo Dijkstra, en su trabajo ``Guarded Commands''\cite{EWD:EWD418} donde presenta el ``calculo para la derivación formal de programas'' reflexiona en las conclusiones:
 
     \begin{quoting}
-        La segunda razón para llevar a cabo estas investigaciones fue mi deseo personal de apreciar mejor qué parte de la actividad de programación puede considerarse una mera rutina formal y qué parte parece requerir ``invención''. Mientras que el diseño de un \textit{if} parece ahora una actividad razonablemente directa, el diseño de un ciclo requiere lo que yo considero ``la invención'' de una relación invariante y una función variante.(...) Mi presentación de este cálculo no debe ser interpretada como una sugerencia personal de que todos los programas tiene que ser desarrollados de esta manera: solo nos provee una herramienta más.
-    \end{quoting} Edsger W. Dijkstra. (La traducción es nuestra)
+        La segunda razón para llevar a cabo estas investigaciones fue mi deseo personal de apreciar mejor qué parte de la actividad de programación puede considerarse una mera rutina formal y qué parte parece requerir ``invención''. Mientras que el diseño de un \textit{if} parece ahora una actividad bastante directa, el diseño de un ciclo requiere lo que yo considero ``la invención'' de una relación invariante y una función variante.(...) Mi presentación de este cálculo no debe ser interpretada como una sugerencia personal de que todos los programas tiene que ser desarrollados de esta manera: solo nos provee una herramienta más.
+    \end{quoting} Edsger W. Dijkstra. (La traducción es mía)
 
     En el libro Cálculo de Programas, actual bibliografía de referencia de la materia, se reserva un lugar de gran relevancia a la técnica de derivación de programas. Por ejemplo, para el problema del máximo común divisor se plantea derivar el cuerpo del ciclo a partir de las propiedades del $mcd$ en las que se apoya el algoritmo de Euclides.
-    Si bien la técnica es válida, creo que sería más provechoso enfocar la enseñanza en el razonamiento procedural que realizó Euclides y explica por qué se eligen dichas propiedades del $mcd$ en primer lugar.
+    Si bien la técnica es valiosa, creo que sería más provechoso enfocar la enseñanza en el razonamiento procedural que realizó Euclides y que explica por qué se eligen dichas propiedades del $mcd$ en primer lugar.
 
-    En general creo que podemos quitar relevancia a la derivación de programas como método preferido para obtener programas válidos, dar lugar a otros métodos como la creatividad y el ingenio y resaltar el rol de las técnicas de verificación formal para \textbf{probar} que los programas son correctos.
+    En general creo que podemos quitar relevancia a la derivación de programas como método preferente para construirlos, dar lugar a otros métodos como la creatividad y el ingenio y resaltar el rol de las técnicas de verificación formal para \textbf{probar} que los programas son correctos.
 
-    Probar que el algoritmo de Euclides es correcto, es una tarea tan importante como la demostración de cualquier teorema. En ese sentido no hay diferencia entre un programa y una equivalencia matemática. Ambas cosas pueden obtenerse a partir de un proceso creativo, y necesitan ser demostradas, bajo un proceso metódico, cuidadoso, formal.
+    Probar que el algoritmo de Euclides es correcto, es una tarea tan importante como la demostración de cualquier teorema. En ese sentido no hay diferencia entre un programa y una equivalencia matemática. Ambos pueden obtenerse a partir de un proceso creativo, y necesitan ser demostradas, bajo un proceso metódico, cuidadoso y formal.
 
     Mi siguiente paso fue entonces observar el procedimiento propuesto por Euclides y entender la estrategia resolutiva para luego pasar a construir una implementación verificada en Dafny.
 
@@ -607,14 +647,14 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
         \item Especificar el programa.
         \item Testear la especificación.
         \item Definir el invariante, función de cota y guarda del loop.
-        \item Declarar las variables necesarias.
+        \item Declarar las variables necesarias en el método principal.
         \item Especificar inicialización y cuerpo del loop.
         \item Implementar la inicialización y el cuerpo del loop.
         \item Fortalecer el invariante, en caso de ser necesario.
     \end{enumerate}
 
     \subsubsection{Especificación del programa}
-    Definimos para ello un método con su precondición y postcondición:
+    Definimos para ello el predicado \textit{es el mcd} que será verdadero si y solo sí $d$ es el máximo común divisor de $m$ y $n$ y el método principal \textit{máximo común divisor} con su precondición sobre $m$ y $n$ y su poscondición:
 
     \begin{dafny}
 predicate es_el_mcd(d: int, m: int, n: int)
@@ -632,16 +672,16 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
     ensures es_el_mcd(mcd, m, n)
     \end{dafny}
 
-    Tener definido el predicado ``es\_el\_mcd'' nos será útil a continuación para ``testear'' la especificación y definir el invariante.
+    Tener definido el predicado \textit{es el mcd} nos será útil a continuación para \textit{testear} la especificación y definir el invariante.
 
     \subsubsection{Testear la especificación}
     Al escribir software verificado, restringimos el espacio para el error humano de la implementación a la definición de la especificación.
     Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como una deficiencia de la implementación o de la capacidad del verificador para realizar la prueba de correctitud, cuando en realidad el problema está arrastrado desde la especificación misma.
-    Afortunadamente en Dafny podemos testear la especificación.
-    El verificador es capaz de validar el predicado ``es\_el\_mcd'' para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la correctitud de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
+    Afortunadamente en Dafny podemos \textit{testear} la especificación.
+    El verificador es capaz de validar el predicado \textit{es el mcd} para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la correctitud de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
 
     \begin{dafny}
-method test_es_el_mcd_numeros_chicos(){
+method test_es_el_mcd(){
     assert es_el_mcd(1, 8, 3);
     assert !es_el_mcd(2, 8, 3);
     assert es_el_mcd(5, 2345, 5000);
@@ -652,7 +692,7 @@ method test_es_el_mcd_numeros_chicos(){
 
     \subsubsection{Definir el invariante, función de cota y guarda del loop}
 
-    Recordemos que la estrategia algorítmica era, sabiendo que $d = mcd(m, n)$, ir seleccionando en cada iteración dos varillas una más larga: $m'$ y otra más corta: $n'$, manteniendo dos afirmaciones:
+    Recordemos que la estrategia algorítmica era, sabiendo que $d$ es tal que $d = mcd(m, n)$, ir seleccionando en cada iteración dos varillas una más larga: $m'$ y otra más corta: $n'$, manteniendo dos afirmaciones:
     \begin{itemize}
         \item $d = mcd(m', n')$ y
         \item sí $n'$ compone a $m'$, entonces $d = n'$.
@@ -667,9 +707,9 @@ predicate invariante(d: int, m': int, n': int) {
 }
     \end{dafny}
 
-    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ se reduce en cada iteración. Proponemos entonces como guarda del loop $m'\%n'>0$, y como función de cota $m'\%n'$.
+    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ se reduce en cada iteración y que si llegamos a $m'\%n' == 0$ habremos terminado. Proponemos entonces como guarda del loop $m'\%n'>0$, y como función de cota $m'\%n'$.
 
-    \subsubsection{Declarar las variables necesarias}
+    \subsubsection{Declarar las variables necesarias en el método principal}
     Hay tres variables de tipo $int$ implicadas en el invariante: $d$, $m'$, $n'$.
     Las últimas dos: $m'$, $n'$ tomarán valores concretos en la inicialización y serán actualizadas en cada iteración, mientras que para $d$ no conocemos su valor hasta el final. Lo único que sabemos de $d$ es que al iniciar el programa refiere al $mcd$ de $m$ y $n$ (los parámetros de entrada), y luego en cada iteración $d$ es también el $mcd$ de las varillas que estamos analizando. Esto convierte a $d$ en una variable especial, que es necesaria para la verificación pero no se computará en tiempo de ejecución del programa. En Dafny estas variables se llaman \textit{ghost variables} y se definen así:
 
@@ -715,14 +755,14 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
 }
     \end{dafny}
 
-    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} aporta claridad sobre el uso del lemma.
+    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} aporta claridad sobre el uso que hacemos del lemma, en cuanto a las conclusiones que obtenemos de él.
 
     \subsubsection{Especificar inicialización y cuerpo del loop.}
 
-    Cuando invocamos un método auxiliar desde un método principal, para la verificación de este último Dafny asume que el primero cumple con su especificación y se limita a verificar el método principal bajo esa asunción. Haciendo uso de esta decisión de diseño podemos especificar un método para la inicialización y otro para el cuerpo del loop y validar que hemos elegido correctamente invariante y guarda incluso antes de implementar estos métodos.
+    Cuando invocamos un método auxiliar desde un método principal, para la verificación de este último Dafny asume que el primero cumple con su especificación y se limita a verificar el método principal bajo esa asunción. Haciendo uso de esta decisión de diseño podemos definir métodos con su especificación para la inicialización y cuerpo del loop, y utilizarlos en el método principal antes de pasar a implementarlos.
 
-    En la inicialización, requerimos como precondición la misma precondición sobre los parámetros de entrada que tiene nuestro programa, sumado a la condición que impusimos sobre la ghost variable $d$, luego pedimos que asegure el invariante de modo que se satisfaga al ingresar al loop.
-    
+    En la inicialización, requeriremos como precondición la misma precondición sobre los parámetros de entrada que tiene nuestro método principal, sumado a la condición que impusimos sobre la variable ghost $d$, luego pedimos que la inicialización asegure el invariante de modo que se satisfaga al ingresar al loop.
+
     \begin{dafny}
 method inicializacion(ghost d: int, m: int, n: int)
     returns (m': int, n': int)
@@ -741,7 +781,7 @@ method cuerpo(ghost d: int, m: int, n: int)
     ensures m' % n' < m % n
     \end{dafny}
 
-    Ahora podemos utilizar estos métodos en el método principal para obtener una implementación verificada del mismo. Así logramos validar la elección del invariante, la función de cota y la guarda incluso antes de implementar el cuerpo del loop y su inicialización.
+    Ahora, como decíamos, podemos invocar estos métodos en el método principal e intentar obtener una implementación verificada del mismo. Si lo logramos, habremos validado la elección del invariante, la función de cota y la guarda incluso antes de implementar el cuerpo del loop y su inicialización.
 
     \begin{dafny}
 method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
@@ -764,9 +804,26 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
 }
     \end{dafny}
 
-    \subsubsection{Implementar la inicialización y el cuerpo del loop.}
+    \begin{warningbox}{Introducción de inconsistencia}
+    Cuando Dafny asume que los métodos auxiliares cumplen con la especificación, lo hace incluso si la especificación es inconsistente. Como se ilustra en el siguiente ejemplo:
+    \begin{dafny}
+method metodo_auxiliar (y: int) returns (y': int)
+    ensures y' >= 0
+    ensures y' < 0
 
-    Con la siguiente implementación de la inicialización, la verificación sale de forma directa:
+method cuidado_con_la_consistencia() {
+    var y: int := 1;
+    y := metodo_auxiliar(y);
+    assert false;
+}
+    \end{dafny}
+    A partir de la inconsistencia puede probarse cualquier cosa, incluso \textit{false}, como sucede aquí. Cuando tengamos dudas sobre las condiciones que Dafny está logrando verificar, podemos asegurarnos de que no hay inconsistencias introduciendo \inlinedafny{assert false} y chequeando que falla la verificación.
+\end{warningbox}
+
+\subsubsection{Implementar la inicialización y el cuerpo del loop.}
+
+    Con la siguiente implementación del método de inicialización, la verificación del mismo sale de forma directa, como es de esperar a partir del axioma de la asignación.
+
     \begin{dafny}
 method inicializacion(ghost d: int, m: int, n: int)
     returns (m': int, n': int)
@@ -794,7 +851,7 @@ method cuerpo(ghost d: int, m: int, n: int)
 }
     \end{dafny}
 
-    Sucede que Dafny no conoce la propiedad $mcd(m, n) = mcd(n, m\%n)$, que es la clave para poder probar el programa. Si introducimos un axioma que establezca esa propiedad, Dafny efectivamente logra utilizarlo para verificar la implementación del cuerpo.
+    Sucede que Dafny no conoce la propiedad $mcd(m, n) = mcd(n, m\%n)$, que es junto al teorema de la asignación la clave para poder probar el método. Si introducimos un axioma que establezca esa propiedad, Dafny logra utilizarlo efectivamente para verificar la implementación del cuerpo.
 
     \begin{dafny}
 lemma {:axiom} mcd_del_modulo(d:int, m:int, n:int)
@@ -824,8 +881,8 @@ method cuerpo(ghost d: int, m: int, n: int)
     \dafnyfile{Versión final del máximo común divisor en Dafny}{ejemplos/mcd/mcd.dfy}
 
     \subsubsection{Fortalecer el invariante}
-    Como veremos en próximos ejemplos, hay ocasiones en que el invariante elegido resulta suficiente para establecer la postcondición desde la perspectiva del método principal, pero la implementación del cuerpo del loop requiere de variables auxiliares con sus propios invariantes que posibilitan establecer el invariante original.
-    En estos casos decimos que fortalecemos el invariante y en términos prácticos significará repetir los pasos 3 a 6, agregando nuevas variables auxiliares y modificando el invariante para que las contemple.
+    Como veremos en próximos ejemplos, hay ocasiones en que el invariante elegido resulta suficiente para establecer la poscondición desde la perspectiva del método principal, pero para la implementación del cuerpo del loop requerimos de variables auxiliares con sus propios invariantes que posibilitan establecer el invariante original.
+    En estos casos decimos que fortalecemos el invariante y en términos prácticos nos llevará a repetir los pasos 3 a 6, agregando las nuevas variables auxiliares y modificando el invariante para que las contemple.
 
     \subsubsection{Nota sobre los lemmas}
     Nuestro primer intento para los lemmas \textit{existe\_el\_mcd} y \textit{mcd\_del\_modulo} fue declararlos de la siguiente manera:
@@ -852,11 +909,11 @@ lemma {:axiom} mcd_del_modulo()
     El problema del segmento de suma máxima fue resuelto por Joseph Kadane con un algoritmo de $\mathcal{O}(N)$ el cuál analizaremos a continuación.
 
     \subsubsection*{El algoritmo de Joseph Kadane}
-    Visualizaremos el arreglo como una lista de cinco cartas de poker boca abajo, que descubrimos una a una de izquierda a derecha. Utilizaremos cartas de corazón para representar números positivos, y cartas de trébol para números negativos.
+    Visualizaremos el arreglo como una lista de cinco cartas de poker puestas boca abajo, que descubrimos una a una de izquierda a derecha. Utilizaremos cartas de corazón para representar números positivos, y cartas de trébol para números negativos.
 
     La idea es que en cada paso, tendremos una solución subóptima que será la suma de segmento máxima para los segmentos conocidos hasta el momento (con las cartas ya descubiertas), de modo que al descubrir todas las cartas, tendremos la suma del segmento de suma máxima para todo el arreglo.
 
-    Veamos un caso concreto en el que hemos descubierto ya las primeras dos cartas y estamos a punto de descubir la tercera (ver figura \ref{desc_ter_carta}).
+    Veamos un caso concreto en el que hemos descubierto ya las primeras dos cartas y estamos a punto de descubrir la tercera (ver figura \ref{desc_ter_carta}).
 
     \ifUsePstPoker
         \begin{figure}[h]
@@ -932,11 +989,12 @@ lemma {:axiom} mcd_del_modulo()
     Formalicemos ahora el problema y la estrategia resolutiva para obtener una implementación verificada en Dafny.
 
     \subsubsection*{Implementación en Dafny}
-    Identificaremos un segmento con dos índices $p$ y $q$, donde $p$ es el índice del primer elemento del segmento y $q-1$ el del último elemento. Diremos que el segmento termina en $A[q-1]$.
+    Identificaremos un segmento con dos índices $p,q$, donde $p$ es el índice del primer elemento del segmento y $q-1$ el del último elemento.
 
     El segmento vacío denotado por dos índices idénticos cualquiera (ejemplo: $i,i$) tiene suma 0.
 
-    El primer paso entonces es especificar el programa:
+    El primer paso entonces es especificar el programa. Para ello definimos la función recursiva \textit{suma} para denotar la suma del segmento $p,q$ de un arreglo $A$.
+    Y un predicado para la suma máxima que utilizamos como poscondición del método principal.
 
     \begin{dafny}
 function suma(p:nat, q:nat, A: seq<int>): int
@@ -983,7 +1041,7 @@ predicate invariante(k: int, A: seq<int>, r: int){
 }
     \end{dafny}
 
-    Notar que aún no hemos incluído en el invariante la suma de segmento máxima para segmentos que incluyan al penúltimo elemento. Lo cual resultará necesario más adelante cuando intentemos verificar una implementación del cuerpo del loop que sostenga el invariante.
+    Notar que aún no hemos incluído en el invariante la suma de segmento máxima para segmentos que incluyan al último elemento conocido. Lo cual resultará necesario más adelante cuando intentemos verificar una implementación del cuerpo del loop que sostenga el invariante.
 
     Para la guarda postulamos $k < |A|$. Y para la función de cota $|A| - k$. Probemos ahora inicializar las variables con métodos de inicialización y cuerpo que aún no implementaremos pero especificaremos en relación al invariante y la guarda.
 
@@ -1011,7 +1069,7 @@ method segmento_de_suma_maxima(A: seq<int>) returns (r: int)
 }
     \end{dafny}
 
-    La verificación del método \textit{segmento\_de\_suma\_maxima} resulta satisfactoria asumiendo que la inicialización y el cuerpo cumplen con su especificación y podemos pasar a implementar estos últimos.
+    La verificación del método \textit{segmento\_de\_suma\_maxima} resulta satisfactoria tras haber asumido que la inicialización y el cuerpo cumplen con su especificación. Podemos pasar ahora a implementar estos últimos.
 
     \begin{dafny}
 method inicializacion(A: seq<int>) returns (k: int, r: int)
@@ -1023,10 +1081,10 @@ method inicializacion(A: seq<int>) returns (k: int, r: int)
 }
     \end{dafny}
 
-    Para la inicialización, la única ayuda que tuvimos que darle a Dafny es inducirlo a probar que la suma del segmento vacío $0,0$ en $A$ es igual a 0. Con lo cuál puede probar por sí mismo el resto del invariante.
+    Para la inicialización, la única ayuda que tuvimos que darle a Dafny es inducirlo a probar que la suma del segmento vacío $0,0$ en $A$ es igual a 0 (utilizando el assert de la línea 6). Con lo cuál puede probar por sí mismo el resto del invariante.
 
     En cuanto nos disponemos a implementar el cuerpo notamos que no contamos con una variable que albergue la suma del segmento de suma máxima incluyendo el elemento anterior, que era necesario para computar el nuevo segmento de suma máxima.
-    Utilizaremos $u$ para albergar la suma del segmento de suma máxima que incluya a $A[k-1]$, o del segmento vacío (con suma $0$), en caso de que no hayamos logrado acumular una suma positiva que incluya a $A[k-1]$. Por tanto, actualizamos el invariante con una cláusula sobre $u$ y con él la inicialización y la actualización de variables en el método principal.
+    Utilizaremos $u$ para albergar la suma del segmento de suma máxima que incluye a $A[k-1]$, o del segmento vacío (con suma $0$) en caso de que no hayamos logrado acumular una suma positiva que incluya a $A[k-1]$. Por tanto, actualizamos el invariante con una cláusula sobre $u$ y con él la inicialización y la declaración de variables en el método principal.
 
     \begin{dafny}
 predicate invariante(k: int, A: seq<int>, r: int, u: int){
@@ -1038,7 +1096,7 @@ predicate invariante(k: int, A: seq<int>, r: int, u: int){
 }
     \end{dafny}
 
-    Hemos agregado, de forma intencional, las nuevas cláusulas sobre $u$ antes de las cláusulas sobre $r$. Esto es por que sabemos que el verificador necesitará las nuevas cláusulas para poder probar las cláusulas sobre $r$. Por tanto es buena idea presentárselas en ese órden. Si el verificador no puede probar las cláusulas para $u$ la verificación se detendrá allí y el mensaje de error será más acotado.
+    Hemos agregado, de forma intencional, las nuevas cláusulas sobre $u$ antes de las cláusulas sobre $r$. Esto es por que sabemos que el verificador necesitará de las nuevas cláusulas para poder probar las cláusulas sobre $r$. Por tanto es buena idea presentárselas en ese orden. Si el verificador no puede probar las cláusulas para $u$ la verificación se detendrá allí y el mensaje de error será más acotado.
 
     Con el nuevo invariante postulamos la implementación del cuerpo del loop.
 
@@ -1068,7 +1126,7 @@ method cuerpo(k: int, A: seq<int>, r: int, u:int) returns (k': int, r': int, u':
 
     El verificador en este caso falla en realizar la prueba con el error: ``Could not prove: \inlinedafny{exists p_u :: 0 <= p_u <= k && suma(p_u, k, A) == u}''
 
-    Ayudemos al verificador en el razonamiento: En el caso $u + A[k] > 0$, tenemos que el mismo $p_u$ para el cual la cláusula se cumplía con $k$ y $u$ valdrá para $k'=k+1$ y $u'=u + A[k]$.
+    Ayudemos al verificador en el razonamiento, como vimos al estudiar la regla del \textit{if}, podemos hacer el análisis caso por caso. En el caso $u + A[k] > 0$, tenemos que el mismo $p_u$ para el cual la cláusula se cumplía con $k$ y $u$ valdrá para $k'=k+1$ y $u'=u + A[k]$.
     Y en el caso $u + A[k] <= 0$ sabemos que $suma(k+1, k+1, A) = u' = 0$.
     Podemos inducir a Dafny a verificar estas condiciones mediante cláusulas \textit{assert} en cada caso del \textit{if-else}.
 
@@ -1078,18 +1136,19 @@ if u + A[k] < 0 {
     assert suma(k+1, k+1, A) == u';
 } else {
     u' := u + A[k];
-    ghost var p_u :| (0 <= p_u <= k && suma(p_u, k, A) == u) && (forall i :: 0 <= i <= k ==> suma(i, k, A) <= u);
+    ghost var p_u :| 
+        (0 <= p_u <= k && suma(p_u, k, A) == u)
+        && (forall i :: 0 <= i <= k ==> suma(i, k, A) <= u);
     assert suma(p_u, k+1, A) == u';
 }
     \end{dafny}
 
     Con esta ayuda, Dafny logra verificar el método cuerpo y consecuentemente la implementación de todo el programa, la cual recopilamos a continuación.
 
-
     \dafnyfile{Implementación verificada de segmento de suma máxima}{ejemplos/calculo_de_programas/segmento_de_suma_maxima.dfy}
 
     \section{Búsqueda de subcadenas}
-    El algoritmo de búsqueda de subcadena consiste en encontrar una cadena de caracteres $w$ dentro de otra cadena $s$ y devolver el índice del primer caracter de $w$ dentro de $s$. Podemos especificarlo en Dafny de la siguiente manera:
+    El algoritmo de búsqueda de subcadena consiste en encontrar una ocurrencia de una cadena de caracteres $w$ dentro de otra cadena $s$ y devolver el índice del primero de los caracteres de tal ocurrencia. Podemos especificarlo en Dafny de la siguiente manera:
 
     \begin{dafny}
 predicate esta_en(s: string, w: string, k: int)
@@ -1149,7 +1208,7 @@ method test_esta_en_cuando_no_esta(){
 
     Con la especificación testeada proseguimos a proponer un invariante y una guarda. Realizaremos la implementación más simple de la búsqueda de subcadenas, en la cuál iteraremos todas las posiciones de $s$ desde la primera y verificaremos el predicado \textit{esta\_en} evaluado en esta posición hasta encontrar la primera para la cuál se cumple. Tendremos como precondición que $w$ está en $s$ para algún índice $j$.
 
-    Inicialmente proponemos guarda: \inlinedafny{!esta_en(s, w, i)} donde i es la variable de iteración e invariante $true$. Ya que la negación de la guarda por sí misma asegura la postcondición si retornamos $i$.
+    Inicialmente proponemos como guarda: \inlinedafny{!esta_en(s, w, i)} donde i es la variable de iteración y como invariante $true$. Ya que la negación de la guarda por sí misma asegura la poscondición si luego retornamos $i$.
 
     \begin{dafny}
 predicate esta_en(s: string, w: string, k: int)
@@ -1163,17 +1222,20 @@ predicate invariante(){
   true
 }
 
-method inicializacion(s: string, w: string, ghost k: int) returns (i: int)
+method inicializacion(s: string, w: string, ghost k: int)
+  returns (i: int)
   requires esta_en(s, w, k)
   ensures invariante()
 
-method cuerpo(s: string, w: string, ghost k: int, i: int) returns (i': int)
+method cuerpo(s: string, w: string, ghost k: int, i: int)
+  returns (i': int)
   requires !esta_en(s, w, i)
   requires invariante()
   ensures invariante()
   ensures i' > i
 
-method busqueda_subcadena(s: string, w: string) returns (k: int)
+method busqueda_subcadena(s: string, w: string)
+  returns (k: int)
   requires exists j :: esta_en(s, w, j)
   ensures esta_en(s, w, k)
 {
@@ -1190,7 +1252,7 @@ method busqueda_subcadena(s: string, w: string) returns (k: int)
 }
     \end{dafny}
 
-    Hemos utilizado una variable de tipo gohst para referenciar $gk$ la posición, sea cual sea, en la que sabemos que $w$ está presente dentro de $s$. Proponemos como función de cota $gk - i$.
+    Hemos utilizado una variable de tipo ghost $gk$ para referenciar la posición en la que sabemos que $w$ está presente dentro de $s$. Proponemos como función de cota $gk - i$.
     También hemos especificado la inicialización de $i$ y el cuerpo de forma tal que aseguren el invariante y el decrecimiento de la función de cota.
 
     El verificador devuelve el siguiente error: "decreases expression must be bounded below by 0 at end of loop iteration". Dafny logra verificar que $gk -i$ decrece, pero no sabe si está limitada por 0 por lo bajo. Agregamos al invariante entonces $i \leq gk$. Ahora Dafny verifica la implementación del método principal, y podemos abocarnos a implementar inicialización y cuerpo.
@@ -1236,6 +1298,7 @@ predicate esta_en(s: string, w: string, k: int)
     forall i: int :: k <= i < k + |w| ==> s[i] == w[i - k]
 }
         \end{dafny}
+en comparación con:
         \begin{dafny}
 predicate esta_en(s: string, w: string, k: int)
     requires 0 < |w| <= |s| && 0 <= k <= |s| - |w|
@@ -1642,7 +1705,7 @@ predicate esta_en(s: string, w: string, k: int)
     \item Los programas obtenidos y sus pruebas, no están escritos en computadora, y por tanto no pueden ser ejecutados ni verificados de forma automática.
     \end{itemize}
 
-    Nuestra hipótesis, es que resultaría más provechoso para el proceso de aprendizaje, primero, introducir la programación imperativa con ejemplos en un lenguaje no formal. Luego, con el lector y su intuición a bordo, identificar en los ejemplos la utilidad de los conceptos básicos (transformación de estado, precondición, postcondición, invariante, etc) y finalmente proceder a la formalización de los mismos para luego poder probar (formalmente), la corrección de los programas obtenidos y resolver problemas más complejos asistidos por una metodología similar a la del libro pero adaptada al uso de Dafny, un lenguaje de programación con soporte para la declaración de especificaciones, pruebas y un entorno de desarrollo capaz de verificar los programas de manera automática.
+    Nuestra hipótesis, es que resultaría más provechoso para el proceso de aprendizaje, primero, introducir la programación imperativa con ejemplos en un lenguaje no formal. Luego, con el lector y su intuición a bordo, identificar en los ejemplos la utilidad de los conceptos básicos (transformación de estado, precondición, poscondición, invariante, etc) y finalmente proceder a la formalización de los mismos para luego poder probar (formalmente), la corrección de los programas obtenidos y resolver problemas más complejos asistidos por una metodología similar a la del libro pero adaptada al uso de Dafny, un lenguaje de programación con soporte para la declaración de especificaciones, pruebas y un entorno de desarrollo capaz de verificar los programas de manera automática.
 
     A lo largo de este trabajo desarrollamos esta estrategia alternativa.
     % TODO: Revisar más adelante qué texto resume mejor cada capítulo.%

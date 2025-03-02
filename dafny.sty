@@ -10,32 +10,30 @@
 
 \definecolor{codeyellow}{RGB}{220,220,170}
 \definecolor{codeblue}{RGB}{84,114,214}
-\definecolor{codepurple}{RGB}{197,134,192}
-\definecolor{backcolour}{RGB}{31,31,31}
+\definecolor{codepurple}{RGB}{88,24,69}
+\definecolor{black}{RGB}{31,31,31}
 
 \lstdefinelanguage{dafny}{
   morekeywords = {method,returns,requires,ensures,int,nat,while,decreases,invariant,if,else, lemma, axiom, function, forall, exists, assert, assume, var, predicate, ghost, return},
+  xleftmargin=0pt,            % Remove left margin
+  xrightmargin=0pt,           % Remove right margin
+  aboveskip=0pt,              % Remove space above the listing
+  belowskip=0pt,              % Remove space below the listing
+  columns=fullflexible,       % Ensure no extra spacing
   numbers=left,
-  numberstyle=\color{white}\ttfamily,
-  backgroundcolor=\color{backcolour},
+  numberstyle=\small\color{black}\ttfamily,
+  firstnumber=1,
+  stepnumber=1,
+  backgroundcolor=\color{white},
   keywordstyle=\color{codepurple},
-  basicstyle=\color{white}\ttfamily,
-  frame=single,
-  framexleftmargin=1em,
-  % framexrightmargin=1em,
-  frame={l},
-  rulecolor=\color{green},
+  basicstyle=\color{black}\ttfamily,
   sensitive=true,
   morecomment=[l]{//},
   morecomment=[s]{/*}{*/},
   morestring=[b]",
-  numbers=left,
-  firstnumber=1,
-  numberstyle=\tiny,
-  stepnumber=1,
   commentstyle=\itshape
-}
-
+  }
+  
 \lstnewenvironment{dafny}[1][]{%
   \lstset{
     language=dafny,
