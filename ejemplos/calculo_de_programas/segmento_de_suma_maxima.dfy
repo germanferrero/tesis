@@ -31,7 +31,8 @@ predicate invariante(k: int, A: seq<int>, r: int, u: int){
     (forall i, j :: 0 <= i <= j <= k ==> suma(i, j, A) <= r)
 }
 
-method inicializacion(A: seq<int>) returns (k: int, r: int, u: int)
+method inicializacion(A: seq<int>)
+    returns (k: int, r: int, u: int)
     ensures invariante(k, A, r, u)
 {
     k := 0;
@@ -40,7 +41,8 @@ method inicializacion(A: seq<int>) returns (k: int, r: int, u: int)
     assert suma(0, 0, A) == 0;
 }
 
-method cuerpo(k: int, A: seq<int>, r: int, u:int) returns (k': int, r': int, u': int)
+method cuerpo(k: int, A: seq<int>, r: int, u:int)
+    returns (k': int, r': int, u': int)
     requires k < |A|
     requires invariante(k, A, r, u)
     ensures invariante(k', A, r', u')
@@ -51,7 +53,9 @@ method cuerpo(k: int, A: seq<int>, r: int, u:int) returns (k': int, r': int, u':
         assert suma(k+1, k+1, A) == u';
     } else {
         u' := u + A[k];
-        ghost var p_u :| (0 <= p_u <= k && suma(p_u, k, A) == u) && (forall i :: 0 <= i <= k ==> suma(i, k, A) <= u);
+        ghost var p_u :| 
+            (0 <= p_u <= k && suma(p_u, k, A) == u)
+            && (forall i :: 0 <= i <= k ==> suma(i, k, A) <= u);
         assert suma(p_u, k+1, A) == u';
     }
     if u' > r {

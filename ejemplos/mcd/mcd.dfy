@@ -9,7 +9,7 @@ predicate es_el_mcd(d: int, m: int, n: int)
 }
 
 
-method test_es_el_mcd_numeros_chicos(){
+method test_es_el_mcd(){
     assert es_el_mcd(1, 8, 3);
     assert !es_el_mcd(2, 8, 3);
     assert es_el_mcd(5, 2345, 5000);
