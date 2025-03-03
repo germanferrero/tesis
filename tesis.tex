@@ -11,7 +11,26 @@
 \usepackage{pst-poker}
 \usepackage{tcolorbox}
 
+\tcbuselibrary{breakable}
+
 \newtcolorbox{warningbox}[1]{colback=orange!5!white,colframe=orange!90!black,fonttitle=\bfseries,title=#1}
+
+\newtcolorbox{whitebox}{
+    colback=white,
+    colframe=white, % Frame color
+    arc=0pt,        % No rounded corners
+    leftrule=1mm,   % Thickness of the left rule
+    rightrule=0pt,  % No right rule
+    toprule=0pt,    % No top rule
+    bottomrule=0pt, % No bottom rule
+    boxsep=0pt,     % Space between text and box
+    left=4pt,       % Space between left rule and text
+    right=0pt,       % Space between left rule and text
+    top=0pt,        % Space between top rule and text
+    bottom=0pt,      % Space between bottom rule and text
+    beforeafter skip=0pt,
+    breakable
+}
 
 \newtcolorbox{greenbox}{
     colback=white,
@@ -26,7 +45,8 @@
     right=0pt,       % Space between left rule and text
     top=0pt,        % Space between top rule and text
     bottom=0pt,      % Space between bottom rule and text
-    beforeafter skip=0pt
+    beforeafter skip=0pt,
+    breakable
 }
 
 \newtcolorbox{redbox}{
@@ -42,7 +62,8 @@
     right=0pt,       % Space between left rule and text
     top=0pt,        % Space between top rule and text
     bottom=0pt,      % Space between bottom rule and text
-    beforeafter skip=0pt
+    beforeafter skip=0pt,
+    breakable
 }
 
 \newif\ifUsePstPoker
@@ -73,6 +94,7 @@
         [#3]
     \end{align*}
 }
+
 \newcommand{\inferenceRule}[2]{
     \begin{equation*}
         \frac{#1}{#2}
@@ -200,19 +222,18 @@
     Podemos escribir un simple programa en Dafny para probar cómo este resuelve verificaciones que implican conocimiento del axioma de la asignación:
 
     \example{Axioma de la asignación en Dafny}
-    \vspace{1em}
     \begin{greenbox}
-    \begin{dafny}
-function E(x: int): int
-predicate P(x: int)
+    \begin{dafny}[gobble=8]
+        function E(x: int): int
+        predicate P(x: int)
 
-method axioma_de_la_asignacion()
-{
-    var x: int := *;
-    assume P(E(x));
-    x := E(x);
-    assert P(x);
-}
+        method axioma_de_la_asignacion()
+        {
+            var x: int := *;
+            assume P(E(x));
+            x := E(x);
+            assert P(x);
+        }
     \end{dafny}
     \end{greenbox}
     \vspace{1em}
@@ -235,25 +256,27 @@ method axioma_de_la_asignacion()
     \inferenceRule{\hoareTheorem{P'}{S}{Q}\ \ \vdash P \rightarrow P'}{\hoareTheorem{P}{S}{Q}}
 
     \example{Regla del fortalecimiento de la precondición en Dafny}
-    \begin{dafny}
-        
-predicate P(x: int)
-predicate P'(x: int)
-predicate Q(x: int)
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate P(x: int)
+        predicate P'(x: int)
+        predicate Q(x: int)
 
-method S(x: int)
-    requires P'(x)
-    ensures Q(x)
+        method S(x: int)
+            requires P'(x)
+            ensures Q(x)
 
-method regla_del_fortalecimiento_de_la_precondicion(x: int)
-{
-    assume forall x: int :: P(x) ==> P'(x);
-    assume P(x);
-    S(x);
-    assert Q(x); 
-}
+        method regla_del_fortalecimiento_de_la_precondicion(x: int)
+        {
+            assume forall x: int :: P(x) ==> P'(x);
+            assume P(x);
+            S(x);
+            assert Q(x); 
+        }
     \end{dafny}
-
+    \end{greenbox}
+    \vspace{1em}
     Aquí hemos utilizado las sentencias \inlinedafny{requires} y \inlinedafny{ensures} para especificar la precondición y poscondición respectivamente del programa $S$. Durante el proceso de verificación del segundo método, donde se invoca a $S$, Dafny asumirá que $S$ cumple con su especificación, sin inspeccionar su implementación. Esto resulta muy útil en la práctica para partir el programa en programas más pequeños, lograr primero una implementación verificada del método principal, postergando la implementación de las partes.
 
     Para verificar el \textit{assert} de la línea 15. Dafny tuvo que aplicar la regla del fortalecimiento de la precondición a partir de la hipótesis de la línea 12 y de la especificación de $S$.
@@ -266,59 +289,63 @@ method regla_del_fortalecimiento_de_la_precondicion(x: int)
     \inferenceRule{\hoareTheorem{P}{S}{Q'}\ \ \vdash Q' \rightarrow Q}{\hoareTheorem{P}{S}{Q}}
 
     \example{Regla del debilitamiento de la poscondición en Dafny}
-    \begin{dafny}
-predicate P(x: int)
-predicate Q(x: int)
-predicate Q'(x: int)
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate P(x: int)
+        predicate Q(x: int)
+        predicate Q'(x: int)
 
-method S(x: int)
-    requires P(x)
-    ensures Q'(x)
+        method S(x: int)
+            requires P(x)
+            ensures Q'(x)
 
-method test(x: int)
-{
-    assume forall x: int :: Q'(x) ==> Q(x);
-    assume P(x);
-    S(x);
-    assert Q(x); 
-}
+        method test(x: int)
+        {
+            assume forall x: int :: Q'(x) ==> Q(x);
+            assume P(x);
+            S(x);
+            assert Q(x); 
+        }
     \end{dafny}
-
+    \end{greenbox}
     \vspace{1em}
 
     \subsection{Regla de la composición}
     La regla de la composición indica que si un programa $S1$ nos lleva de un predicado $P$ a un predicado $R$, desde el cual otro programa $S2$ nos lleva hasta un predicado $Q$, entonces secuenciar $S2$ luego de $S1$, nos da un programa que nos lleva del predicado $P$ al predicado $Q$.
- 
+
     \inferenceRule{\hoareTheorem{P}{S_1}{R}\ \ \hoareTheorem{R}{S_2}{Q}}{\hoareTheorem{P}{S_1;S_2}{Q}}
 
     \example{Regla de la composición en Dafny}
 
     El siguiente ejemplo ilustra la capacidad de Dafny para aplicar la regla de la composición.
-    \begin{dafny}
-predicate P(x: int)
-predicate Q(x: int)
-predicate R(x: int)
-
-method S1(x: int)
-    requires P(x)
-    ensures R(x)
-
-method S2(x: int)
-    requires R(x)
-    ensures Q(x)
-
-method regla_de_la_composicion(x: int)
-{
-    assume P(x);
-    S1(x);
-    S2(x);
-    assert Q(x);
-}
-    \end{dafny}
-
-    Con frecuencia resultará útil en la práctica insertar un \textit{assert} de algún predicado $R$ en el algún punto intermedio de nuestro programa cuando intuyamos que la verificación debería lograrse aplicando esta regla. Al hacerlo no solo comprobamos que el verificador puede asegurar ese predicado en ese punto, sino que también lo ayudamos a tenerlo en cuenta (ahora como teorema) para probar lo que sigue.
 
     \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate P(x: int)
+        predicate Q(x: int)
+        predicate R(x: int)
+
+        method S1(x: int)
+            requires P(x)
+            ensures R(x)
+        
+        method S2(x: int)
+            requires R(x)
+            ensures Q(x)
+
+        method regla_de_la_composicion(x: int)
+        {
+            assume P(x);
+            S1(x);
+            S2(x);
+            assert Q(x);
+        }
+    \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
+    Con frecuencia resultará útil en la práctica insertar un \textit{assert} de algún predicado $R$ en el algún punto intermedio de nuestro programa cuando intuyamos que la verificación debería lograrse aplicando esta regla. Al hacerlo no solo comprobamos que el verificador puede asegurar ese predicado en ese punto, sino que también lo ayudamos a tenerlo en cuenta (ahora como teorema) para probar lo que sigue.
 
     \subsection{Regla del \textit{if}}
     Esta regla nos dice que si ambas ramificaciones del \textit{if} junto con la información agregada por la correspondiente valuación de la guarda nos llevan de la precondición a la poscondición, entonces el \textit{if}, como constructo que las compone, también lo hace.
@@ -328,30 +355,36 @@ method regla_de_la_composicion(x: int)
     \example{Regla del \textit{if} en Dafny}
 
     En este ejemplo Dafny utiliza las especificaciones de los métodos $S$ y $T$ y la regla del \textit{if} para realizar la verificación.
-    \begin{dafny}
-predicate P(x: int)
-predicate Q(x: int)
-function B(x: int): bool
 
-method S(x: int)
-    requires P(x) && B(x)
-    ensures Q(x)
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate P(x: int)
+        predicate Q(x: int)
+        function B(x: int): bool
 
-method T(x: int)
-    requires P(x) && !B(x)
-    ensures Q(x)
+        method S(x: int)
+            requires P(x) && B(x)
+            ensures Q(x)
 
-method regla_del_if(x: int)
-{
-    assume P(x);
-    if B(x) {
-        S(x);
-    } else {
-        T(x);
-    }
-    assert Q(x);
-}
+        method T(x: int)
+            requires P(x) && !B(x)
+            ensures Q(x)
+
+        method regla_del_if(x: int)
+        {
+            assume P(x);
+            if B(x) {
+                S(x);
+            } else {
+                T(x);
+            }
+            assert Q(x);
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
+
     En la práctica, para que Dafny pueda utilizar esta regla, debemos asegurarnos de que puede establecer la hipótesis correspondiente a cada rama. Es decir, que si Dafny no está logrando la verificación, debemos inspeccionar cada caso del \textit{if} por separado para ver si la poscondición se cumple al final de su cuerpo.
 
     \vspace{1em}
@@ -382,20 +415,39 @@ method regla_del_if(x: int)
     Al final del ciclo valdrá el invariante (por haberlo mantenido a cada paso) y la negación de la guarda (por haber terminado). La conjunción de ambas cosas nos dice que: $x = q * y + r \land 0 \leqslant r < y$. Por tanto $q$ y $r$ serán el cociente y resto de la división entera de $x$ por $y$.
 
     La implementación en Dafny aún no verificada de nuestro programa luce así:
-    \begin{dafny}
-method division_entera(x: int, y: int) returns (q: int, r: int)
-    requires x > 0 && y > 0
-    ensures x == q * y + r && 0 <= r < y
-{
-    q := 0;
-    r := x;
-    while r >= y
-    {
-        q := q + 1;
-        r := r - y;
-    }
-}
+    \vspace{1em}
+    \begin{whitebox}
+    \begin{dafny}[gobble=8]
+        method division_entera(x: int, y: int) returns (q: int, r: int)
+            requires x > 0 && y > 0
     \end{dafny}
+    \end{whitebox}
+
+    \begin{redbox}
+    \begin{dafny}[gobble=8,firstnumber=3]
+            ensures x == q * y + r && 0 <= r < y
+        {
+    \end{dafny}
+    \end{redbox}
+
+    \begin{whitebox}
+    \begin{dafny}[gobble=8, firstnumber=5]
+            q := 0;
+            r := x;
+            while r >= y
+            {
+                q := q + 1;
+                r := r - y;
+            }
+        }
+    \end{dafny}
+    \end{whitebox}
+    \vspace{1em}
+
+    \begin{redbox}
+        Error: a postcondition could not be proved on this return path. Could not prove: $x = q * y + r$
+    \end{redbox}
+    \vspace{1em}
 
     Para que Dafny pueda verificar esta implementación deberemos \textbf{anotar} el ciclo con un invariante y función de cota apropiados. Ya que, como veremos a continuación, ambos son piezas fundamentales de la regla de inferencia del \textit{while}.
 
@@ -417,22 +469,26 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
 
     Retomando el ejemplo de la división entera. Podemos lograr una implementación verificada anotando el ciclo con el invariante $x = q * y + r \land 0 \leqslant r$ (utilizando la anotación \inlinedafny{invariant}), y la función de cota $r$ (con la anotación \inlinedafny{decreases}).
 
-    \begin{dafny}
-method division_entera(x: int, y: int) returns (q: int, r: int)
-    requires x > 0 && y > 0
-    ensures x == q * y + r && 0 <= r < y
-{
-    q := 0;
-    r := x;
-    while r >= y
-        invariant x == q * y + r && 0 <= r
-        decreases r - y
-    {
-        q := q + 1;
-        r := r - y;
-    }
-}
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method division_entera(x: int, y: int) returns (q: int, r: int)
+            requires x > 0 && y > 0
+            ensures x == q * y + r && 0 <= r < y
+        {
+            q := 0;
+            r := x;
+            while r >= y
+                invariant x == q * y + r && 0 <= r
+                decreases r - y
+            {
+                q := q + 1;
+                r := r - y;
+            }
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     \subsection{Reglas de conjunción y disyunción}
     Dos reglas más completan el sistema deductivo de la Lógica de Hoare para este lenguaje imperativo simple.
@@ -448,78 +504,74 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
 
     \chapter{Metodología para escribir programas en Dafny}
     En este capítulo presentamos una metodología para escribir programas en Dafny. La metodología propuesta supone una serie de pasos a seguir que nos resultaron útiles a la hora de ordenar el desarrollo y la interacción con el verificador.
-    Introduciremos la metodología a través de un ejemplo concreto: el algoritmo de Euclides para el cálculo del máximo común divisor. Como prólogo de este capítulo, nos gustaría relatar primero la experiencia propia intentando resolver el problema del máximo común divisor antes de ser expuestos a la solución de Euclides.
+    Introduciremos la metodología a través de un ejemplo concreto: el algoritmo de Euclides para el cálculo del máximo común divisor. Como prólogo de este capítulo, nos gustaría relatar primero la experiencia propia intentando resolver el problema del máximo común divisor antes de ser iluminados con la solución de Euclides.
 
     \section{¿Qué tan relevante es la derivación de programas? una opinión personal}
-    Queremos escribir un programa, verificado, que compute el máximo común divisor entre dos números enteros positivos $m$ y $n$, con $m \geqslant n$. Formalmente, definimos el máximo común divisor $mcd$ como:
+    Queremos escribir un programa, verificado, que compute el máximo común divisor entre dos números enteros positivos $m$ y $n$, con $m \geqslant n$. Formalmente, si utilizamos $x \mid y$ para decir que $x$ divide a $y$, definimos el máximo común divisor $mcd$ como:
 
     \begin{center}
         \begin{math}
-            mcd \mid m \land mcd \mid n \land (\forall d: d \mid m \land d \mid n : d \leq mcd)
+            (mcd \mid m) \land (mcd \mid n) \land (\forall d: (d \mid m) \land (d \mid n) : d \leq mcd)
         \end{math}
     \end{center}
 
-    Nuestra primera exploración en la búsqueda de un algoritmo que compute el m.c.d entre $m$ y $n$ fue a partir de la factorización en primos de $m$ y $n$. Dada por:
+    Nuestra primera exploración en la búsqueda de un algoritmo que compute el máximo común divisor entre $m$ y $n$ fue a partir de la factorización en primos de $m$ y $n$. Dada por:
 
     \begin{center}
         \begin{math}
-            m = \prod_{i=0}^{i=maxPm} p_{i}^{m_i}\ , \ \ \ n = \prod_{i=0}^{i=maxPn} p_{i}^{n_i}
+            m = \prod_{i=0}^{i=M} p_{i}^{m_i}\ , \ \ \ n = \prod_{i=0}^{i=N} p_{i}^{n_i}
         \end{math}
     \end{center}
 
-    donde $p_0=2$, $p_1= 3$, ... y $p_{maxPm}$, $p_{maxPn}$ son los primos más grandes que aparecen en la factorización de $m$ y $n$ respectivamente. Y $m_i$, $n_i$ los exponentes del primo $p_i$ en sus factorizaciones, (siendo $x_i=0$, si $p_i$ no aparece en la factorización).
+    donde $p_0=2$, $p_1= 3$, $p_2= 5$, ... y $p_{M}$, $p_{N}$ son los primos más grandes que aparecen en la factorización de $m$ y $n$ respectivamente; y $m_i$, $n_i$ los exponentes del primo $p_i$ en sus respectivas factorizaciones, (siendo $x_i=0$, si $p_i$ no aparece en la factorización).
 
     Utilizando estas definiciones el m.c.d. entre ellos será:
 
     \begin{center}
         \begin{math}
-            mcd(m, n) = \prod_{i=0}^{i=min(maxPm, maxPn)} p_{i}^{min(m_i, n_i)}
+            mcd(m, n) = \prod_{i=0}^{i=min(M, N)} p_{i}^{min(m_i, n_i)}
         \end{math}
     \end{center}
 
-    Proponemos como estrategia de resolución, empezar con la peor solución $mcd' = 1$ e iterar sobre los números primos ($p_0$, $p_1$, ..., $p_{min(maxPm, maxPn)}$) multiplicando $mcd'$ por $p_{i}^{min(m_{i}, n_{i})}$ en cada iteración $i$.
+    Proponemos como estrategia de resolución, empezar con la peor solución $mcd' = 1$ e iterar sobre los números primos ($p_0$, $p_1$, ..., $p_{min(M, N)}$) multiplicando $mcd'$ por $p_{i}^{min(m_{i}, n_{i})}$ en cada iteración $i$.
 
-    Si definimos la factorización de un número $x$ hasta el $k$-ésimo primo como:
+    Si definimos la factorización hasta el $k$-ésimo primo de un número $x$ como:
     \begin{center}
         \begin{math}
-            SubFact(x, k) = \frac{x}{\prod_{i=k}^{i=maxPx} p_{i}^{x_i}} 
+            F_k(x) = x * (\prod_{i=k}^{i=X} p_{i}^{x_i})^{-1}
         \end{math}
     \end{center}
 
-    Podemos proponer el siguiente invariante para la estrategia propuesta:
-    \begin{center}
-        \begin{math}
-            Inv:\ \  0 \leqslant i \leqslant min(maxPm, maxPn) \land mcd' \mathrel{|} SubFact(m, i) \land mcd' \mathrel{|} SubFact(n, i) \land (\forall d: d \mathrel{|} SubFact(m, i) \land d \mathrel{|} SubFact(n, i) : d \leq mcd') 
-        \end{math}
-    \end{center}
+    Podemos proponer el siguiente invariante de la estrategia propuesta:
+    \begin{align*}
+        Inv:&\ \  0 \leqslant i \leqslant min(M, N) \\
+            &\land (mcd' \mathrel{|} F_i(m)) \land (mcd' \mathrel{|} F_i(n)) \\
+            &\land (\forall d: (d \mathrel{|} F_i(m)) \land (d \mathrel{|} F_i(n)) : d \leq mcd') 
+    \end{align*}
 
-    Podemos probar que la siguiente actualización de $mcd'$ e $i$, mantiene el invariante
-
-    % \begin{center}
+    Y probar que la siguiente actualización de $mcd'$ e $i$, mantiene dicho invariante
     \begin{align*}
         & mcd' := mcd' * p_{i}^{min(m_{i}, n_{i})} \\
         & i := i + 1
     \end{align*}
-    % \end{center}
 
-    Para realizar esta actualización necesitamos contar con $p_{i}$, $m_{i}$ y $n_{i}$.
-    Podemos suponer que contamos con dos funciones auxiliares $primo(k)$ que devuelve el $k$-ésimo número primo y $factorizacion(x)$ que devuelve la factorización de $x$ como una lista de exponentes de los números primos hasta el primo más grande con exponente distinto de 0 (ej: $factorizacion(8) == [3]$, $factorizacion(12) == [2,1]$).
-
-    La resolución propuesta es correcta. Sin embargo la complejidad algorítmica es mayor a la de la solución propuesta por Euclides hace más de 2300 años.
+    Para realizar esta actualización necesitaríamos contar con $p_{i}$, $m_{i}$ y $n_{i}$. Para eso podríamos introducir funciones auxiliares que nos provean los primeros $N$ primos y la factorización. Pero nos detenemos aquí en cambio, porque no nos interesa seguir este camino. La resolución propuesta parece correcta, sin embargo su complejidad es mucho mayor a la de la solución propuesta por Euclides hace más de 2300 años.
 
     Hay alguna técnica de obtención de invariantes que nos hubiera llevado a la misma realización que tuvo Euclides? Puede el método reemplazar a la creatividad?
-    Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando la geometría de líneas de longitud múltiplo de alguna unidad. De la misma forma en que Pitágoras llegó a su famoso teorema observando triángulos. De nuevo, sospecho.
+    Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando líneas geométricas de longitud discreta. De la misma forma en que Pitágoras llegó a su famoso teorema observando triángulos. De nuevo, sospecho.
 
-    El mismo Dijkstra, en su trabajo ``Guarded Commands''\cite{EWD:EWD418} donde presenta el ``calculo para la derivación formal de programas'' reflexiona en las conclusiones:
+    El mismo Dijkstra, en su trabajo ``Guarded Commands''\cite{EWD:EWD418} donde presenta su cálculo para la derivación formal de programas reflexiona en las conclusiones:
 
+    \vspace{1em}
     \begin{quoting}
         La segunda razón para llevar a cabo estas investigaciones fue mi deseo personal de apreciar mejor qué parte de la actividad de programación puede considerarse una mera rutina formal y qué parte parece requerir ``invención''. Mientras que el diseño de un \textit{if} parece ahora una actividad bastante directa, el diseño de un ciclo requiere lo que yo considero ``la invención'' de una relación invariante y una función variante.(...) Mi presentación de este cálculo no debe ser interpretada como una sugerencia personal de que todos los programas tiene que ser desarrollados de esta manera: solo nos provee una herramienta más.
     \end{quoting} Edsger W. Dijkstra. (La traducción es mía)
+    \vspace{1em}
 
     En el libro Cálculo de Programas, actual bibliografía de referencia de la materia, se reserva un lugar de gran relevancia a la técnica de derivación de programas. Por ejemplo, para el problema del máximo común divisor se plantea derivar el cuerpo del ciclo a partir de las propiedades del $mcd$ en las que se apoya el algoritmo de Euclides.
-    Si bien la técnica es valiosa, creo que sería más provechoso enfocar la enseñanza en el razonamiento procedural que realizó Euclides y que explica por qué se eligen dichas propiedades del $mcd$ en primer lugar.
+    Si bien la técnica es ciertamente valiosa, en mi opinión sería más provechoso enfocar la enseñanza en el razonamiento procedural que realizó Euclides y que explica por qué se eligen dichas propiedades del $mcd$ en primer lugar.
 
-    En general creo que podemos quitar relevancia a la derivación de programas como método preferente para construirlos, dar lugar a otros métodos como la creatividad y el ingenio y resaltar el rol de las técnicas de verificación formal para \textbf{probar} que los programas son correctos.
+    En general creo que podemos quitar relevancia a la derivación de programas como método preferente para construirlos, dar lugar a otros métodos como la creatividad y el ingenio y resaltar en cambio el rol de las técnicas de verificación formal a la hora de \textbf{probar} que los programas son correctos.
 
     Probar que el algoritmo de Euclides es correcto, es una tarea tan importante como la demostración de cualquier teorema. En ese sentido no hay diferencia entre un programa y una equivalencia matemática. Ambos pueden obtenerse a partir de un proceso creativo, y necesitan ser demostradas, bajo un proceso metódico, cuidadoso y formal.
 
@@ -527,8 +579,7 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
 
     \section{El algoritmo de Euclides}
     \label{desarrollo_euclides}
-    Euclides propuso pensar en $m$ y $n$ como dos varillas de largo $m$ unidades y $n$ unidades, siendo la unidad una varilla de, pongamos, 1cm (Figura \ref{varillas_euclides}).
-    Y buscar la varilla de largo $d$ más larga que logre componer ambas de manera exacta.
+    Euclides propuso pensar en $m$ y $n$ como dos varillas de largo $m$ unidades y $n$ unidades como se ilustra en la Figura \ref{varillas_euclides}, y buscar la varilla de largo $d$ más larga que logre componer ambas de manera exacta.
     
     \begin{figure}[h]
         \centering
@@ -656,39 +707,47 @@ method division_entera(x: int, y: int) returns (q: int, r: int)
     \subsubsection{Especificación del programa}
     Definimos para ello el predicado \textit{es el mcd} que será verdadero si y solo sí $d$ es el máximo común divisor de $m$ y $n$ y el método principal \textit{máximo común divisor} con su precondición sobre $m$ y $n$ y su poscondición:
 
-    \begin{dafny}
-predicate es_el_mcd(d: int, m: int, n: int)
-{
-    0 < d <= n &&
-    m % d == 0 &&
-    n % d == 0 &&
-    forall d' :: 
-        (0 < d' <= n && m % d' == 0 && n % d' == 0)
-            ==> d' <= d
-}
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate es_el_mcd(d: int, m: int, n: int)
+        {
+            0 < d <= n &&
+            m % d == 0 &&
+            n % d == 0 &&
+            forall d' :: 
+                (0 < d' <= n && m % d' == 0 && n % d' == 0)
+                    ==> d' <= d
+        }
 
-method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
-    requires 0 < n <= m
-    ensures es_el_mcd(mcd, m, n)
+        method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
+            requires 0 < n <= m
+            ensures es_el_mcd(mcd, m, n)
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     Tener definido el predicado \textit{es el mcd} nos será útil a continuación para \textit{testear} la especificación y definir el invariante.
 
     \subsubsection{Testear la especificación}
     Al escribir software verificado, restringimos el espacio para el error humano de la implementación a la definición de la especificación.
-    Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como una deficiencia de la implementación o de la capacidad del verificador para realizar la prueba de correctitud, cuando en realidad el problema está arrastrado desde la especificación misma.
+    Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como deficiencias en la implementación o en la capacidad del verificador para realizar la prueba de correctitud, cuando en realidad el problema está siendo arrastrado desde la especificación misma.
     Afortunadamente en Dafny podemos \textit{testear} la especificación.
     El verificador es capaz de validar el predicado \textit{es el mcd} para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la correctitud de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
 
-    \begin{dafny}
-method test_es_el_mcd(){
-    assert es_el_mcd(1, 8, 3);
-    assert !es_el_mcd(2, 8, 3);
-    assert es_el_mcd(5, 2345, 5000);
-    assert !es_el_mcd(4, 2345, 5000);
-    assert es_el_mcd(1, 49163, 9113);
-}
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method test_es_el_mcd(){
+            assert es_el_mcd(1, 8, 3);
+            assert !es_el_mcd(2, 8, 3);
+            assert es_el_mcd(5, 2345, 5000);
+            assert !es_el_mcd(4, 2345, 5000);
+            assert es_el_mcd(1, 49163, 9113);
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     \subsubsection{Definir el invariante, función de cota y guarda del loop}
 
@@ -700,62 +759,91 @@ method test_es_el_mcd(){
 
     Nos será útil definir el invariante como un predicado:
 
-    \begin{dafny}
-predicate invariante(d: int, m': int, n': int) {
-    es_el_mcd(d, m', n')
-    && (m' % n' == 0 ==> d == n')
-}
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        predicate invariante(d: int, m': int, n': int) {
+            es_el_mcd(d, m', n')
+            && (m' % n' == 0 ==> d == n')
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
-    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ se reduce en cada iteración y que si llegamos a $m'\%n' == 0$ habremos terminado. Proponemos entonces como guarda del loop $m'\%n'>0$, y como función de cota $m'\%n'$.
+    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ es menor en cada iteración y al llegar a $m'\%n' == 0$ terminábamos. Proponemos entonces como guarda del loop $m'\%n'>0$, y como función de cota $m'\%n'$.
 
     \subsubsection{Declarar las variables necesarias en el método principal}
     Hay tres variables de tipo $int$ implicadas en el invariante: $d$, $m'$, $n'$.
-    Las últimas dos: $m'$, $n'$ tomarán valores concretos en la inicialización y serán actualizadas en cada iteración, mientras que para $d$ no conocemos su valor hasta el final. Lo único que sabemos de $d$ es que al iniciar el programa refiere al $mcd$ de $m$ y $n$ (los parámetros de entrada), y luego en cada iteración $d$ es también el $mcd$ de las varillas que estamos analizando. Esto convierte a $d$ en una variable especial, que es necesaria para la verificación pero no se computará en tiempo de ejecución del programa. En Dafny estas variables se llaman \textit{ghost variables} y se definen así:
+    Las últimas dos: $m'$, $n'$ tomarán valores concretos en la inicialización y serán actualizadas en cada iteración, mientras que para $d$ no conocemos su valor hasta el final. Lo único que sabemos de $d$ es que al iniciar el programa refiere al $mcd$ de $m$ y $n$ (los parámetros de entrada), y luego en cada iteración equivale también al $mcd$ de las varillas que estamos analizando. Esto convierte a $d$ en una variable especial, que es necesaria para la verificación pero no se computará en tiempo de ejecución del programa. En Dafny estas variables se llaman \textit{ghost variables} y se definen así:
 
+    \vspace{1em}
     \begin{dafny}
 ghost var d: int :| p(d);
     \end{dafny}
+    \vspace{1em}
 
     \noindent que leemos como ``Sea d tal que el predicado p vale para d''. Utilizaremos una ghost variable $d$ para referirnos al $mcd$ de $m$ y $n$.
 
+    \vspace{1em}
     \begin{dafny}
 ghost var d: int :| mcd(d, m, n);
     \end{dafny}
+    \vspace{1em}
 
     A continuación escribimos la declaración de estas variables al inicio del método.
 
-    \begin{dafny}
-method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
-    requires 0 < n <= m
-    // ensures es_el_mcd(mcd, m, n)
-{
-    ghost var d: int :| es_el_mcd(d, m, n);
-    var m': int, n': int;
-}
+    \vspace{1em}
+    \begin{whitebox}
+    \begin{dafny}[gobble=8]
+        method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
+            requires 0 < n <= m
+            // ensures es_el_mcd(mcd, m, n)
+        {
     \end{dafny}
+    \end{whitebox}
+    \begin{redbox}
+    \begin{dafny}[gobble=8,firstnumber=5]
+            ghost var d: int :| es_el_mcd(d, m, n);
+    \end{dafny}
+    \end{redbox}
+    \begin{whitebox}
+    \begin{dafny}[gobble=8,firstnumber=6]
+            var m': int, n': int;
+        }
+    \end{dafny}
+    \end{whitebox}
+    \vspace{1em}
 
-    Aquí hemos comentado la postcondición de manera intencional. Al comentar la postcondición, exigimos menos del verificador y nos aseguramos que el reporte de errores se centre en informar si hay algún problema entre las líneas de implementación que hemos escrito hasta el momento.
-    En este caso, notamos que Dafny devuelve el error: ``cannot establish the existence of LHS values that satisfy the such-that predicate'' para la línea 5. \footnote{Si no comentábamos la postcondición, el verificador nos hubiera devuelto un error relativo al incumplimiento de la postcondición y solo nos enteraríamos de este problema previo más adelante, al especificar inicialización y cuerpo del loop. Tal vez esta sea una oportunidad de mejora en el reporte de errores del verificador. Ver \href{https://github.com/dafny-lang/dafny/issues/6122}{issue 6122 en dafny}.}
+    \begin{redbox}
+        Error: cannot establish the existence of LHS values that satisfy the such-that predicate
+    \end{redbox}
+
+    \vspace{1em}
+
+    Al hacerlo notamos que Dafny devuelve un error para la línea 5. \footnote{Hemos comentado la postcondición de manera intencional. Al comentar la postcondición, exigimos menos del verificador y nos aseguramos que el reporte de errores se centre en informar si hay algún problema entre las líneas de implementación que hemos escrito hasta el momento. Si no comentábamos la postcondición, el verificador nos hubiera devuelto un error relativo al incumplimiento de la postcondición y solo nos enteraríamos de este problema previo más adelante, al especificar inicialización y cuerpo del loop. Tal vez esta sea una oportunidad de mejora en el reporte de errores del verificador. Ver \href{https://github.com/dafny-lang/dafny/issues/6122}{issue 6122 en dafny}.}
     Nosotros sabemos que para dos números enteros positivos existe un máximo común divisor pero Dafny no lo sabe. Podemos decírselo definiendo un axioma que establezca que el máximo común divisor entre $m$ y $n$ existe e invocándolo justo antes de la definición de $d$. \footnote{Un axioma en Dafny es un lemma que no conlleva una prueba. Si quitamos :axiom, Dafny nos pedirá que escribamos la prueba en el cuerpo del lemma.}
 
-    \begin{dafny}
-lemma {:axiom} existe_un_mcd(m:int, n:int)
-    ensures exists d: int :: es_el_mcd(d, m, n)
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        lemma {:axiom} existe_un_mcd(m:int, n:int)
+            ensures exists d: int :: es_el_mcd(d, m, n)
 
-method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
-    requires 0 < n <= m
-    // ensures es_el_mcd(mcd, m, n)
-{
-    assert exists d: int :: es_el_mcd(d, m, n) by {
-        existe_un_mcd(m, n);
-    }
-    ghost var d: int :| es_el_mcd(d, m, n);
-    var m': int, n':int;
-}
+        method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
+            requires 0 < n <= m
+            // ensures es_el_mcd(mcd, m, n)
+        {
+            assert exists d: int :: es_el_mcd(d, m, n) by {
+                existe_un_mcd(m, n);
+            }
+            ghost var d: int :| es_el_mcd(d, m, n);
+            var m': int, n':int;
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
-    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} aporta claridad sobre el uso que hacemos del lemma, en cuanto a las conclusiones que obtenemos de él.
+    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} indica que utilizamos ese lemma para concluir la condición del assert.
 
     \subsubsection{Especificar inicialización y cuerpo del loop.}
 
@@ -763,60 +851,81 @@ method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
 
     En la inicialización, requeriremos como precondición la misma precondición sobre los parámetros de entrada que tiene nuestro método principal, sumado a la condición que impusimos sobre la variable ghost $d$, luego pedimos que la inicialización asegure el invariante de modo que se satisfaga al ingresar al loop.
 
-    \begin{dafny}
-method inicializacion(ghost d: int, m: int, n: int)
-    returns (m': int, n': int)
-    requires 0 < n <= m
-    requires es_el_mcd(d, m, n)
-    ensures invariante(d, m', n')
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method inicializacion(ghost d: int, m: int, n: int)
+            returns (m': int, n': int)
+            requires 0 < n <= m
+            requires es_el_mcd(d, m, n)
+            ensures invariante(d, m', n')
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     En la especificación del cuerpo pedimos que la guarda y el invariante se cumplan antes de la ejecución y aseguramos que luego de ejecutar el cuerpo el invariante se sigue cumpliendo y que la función de cota se redujo.
 
-    \begin{dafny}
-method cuerpo(ghost d: int, m: int, n: int)
-    returns (m': int, n': int)
-    requires invariante(d, m, n)
-    ensures invariante(d, m', n')
-    ensures m' % n' < m % n
+
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method cuerpo(ghost d: int, m: int, n: int)
+            returns (m': int, n': int)
+            requires invariante(d, m, n)
+            ensures invariante(d, m', n')
+            ensures m' % n' < m % n
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
 
     Ahora, como decíamos, podemos invocar estos métodos en el método principal e intentar obtener una implementación verificada del mismo. Si lo logramos, habremos validado la elección del invariante, la función de cota y la guarda incluso antes de implementar el cuerpo del loop y su inicialización.
 
-    \begin{dafny}
-method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
-    requires 0 < n <= m
-    ensures es_el_mcd(mcd, m, n)
-{
-    assert exists d: int :: es_el_mcd(d, m, n) by {
-        existe_un_mcd(m, n);
-    }
-    ghost var d: int :| es_el_mcd(d, m, n);
-    var m': int, n':int , r: int;
-    m', n' := inicializacion(d, m, n);
-    while (m' % n' > 0)
-        decreases m' % n'
-        invariant invariante(d, m', n')
-    {
-         m', n' := cuerpo(d, m', n');
-    }
-    return n';
-}
+
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method maximo_comun_divisor(m: int, n: int) returns (mcd: int)
+            requires 0 < n <= m
+            ensures es_el_mcd(mcd, m, n)
+        {
+            assert exists d: int :: es_el_mcd(d, m, n) by {
+                existe_un_mcd(m, n);
+            }
+            ghost var d: int :| es_el_mcd(d, m, n);
+            var m': int, n':int , r: int;
+            m', n' := inicializacion(d, m, n);
+            while (m' % n' > 0)
+                decreases m' % n'
+                invariant invariante(d, m', n')
+            {
+                m', n' := cuerpo(d, m', n');
+            }
+            return n';
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
+
 
     \begin{warningbox}{Introducción de inconsistencia}
     Cuando Dafny asume que los métodos auxiliares cumplen con la especificación, lo hace incluso si la especificación es inconsistente. Como se ilustra en el siguiente ejemplo:
-    \begin{dafny}
-method metodo_auxiliar (y: int) returns (y': int)
-    ensures y' >= 0
-    ensures y' < 0
 
-method cuidado_con_la_consistencia() {
-    var y: int := 1;
-    y := metodo_auxiliar(y);
-    assert false;
-}
+    \vspace{1em}
+    \begin{greenbox}
+    \begin{dafny}[gobble=8]
+        method auxiliar (y: int) returns (y': int)
+            ensures y' >= 0
+            ensures y' < 0
+
+        method principal() {
+            var y: int := 1;
+            y := auxiliar(y);
+            assert false;
+        }
     \end{dafny}
+    \end{greenbox}
+    \vspace{1em}
+
     A partir de la inconsistencia puede probarse cualquier cosa, incluso \textit{false}, como sucede aquí. Cuando tengamos dudas sobre las condiciones que Dafny está logrando verificar, podemos asegurarnos de que no hay inconsistencias introduciendo \inlinedafny{assert false} y chequeando que falla la verificación.
 \end{warningbox}
 
