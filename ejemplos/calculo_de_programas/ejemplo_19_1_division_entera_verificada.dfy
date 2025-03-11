@@ -1,5 +1,5 @@
 method division_entera(x: int, y: int) returns (q: int, r: int)
-    requires x > 0 && y > 0
+    requires x >= 0 && y > 0
     ensures x == q * y + r && 0 <= r < y
 {
     q := 0;

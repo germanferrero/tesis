@@ -18,6 +18,8 @@ method test_suma()
 }
 
 method test_es_suma_maxima(){
+    assert suma(0, 4, [1,2,-2,4]) == 5;
+    assert es_suma_maxima([1,2,-2,4], 5);
     assert es_suma_maxima([1,2,-3], 3);
     assert suma(0, 3, [1,2,3]) == 6;
     assert es_suma_maxima([1,2,3], 6);

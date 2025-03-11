@@ -10,6 +10,38 @@
 \usepackage{tikz}
 \usepackage{pst-poker}
 \usepackage{tcolorbox}
+\usepackage{titlesec}
+\usepackage{titling}
+\usepackage{csquotes}
+\usepackage[perpage,para,symbol*,bottom,belowfloats]{footmisc}
+
+\newenvironment{abstract}[2]{
+  \thispagestyle{empty}  % No page number
+  \vspace*{\fill}
+  \begin{center}
+    {\bfseries \Large Resumen}
+    \begin{quotation}
+      #1
+    \end{quotation}
+
+    \vspace{1in}
+    {\bfseries \Large Abstract}
+    \begin{quotation}
+      #2
+    \end{quotation}
+  \end{center}
+  \vspace*{\fill}
+  \newpage
+}
+
+\titlespacing*{\chapter}{0pt}{-10pt}{20pt} % Adjust space above the rule
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}
+  {} % Aquí puedes dejar vacío o poner el número del capítulo si lo quieres
+  {0pt}
+  {\titlerule\vspace{1ex}\centering}
+  [\vspace{1ex}\titlerule]
+
 
 \tcbuselibrary{breakable}
 
@@ -90,12 +122,13 @@
 }
 
 \newcommand{\hoare}[3]{\ensuremath{[#1]\ #2\ [#3]}}
-\newcommand{\hoareTheorem}[3]{\ensuremath{\vdash[#1]\ #2\ [#3]}}
+\newcommand{\hoareTheorem}[3]{\ensuremath{[#1]\ #2\ [#3]}}
+\newcommand{\hoareTheoremBkp}[3]{\ensuremath{\vdash[#1]\ #2\ [#3]}}
 \newcommand{\verticalHoare}[3]{
     \begin{align*}
-        [#1]
-        #2
-        [#3]
+        &[#1]\\
+        &#2\\
+        &[#3]
     \end{align*}
 }
 
@@ -109,11 +142,44 @@
 \author{Germán Ferrero}
 \title{Construcción formal de programas asistida por Dafny}
 \begin{document}
-    \chapter{Introducción}
-    El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia Algoritmos y Estructuras de Datos I, de nuestra Lic. en Cs. de la Computación.
+    \begin{titlepage}
+        \centering
+        \vspace*{1in}  % Adjust vertical space from top of the page
+        
+        % Title
+        {\Huge \bfseries \thetitle}
+        \vspace{0.5in}  % Adjust space between title and next line
+        
+        % Author
+        {\Large \theauthor}
+        \vspace{0.25in}
+        
+        % Director
+        {\large Trabajo final de la carrera Licenciatura en Ciencias de la Computación, FaMAF, UNC.}\\
+        \vspace{0.25in}
+        {\large Dirigido por: Dr. Miguel Pagano} \\
+        \vspace{0.25in}
 
-    Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y se expande hacia la definición de un lenguaje imperativo minimal cuya semántica es definida en términos de transformación de predicados.
-    En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y poscondición de estos programas se expresan como predicados válidos del sistema formal y la semántica de cada una de las sentencias del lenguaje está también definida en base a fórmulas de este sistema.
+        % Date
+        {\large \today} \\
+        
+        \vfill  % Push the logo to the bottom
+        
+        % Logo at the bottom
+        \includegraphics[width=\textwidth]{assets/logo_famaf_unc.png}  % Adjust the width as necessary
+    \end{titlepage}
+    \begin{abstract}{
+        Analizamos el potencial de Dafny como herramienta de apoyo en la materia Algoritmos y Estructuras de Datos I de la Licenciatura en Ciencias de la Computación. Mediante el uso de esta herramienta, se propone reducir el énfasis en la derivación de programas imperativos desarrollada en lápiz y papel, liberando así recursos cognitivos del estudiantado para enfocarlos en la comprensión de los conceptos fundamentales de verificación formal (pre y poscondición, invariante, función de cota, etc.) y en la construcción, a través del ingenio y la creatividad, de algoritmos a los cuales el estudiantado pueda dar mayor sentido.
+    }{
+        We analyze the potential of Dafny as a supporting tool in the Algorithms and Data Structures I course of the Bachelor's Degree in Computer Science. By using this tool, we suggest reducing the emphasis on the derivation of imperative programs developed with pen and paper, thereby freeing up students' cognitive resources to focus on understanding the fundamental concepts of formal verification (pre- and postconditions, loop invariants, bound functions, etc.) and on the construction, through inventiveness and creativity, of algorithms that students can better comprehend and relate to.
+    }
+    \end{abstract}
+    \tableofcontents
+    \chapter{Introducción}
+    El objetivo de esta tesis es analizar el potencial que tiene Dafny como herramienta de apoyo para la materia Algoritmos y Estructuras de Datos I, de nuestra Licenciatura en Cs. de la Computación.
+
+    Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y luego se expande hacia la definición de un lenguaje imperativo minimal cuya semántica se define en términos de transformación de predicados.
+    En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y poscondición de estos programas se expresan como predicados del sistema formal y la semántica de cada una de las sentencias del lenguaje está también definida en base a fórmulas de este sistema.
 
     Se busca así que los estudiantes conciban un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su correctitud.
 
@@ -121,33 +187,33 @@
 
     Consideramos esta enseñanza de la programación a través de métodos formales de altísimo valor, y buscamos con este trabajo potenciarla.
 
-    Durante el cursado de estas materias, y particularmente en Algoritmos y Estructuras de Datos I, los estudiantes destinan gran parte del tiempo de cursada y práctica fuera del claustro a la formulación de demostraciones dentro del sistema formal aprendido. Un alto porcentaje de los ejercicios de los prácticos de la materia conllevan la demostración de teoremas y es también un condimento central a la hora de las evaluaciones.
+    Durante el cursado de estas materias, y particularmente en Algoritmos y Estructuras de Datos I, la comunidad de estudiantes destina gran parte del tiempo de cursada y práctica fuera del claustro a la formulación de demostraciones dentro del sistema formal aprendido. Un alto porcentaje de los ejercicios de los prácticos de la materia conllevan la demostración de teoremas y es también un condimento central a la hora de las evaluaciones.
 
     Demostrar teoremas requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y ejercitación en la búsqueda de patrones para encontrar posibles aplicaciones de los axiomas y reglas de inferencia del sistema formal en cada uno de los pasos de la demostración.
     Esta es una actividad que si bien refuerza nuestro entendimiento de cómo se opera un sistema formal y por qué podemos confiar en él, a menudo satura nuestra capacidad cognitiva, dejando poco espacio para el aprendizaje de otros aspectos, o en otros planos, del tema que estamos estudiando.
 
-    Un escenario que nos despierta particular interés es el de la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo en que se construye la demostración de su correctitud.
-    Esta práctica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que resaltamos las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
+    Nos despierta particular interés la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo que se construye la demostración de su correctitud.
+    Esta práctica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que se resalta las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
 
     Nuestra hipótesis de trabajo es que el énfasis actual puesto en la operatoria del sistema formal es tal vez excesivo y contraproducente.
 
-    Demostrar programas (en el caso de la programación imperativa), implica una comprensión profunda de conceptos fundamentales como tipos de datos, estado y transformación de estado, precondición, poscondición, invariante de un ciclo, función de cota, etc. Incluso también comprender la confianza que depositamos en los axiomas y las reglas de inferencia en cuanto a sus consistencia.
+    Demostrar la correción de programas (en el caso de la programación imperativa), implica una comprensión profunda de conceptos fundamentales como tipos de datos, estado y transformación de estado, precondición, poscondición, invariante de un ciclo, función de cota, etc. Incluso también comprender la confianza que depositamos en los axiomas y las reglas de inferencia en cuanto a sus consistencia.
     A la vez, hacerlo con lápiz y papel acarrea un trabajo meticuloso para hilvanar axiomas y reglas de inferencia en la construcción de la demostración, como mencionamos anteriormente.
 
     Desde nuestra mirada, ambas cosas son importantes, pero lo primero es primordial y lo segundo es complementario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas enmarcadas en un sistema formal y la necesidad de construirlas, pero manteniendo el foco en lo primero.
 
     En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas nos permiten aprender los conceptos fundamentales, a la vez que resuelven por nosotros el trabajo tedioso, liberando nuestra capacidad cognitiva para dar sentido a los programas que desarrollamos y de las piezas fundamentales que posibilitan su verificación.
 
-    Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubiéramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. En \cite{Losano}, Leticia Losano analiza las dificultades que atraviesan los estudiantes durante el cursado de Introducción a los Algoritmos, en particular en cuanto a la formulación de demostraciones. Su trabajo nos convoca y motiva en la búsqueda de alternativas. Sostenemos además, que estas técnicas alternativas podrían combinarse con la derivación formal en un mismo proceso de desarrollo.
+    Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubiéramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. En su tesis doctoral\cite{Losano}, Leticia Losano analiza las dificultades que atraviesan los estudiantes durante el cursado de Introducción a los Algoritmos, en particular en cuanto a la formulación de demostraciones. Su trabajo nos convoca y motiva en la búsqueda de alternativas. Sostenemos además, que estas técnicas alternativas podrían combinarse con la derivación formal en un mismo proceso de desarrollo.
 
     Finalmente consideramos que, en el primer año de la carrera durante el cual se desarrollan estas materias, delegar parte de la generación de pruebas en las herramientas de verificación de software que tenemos hoy a nuestro alcance puede resultar en que formemos a más estudiantes capaces de obtener software verificado al final del día. Estudiantes que desarrollen un sentido más profundo de los conceptos fundamentales y los pongan en práctica a lo largo del resto de la carrera. E incluso, en un estadio más avanzado de la misma y con otro entendimiento del valor que supone, estén en mejores condiciones para profundizar su conocimiento en sistemas formales.
 
-    \chapter{Programación formal asistida por Dafny}
-
+    \chapter{Fundamentos de programación formal para programar en Dafny}
+    \chaptermark{Fundamentos para programar en Dafny}
     En este capítulo presentamos brevemente los conceptos de programación formal que creemos resultan necesarios a la hora de escribir programas imperativos en Dafny.
 
     \section{Condiciones de contexto para la propuesta}
-    Visualizamos un estudiantado que ya cuente con una primera experiencia en algún lenguaje de programación imperativa en la cual se hayan familiarizado de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el de ciclo (\textit{while/for}). Esperaríamos como resultado de esta experiencia que los estudiantes comprendan el control de flujo de un programa imperativo, identifiquen cuándo resulta conveniente utilizar un \textit{if} o un \textit{while}, y hayan escrito baterías de tests no exhaustivas para sus programas.
+    La propuesta pedagógica que desarrollamos en en este trabajo supone un estudiantado que ya cuente con una primera experiencia en algún lenguaje de programación imperativa durante la cual se hayan familiarizado de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el de ciclo (\textit{while/for}). Esperaríamos como resultado de esta experiencia que los estudiantes comprendan el control de flujo de un programa imperativo, identifiquen cuándo resulta conveniente utilizar un \textit{if} o un \textit{while}, y hayan escrito baterías de tests no exhaustivas para sus programas.
 
     A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas como objetos formales cuya correctitud puede ser demostrada.
     En esta segunda instancia los estudiantes razonan sobre los programas, ya no en un plano mecánico, operativo, sino en el plano semántico, a partir de las definiciones de Hoare.
@@ -163,25 +229,26 @@
     En programación imperativa, un programa es un transformador de estados. Un estado es una valuación de las variables y constantes a las que un programa tendrá acceso, y ejecutar el programa, significará una transformación de ese estado inicial, en otro estado final.
 
     Utilizaremos condiciones sobre las variables y constantes para describir el estado final.
-    El lenguaje para expresar estas condiciones será el de la lógica matemática con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) aplicados a las variables y constantes del programa o a expresiones construídas a partir de ellas. (ej: $X = q * Y + r \land 0 \leqslant r < y$).
+    El lenguaje para expresar estas condiciones será el de la lógica matemática con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) aplicados a las variables y constantes del programa o a expresiones construídas a partir de ellas. (ej: Para describir el estado final de un programa que implementa la división entera de $X$ por $Y$, diremos que las variables $q$ y $r$ (cociente y resto) satisfacen $X = q * Y + r \land 0 \leqslant r < Y$).
 
     Notar que si preservamos en constantes (que diferenciamos mediante letras mayúsculas) los valores de entrada de interés, luego en las condiciones sobre el estado final podemos expresar la relación que deben guardar los valores de salida de interés respecto a los de entrada.
 
-    Este mismo lenguaje nos permite especificar condiciones que deben cumplirse en el estado inicial para que se considere válido ejecutar el programa. (ej: $X > 0 \land Y > 0$)
+    Este mismo lenguaje nos permite especificar condiciones que deben cumplirse en el estado inicial para que se considere válido ejecutar el programa. (ej: Para la división entera tendremos como condición inicial $X \geqslant 0 \land Y > 0$)
 
     Utilizamos la ``Terna de Hoare'', \hoare{P}{S}{Q} para especificar programas donde $P$ es una precondición, $S$ un programa y $Q$ una poscondición, y la interpretamos así:
 
     ``Cada vez que se ejecuta $S$ a partir de un estado que satisface $P$, el programa termina en un estado que satisface $Q$''
 
     \example{Especificación de la división entera}
+    \label{esp:division-entera}
 
     Un programa $S$ que ejecute la división entera de dos números enteros positivos $X$ e $Y$, puede ser especificado con la siguiente terna:
-    \verticalHoare{X > 0 \land Y > 0}{S}{X = q * Y + r \land 0 \leqslant r < Y}
+    \verticalHoare{X \geqslant 0 \land Y > 0}{S}{X = q * Y + r \land 0 \leqslant r < Y}
     Donde $X$ e $Y$ serán constantes y $q$ y $r$ variables, todas de tipo entero.
     Notar que la precondición impide la división por $0$ y que $q$ y $r$ tomarán respectivamente los valores del cociente y resto de la división de $X$ por $Y$ luego de ejecutar $S$.
 
     Escribir la especificación de un programa antes de pasar a implementarlo es (o debiera ser) una práctica ineludible, ya que hacerlo nos reasegura que entendemos qué es lo que debemos implementar.
-    Al especificar un programa logramos también separar conceptualmente dos aspectos independientes del mismo: su especificación (qué hace), y su implementación (cómo lo hace).
+    Al especificar un programa logramos también separar conceptualmente dos aspectos independientes del mismo: su especificación (qué hace) y su implementación (cómo lo hace).
     Gracias a la precisión del lenguaje utilizado para especificar, quienes quieran saber qué hace el programa solo necesitarán leer y entender su especificación, sin necesidad de revisar su implementación para descubrirlo. Esto es una gran ventaja, ya que la especificación de un programa suele ser más concisa que su implementación.
 
     Ahora que contamos con un lenguaje preciso para describir qué debe hacer un programa, queda responder cómo hacemos para garantizar que efectivamente lo hace.
@@ -189,9 +256,9 @@
     \section{Prueba de correctitud}
     Con ``programación formal'' nos referimos a garantizar que un programa efectivamente cumple con su especificación mediante la generación de una demostración de correctitud bajo un sistema formal de deducción. Es decir, una secuencia de pasos lógicos que logren deducir la correctitud del programa a partir de un conjunto mínimo de axiomas y reglas de inferencia.
 
-    Si logramos generar una demostración de \hoare{P}{S}{Q} diremos que la terna es un teorema y lo denotaremos \hoareTheorem{P}{S}{Q}.
+    Si logramos generar una demostración de \hoare{P}{S}{Q} diremos que la terna es un teorema y lo denotaremos \hoareTheoremBkp{P}{S}{Q}.
 
-    Al igual que un teorema matemático, por ejemplo $\vdash x = x + y * 0$, donde la igualdad vale para cualquier valor de $x$ e $y$, un teorema de la forma \hoareTheorem{P}{S}{Q} significa que la terna vale para cualquier estado inicial que satisfaga $P$. Es decir, a diferencia del \textit{testing} de programas que chequea algunos casos particulares no exhaustivos, una demostración formal probará la correctitud del programa para todos los casos posibles. Lo cual incrementa drásticamente la confianza que podemos depositar en los programas.
+    Al igual que un teorema matemático, por ejemplo $\vdash x = x + y * 0$, donde la igualdad vale para cualquier valor de $x$ e $y$, un teorema de la forma \hoareTheoremBkp{P}{S}{Q} significa que la terna vale para cualquier estado inicial que satisfaga $P$. Es decir, a diferencia del \textit{testing} de programas que chequea algunos casos particulares no exhaustivos, una demostración formal probará la correctitud del programa para todos los casos posibles. Lo cual incrementa drásticamente la confianza que podemos depositar en los programas.
 
     Los primeros esfuerzos por definir un sistema formal de deducción para la programación imperativa se condensaron en lo que conocemos como la lógica de Hoare.
     La misma establece axiomas y reglas de inferencia para un lenguaje simple equipado con los comandos esenciales del paradigma imperativo: la asignación, el \textit{if} y el \textit{while}. Repasaremos la lógica de Hoare en seguida con la ayuda de Dafny.
@@ -199,7 +266,7 @@
     \section{Herramientas de verificación automática}
     Hilvanar axiomas y reglas de inferencia para lograr una demostración de un programa, incluso de uno simple, es una tarea tediosa. Y es por eso que desde la presentación de la Lógica de Hoare se sostiene un gran esfuerzo de investigación y desarrollo en técnicas de mecanización y automatización de la generación de demostraciones que dio lugar a las herramientas de verificación automática de software con las que contamos actualmente, como Dafny.
 
-    De ellas, debemos esperar que oculten la complejidad de los mecanismos que hilvanan axiomas y reglas de inferencia en milisegundos, y que nos permitan escribir software verificado siempre que entendamos los axiomas y reglas que rigen la automatización que realizan.
+    De ellas debemos esperar que oculten la complejidad de los mecanismos que hilvanan axiomas y reglas de inferencia en milisegundos, y que nos permitan escribir software verificado siempre que entendamos los axiomas y reglas que rigen la automatización que realizan.
 
     Al esconder dicha complejidad, estas herramientas nos facilitan el acceso a la programación formal permitiéndonos ejercitar la especificación de programas y el uso de un sistema deductivo para demostrar su correctitud, enfocando el esfuerzo cognitivo en el plano semántico en vez del mecánico.
 
@@ -207,19 +274,19 @@
 
     \section{Lógica de Hoare en Dafny}
     La lógica de Hoare está compuesta por un axioma, el axioma de la asignación, y un conjunto de reglas de inferencia. Para presentar las reglas de inferencia utilizaremos la siguiente notación:
-    \inferenceRule{\vdash S_1, ..., \vdash S_n}{\vdash S}
-    Que indica que la \textit{conclusión} $\vdash S$ puede deducirse a partir de las \textit{hipótesis} $\vdash S_1, ..., \vdash S_n$, las cuales serán o bien todos teoremas de la lógica de Hoare (en la forma $\vdash[P]S[Q]$) o bien una combinación de teoremas de la lógica de Hoare con teoremas de la lógica matemática.
+    \inferenceRule{S_1, ..., S_n}{S}
+    Que indica que la \textit{conclusión} $S$ puede deducirse a partir de las \textit{hipótesis} $S_1, ..., S_n$, las cuales serán o bien todos teoremas de la lógica de Hoare (en la forma $[P]S[Q]$) o bien una combinación de teoremas de la lógica de Hoare con teoremas de la lógica matemática.
 
     \subsection{Axioma de la asignación}
     La asignación es el comando que toma la forma $x := E$ donde $x$ es una variable y $E$ es una expresión, que posiblemente contiene la variable $x$, y utilizamos para asignar a $x$ el valor que resulte de evaluar $E$ al momento de la asignación.
 
-    Si denotamos con $P[E/x]$ al predicado que resulta de reemplazar sintácticamente en $P$ todas las ocurrencias de $x$ por $E$, el axioma de la asignación es:
+    Si denotamos con $P[E/x]$ al predicado que resulta de reemplazar sintácticamente en $P$ todas las ocurrencias libres de $x$ por $E$, el axioma de la asignación es:
 
     \begin{center}
-        \hoareTheorem{P[E/x]}{x:=E}{P}
+        \hoare{P[E/x]}{x:=E}{P}
     \end{center}
 
-    El axioma nos dice que un predicado con posibles cláusulas sobre $x$ siempre valdrá  luego de asignar $E$ a $x$ si antes de la asignación valía un predicado similar a $P$ pero en donde esas cláusulas referían a $E$ en vez de a $x$.
+    El axioma nos dice que un predicado con posibles ocurrencias libres de $x$ siempre valdrá luego de asignar $E$ a $x$ si antes de la asignación valía un predicado similar a $P$ pero en donde esas ocurrencias de $x$ son reemplazadas por $E$.
 
     Podemos escribir un simple programa en Dafny para probar cómo este resuelve verificaciones que implican conocimiento del axioma de la asignación:
 
@@ -249,11 +316,18 @@
     En la línea 7 establecemos la hipótesis de que $P$ vale para $E(x)$ haciendo uso del commando \inlinedafny{assume}.
     En la línea 8 realizamos la asignación.
     Y en la línea 9 le exigimos a Dafny probar que $P$ vale para $x$ en ese punto del programa mediante el commando \inlinedafny{assert}.
-    Efectivamente Dafny logra verificarlo (lo cual simbolizamos con la línea verde vertical a la izquierda \footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo.}), haciendo uso del axioma de la asignación.
+    Efectivamente Dafny logra verificarlo (lo cual simbolizamos con la línea verde vertical a la izquierda \footnote{El editor de texto Visual Studio Code junto con la extensión de Dafny utiliza una línea verde como esta para denotar las partes del programa que han logrado ser verificadas, cada vez que guardamos el archivo. Ver Figura\ref{fig:screenshot}}), haciendo uso del axioma de la asignación.
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.7\textwidth,keepaspectratio]{assets/screenshot_dafny.png}  % Specify your image file here
+        \caption{Captura de pantalla del ejemplo ``Axioma de la asignación'' en el editor de texto VSCode}
+        \label{fig:screenshot}
+    \end{figure}
 
     \subsection{Regla del fortalecimiento de la precondición}
     Esta regla indica que si tenemos un programa que nos lleva de $P'$ a $Q$ entonces ese mismo programa también nos lleva a $Q$ desde cualquier precondición más fuerte que $P'$.
-    \inferenceRule{\hoareTheorem{P'}{S}{Q}\ \ \vdash P \rightarrow P'}{\hoareTheorem{P}{S}{Q}}
+    \inferenceRule{\hoareTheorem{P'}{S}{Q}\ \ P \rightarrow P'}{\hoareTheorem{P}{S}{Q}}
 
     \example{Regla del fortalecimiento de la precondición en Dafny}
     \begin{greenbox}
@@ -279,11 +353,11 @@
 
     Para verificar el \textit{assert} de la línea 15. Dafny tuvo que aplicar la regla del fortalecimiento de la precondición a partir de la hipótesis de la línea 12 y de la especificación de $S$.
 
-    De este ejemplo y del anterior, podemos notar que aunque en la teoría solemos referirnos con un predicado $P$ a una fórmula sobre el conjunto de las variables del programa, en Dafny debemos especificar sobre cuáles opera específicamente, lo cual naturalmente facilita el trabajo de la herramienta a la hora de verificar.
+    De este ejemplo y del anterior, podemos notar que aunque en la teoría solemos referirnos con un predicado $P$ a una fórmula sobre el conjunto de las variables del programa, en Dafny debemos especificar sobre cuales opera específicamente, lo cual naturalmente facilita el trabajo de la herramienta a la hora de verificar.
 
     \subsection{Regla del debilitamiento de la poscondición}
     La regla del debilitamiento de la poscondición nos dice que si un programa $S$ nos lleva de $P$ a $Q$, el mismo programa nos lleva de $P$ a cualquier poscondición más débil que $Q$. Podemos ver a Dafny utilizando esta regla con un ejemplo análogo al anterior.
-    \inferenceRule{\hoareTheorem{P}{S}{Q'}\ \ \vdash Q' \rightarrow Q}{\hoareTheorem{P}{S}{Q}}
+    \inferenceRule{\hoareTheorem{P}{S}{Q'}\  Q' \rightarrow Q}{\hoareTheorem{P}{S}{Q}}
 
     \example{Regla del debilitamiento de la poscondición en Dafny}
     \begin{greenbox}
@@ -307,7 +381,7 @@
     \end{greenbox}
 
     \subsection{Regla de la composición}
-    La regla de la composición indica que si un programa $S1$ nos lleva de un predicado $P$ a un predicado $R$, desde el cual otro programa $S2$ nos lleva hasta un predicado $Q$, entonces secuenciar $S2$ luego de $S1$, nos da un programa que nos lleva del predicado $P$ al predicado $Q$.
+    La regla de la composición indica que si un programa $S_1$ nos lleva de un predicado $P$ a un predicado $R$, desde el cual otro programa $S_2$ nos lleva hasta un predicado $Q$, entonces componer secuencialmente $S2$ luego de $S1$, nos da un programa que nos lleva del predicado $P$ al predicado $Q$.
 
     \inferenceRule{\hoareTheorem{P}{S_1}{R}\ \ \hoareTheorem{R}{S_2}{Q}}{\hoareTheorem{P}{S_1;S_2}{Q}}
 
@@ -343,7 +417,7 @@
     \subsection{Regla del \textit{if}}
     Esta regla nos dice que si ambas ramificaciones del \textit{if} junto con la información agregada por la correspondiente valuación de la guarda nos llevan de la precondición a la poscondición, entonces el \textit{if}, como constructo que las compone, también lo hace.
 
-    \inferenceRule{\hoareTheorem{P \land B}{S}{Q}\ \ \hoareTheorem{P \land \lnot B}{T}{Q}}{\hoareTheorem{P}{if\ B\ then\ S\ else\ T}{Q}}
+    \inferenceRule{\hoareTheorem{P \land B}{S}{Q}\ \ \hoareTheorem{P \land \lnot B}{T}{Q}}{\hoareTheorem{P}{\mathit{if} B\ then\ S\ else\ T}{Q}}
 
     \example{Regla del \textit{if} en Dafny}
 
@@ -380,18 +454,18 @@
 
 
     \subsection{El \textit{while}, el invariante y la función de cota}
-    El $while$ es la sentencia de la programación imperativa que nos permite escribir programas realmente interesantes, cuya estrategia resolutiva se desenvuelve en uno o más ciclos que computan de manera creativa algún valor deseado. En estos programas los ciclos son típicamente la parte más difícil tanto de elaborar como de verificar.
+    El $while$ es la sentencia de la programación imperativa que nos permite escribir programas realmente interesantes y creativos, cuya estrategia resolutiva se desenvuelve en uno o más ciclos que computan algún valor deseado. Utilizamos ciclos para encontrar respuestas o construir soluciones (en definitiva, lograr alguna transformación de estado deseada) de manera iterativa y constructiva. En estos programas los ciclos son típicamente la parte más difícil tanto de elaborar como de verificar.
 
     Para trabajar con ciclos en términos formales debemos abrazar dos conceptos: el invariante del ciclo y su función de cota.
-    El invariante es una condición que se cumple a la entrada del ciclo, a la salida del mismo, y durante cada una de las iteraciones. La función de cota es una expresión numérica que se modifica en cada iteración del ciclo y atestigua que el ciclo termina eventualmente.
+    El invariante es una condición que se cumple a la entrada del ciclo, a la salida del mismo, y durante cada una de las iteraciones. La función de cota es una expresión numérica que evalúa a un valor cada vez menor en cada iteración del ciclo y está acotada por abajo asegurando que el ciclo termina eventualmente.
 
-    Si nuestro programa incluye un ciclo que realiza algún trabajo interesante, este ciclo tiene un invariante y una función de cota, lo hayamos hecho explícito o no. Utilizamos ciclos para encontrar respuestas o construir soluciones (en definitiva, lograr alguna transformación de estado deseada) de manera iterativa y constructiva. El invariante del ciclo es su propiedad intrínseca que nos dice que efectivamente estamos construyendo, paso a paso, esa transformación. Y la función de cota es la que nos dice que eventualmente concluiremos el trabajo.
+    Si nuestro programa incluye un ciclo que eventualmente termina y realiza algún trabajo interesante, este ciclo tiene un invariante y una función de cota, lo hayamos hecho explícito o no. El invariante del ciclo es su propiedad intrínseca que nos dice que efectivamente estamos construyendo, paso a paso, esa transformación. Y la función de cota es la que nos dice que eventualmente concluiremos el trabajo.
 
-    Imaginemos dos personas a las que le pedimos que edifiquen una columna de $2mts$ cada una por separado. Para realizar esa columna se necesitan $N$ bloques de cemento. Una vez que empezaron su tarea, volteamos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna bloque a bloque, de abajo hacia arriba, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la columna por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ bloques, y una función de cota: con cada bloque colocado, falta uno menos para llegar a $N$.
+    Imaginemos dos personas que están construyendo una pared cada una que agreguen a su pared una hilada de ladrillos. Para realizar la hilada se necesitan $N$ ladrillos. Una vez que empezaron su tarea, nos detenemos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna ladrillo por ladrillo, de izquierda a derecha, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la hilada por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ ladrillos, y una función de cota: con cada ladrillo colocado, falta uno menos para llegar a $N$.
 
     Enunciar el invariante y la función de cota incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo, aumenta nuestras posibilidades de implementarlo correctamente y es indispensable para construir una demostración de su correctitud.
 
-    Antes de pasar a la regla de inferencia del \textit{while} repasemos el problema de la división entera. Este problema se resuelve con un programa que contiene un ciclo.
+    Antes de pasar a la regla de inferencia del \textit{while} repasemos el problema de la división entera cuya especificaciónen términos de pre y pos condición habíamos dado en la sección \ref{esp:division-entera}. Este problema se resuelve con un programa que contiene un ciclo.
 
     \example{División entera de dos números enteros positivos}
 
@@ -401,14 +475,14 @@
     Ó dicho de otra forma $q$ y $r$ son tales que $x$ se distribuye entre ``$y$ veces $q$'' y un resto $r$ que es menor a $y$.
     Si pensamos el problema como un proceso iterativo en el que debemos repartir la cantidad $x$ entre ``$y$ partes iguales'', podemos decir que al principio no hemos repartido nada aún, y en cada iteración del ciclo repartiremos una unidad a cada una de las partes, mientras alcance para todas. Cuando no alcance para todas, habremos terminado, y tendremos un resto $r$ entre 0 e $y$. En todo momento, lo que aún queda por repartir será el resto $r$, la guarda del ciclo será $r \geqslant y$ (que resulta verdadera si aún alcanza para repartir una unidad a cada una) y lo repartido a cada parte será $q$.
 
-    Antes de entrar al ciclo tendremos $r=x$ y $q=0$ y en todo momento mantendremos como invariante $x = q * y + r \land 0 \leqslant r$, puesto que lo que sacamos de $r$ lo ponemos en $q * y$. Notemos que $r - y$ decrecerá en cada iteración y está acotada por lo bajo, por lo que nos sirve como función de cota que asegura que el ciclo terminará.
+    Antes de entrar al ciclo tendremos $r=x$ y $q=0$ y en todo momento mantendremos como invariante $x = q * y + r \land 0 \leqslant r$, puesto que lo que sacamos de $r$ lo ponemos en $q * y$. Notemos que $r - y$ decrecerá en cada iteración y está acotada por abajo, por lo que nos sirve como función de cota.
     Al final del ciclo valdrá el invariante (por haberlo mantenido a cada paso) y la negación de la guarda (por haber terminado). La conjunción de ambas cosas nos dice que: $x = q * y + r \land 0 \leqslant r < y$. Por tanto $q$ y $r$ serán el cociente y resto de la división entera de $x$ por $y$.
 
     La implementación en Dafny aún no verificada de nuestro programa luce así:
     \begin{whitebox}[before skip=2ex]
     \begin{dafny}[gobble=8]
         method division_entera(x: int, y: int) returns (q: int, r: int)
-            requires x > 0 && y > 0
+            requires x >= 0 && y > 0
     \end{dafny}
     \end{whitebox}
     \begin{redbox}
@@ -430,7 +504,7 @@
     \end{dafny}
     \end{whitebox}
 
-    \begin{redbox}[beforeafter skip=2ex]
+    \begin{redbox}[after skip=2ex]
         Error: a postcondition could not be proved on this return path.\\
         Could not prove: \inlinedafny{x == q * y + r}
     \end{redbox}
@@ -442,15 +516,15 @@
 
     La regla de inferencia del \textit{while} es la siguiente:
 
-    \inferenceRule{\hoareTheorem{I \land B \land (E = n)}{S}{I \land (E < n)}\ \ \ \ \vdash I \land B \rightarrow E \geqslant 0}{\hoareTheorem{I}{while\ B\ do\ S}{I \land \lnot B}}
+    \inferenceRule{\hoareTheorem{I \land B \land (E = n)}{S}{I \land (E < n)}\ \ \ \ I \land B \rightarrow E \geqslant 0}{\hoareTheorem{I}{while\ B\ do\ S}{I \land \lnot B}}
 
     La primera hipótesis dice que $S$, el cuerpo del while, debe ser tal que si el invariante $I$ y la guarda $B$ se cumplen antes de ejecutar $S$ luego de ejecutar $S$ el invariante continúa valiendo y además la función de cota $E$ se redujo al menos en una unidad.
 
     La segunda hipótesis dice que el invariante $I$ en conjunción con la guarda $B$ aseguran que la función de cota es mayor o igual a 0. Estableciendo así una cota inferior para una variable que decrece en cada iteración por la hipótesis anterior.
 
-    Si estas dos hipótesis se cumplen, entonces podemos derivar que estableciendo el invariante en la entrada del ciclo, el mismo nos llevará a un estado en el cual se cumple el invariante y la negación de la guarda.
+    Si estas dos hipótesis se cumplen, entonces podemos concluir que estableciendo el invariante en la entrada del ciclo, el mismo nos llevará a un estado en el cual se cumple el invariante y la negación de la guarda.
 
-    Dafny, como lo indica la regla, depende fuertemente de que el invariante del ciclo y la función de cota estén definidos para intentar probar su correctitud. Y salvo en casos triviales en los que puede inferirlos por su cuenta\footnote{Para intentar inferir el invariante usará técnicas de aproximación de dominios abstractos que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables.\cite{10.1007/11804192_17}. Para la función de cota, como ejemplos, en caso de que la guarda sea del tipo $E<F$ probará con $F-E$, y en el caso de que sea $E!=F$ probará con $if\ E<F\ then\ F-E\ else\ E-F$.}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
+    Dafny, como lo indica la regla, depende fuertemente de que el invariante del ciclo y la función de cota estén definidos para intentar probar su correctitud. Y salvo en casos triviales en los que puede inferirlos por su cuenta\footnote{Para intentar inferir el invariante usará técnicas de aproximación de dominios abstractos\cite{10.1007/11804192_17} que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables. Para la función de cota, como ejemplos, en caso de que la guarda sea del tipo $E<F$ probará con $F-E$, y en el caso de que sea $E!=F$ probará con $if\ E<F\ then\ F-E\ else\ E-F$.}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
 
     Retomando el ejemplo de la división entera. Podemos lograr una implementación verificada anotando el ciclo con el invariante $x = q * y + r \land 0 \leqslant r$ (utilizando la anotación \inlinedafny{invariant}), y la función de cota $r$ (con la anotación \inlinedafny{decreases}).
 
@@ -483,13 +557,15 @@
     \inferenceRule{\hoareTheorem{P}{S}{Q}\ \ \hoareTheorem{P'}{S}{Q'}}{\hoareTheorem{P \lor P'}{S}{Q \lor Q'}}
 
     \subsection{Recapitulación}
-    Hemos visto el axioma de la asignación y las reglas de inferencia de la Lógica de Hoare para un lenguaje imperativo simple y pusimos a prueba la capacidad de Dafny para verificar programas que requieren hacer uso de ellas. Al programar en Dafny, a través de un entorno de desarrollo apropiado, estaremos constantemente interactuando con el verificador en la tarea conjunta de lograr una implementación verificada de nuestros programas. Dafny intentará hacerlo de manera autónoma, resolviendo el tedio de articular axiomas y reglas en pos de una demostración, pero en ocasiones deberemos ayudarlo, entendiendo qué reglas de inferencia son necesarias a cada paso y verificando que las hipótesis para aplicar esas reglas se satisfacen y el verificador está al tanto de ellas. Además, y siendo esto lo más importante, deberemos anotar cada ciclo con invariantes y funciones de cota.
+    Hemos visto el axioma de la asignación y las reglas de inferencia de la Lógica de Hoare para un lenguaje imperativo simple y pusimos a prueba la capacidad de Dafny para verificar programas que requieren hacer uso de ellas. Al programar en Dafny estaremos constantemente interactuando con el verificador en la tarea conjunta de lograr una implementación verificada de nuestros programas. Dafny intentará hacerlo de manera autónoma, resolviendo el tedio de articular axiomas y reglas en pos de una demostración, pero en ocasiones deberemos ayudarlo, entendiendo qué reglas de inferencia son necesarias a cada paso y verificando que las hipótesis para aplicar esas reglas se satisfacen y el verificador está al tanto de ellas. Además, y siendo esto lo más importante, deberemos anotar cada ciclo con invariantes y funciones de cota.
 
     \chapter{Metodología para escribir programas en Dafny}
+    \chaptermark{Metodología}
     En este capítulo presentamos una metodología para escribir programas en Dafny. La metodología propuesta supone una serie de pasos a seguir que nos resultaron útiles a la hora de ordenar el desarrollo y la interacción con el verificador.
     Introduciremos la metodología a través de un ejemplo concreto: el algoritmo de Euclides para el cálculo del máximo común divisor. Como prólogo de este capítulo, nos gustaría relatar primero la experiencia propia intentando resolver el problema del máximo común divisor antes de ser iluminados con la solución de Euclides.
 
     \section{¿Qué tan relevante es la derivación de programas? una opinión personal}
+    \sectionmark{Derivación de programas: Una opinión personal}
     Queremos escribir un programa, verificado, que compute el máximo común divisor entre dos números enteros positivos $m$ y $n$, con $m \geqslant n$. Formalmente, si utilizamos $x \mid y$ para decir que $x$ divide a $y$, definimos el máximo común divisor $mcd$ como:
 
     \begin{center}
@@ -543,13 +619,13 @@
     Hay alguna técnica de obtención de invariantes que nos hubiera llevado a la misma realización que tuvo Euclides? Puede el método reemplazar a la creatividad?
     Euclides --sospecho-- no llegó a proponer su algoritmo manipulando ecuaciones, sino observando líneas geométricas de longitud discreta. De la misma forma en que Pitágoras llegó a su famoso teorema observando triángulos. De nuevo, sospecho.
 
-    El mismo Dijkstra, en su trabajo ``Guarded Commands''\cite{EWD:EWD418} donde presenta su cálculo para la derivación formal de programas reflexiona en las conclusiones:
+    El mismo Dijkstra, en su trabajo \emph{Guarded Commands}\cite[p. 12]{EWD:EWD418} donde presenta su cálculo para la derivación formal de programas reflexiona en las conclusiones (la traducción es mía):
 
-    \begin{quoting}
+    \blockquote{
         La segunda razón para llevar a cabo estas investigaciones fue mi deseo personal de apreciar mejor qué parte de la actividad de programación puede considerarse una mera rutina formal y qué parte parece requerir ``invención''. Mientras que el diseño de un \textit{if} parece ahora una actividad bastante directa, el diseño de un ciclo requiere lo que yo considero ``la invención'' de una relación invariante y una función variante.(...) Mi presentación de este cálculo no debe ser interpretada como una sugerencia personal de que todos los programas tiene que ser desarrollados de esta manera: solo nos provee una herramienta más.
-    \end{quoting} Edsger W. Dijkstra. (La traducción es mía)
+    }
 
-    En el libro Cálculo de Programas, actual bibliografía de referencia de la materia, se reserva un lugar de gran relevancia a la técnica de derivación de programas. Por ejemplo, para el problema del máximo común divisor se plantea derivar el cuerpo del ciclo a partir de las propiedades del $mcd$ en las que se apoya el algoritmo de Euclides.
+    En el libro \emph{Cálculo de Programas}, actual bibliografía de referencia de la materia, se reserva un lugar de gran relevancia a la técnica de derivación de programas. Por ejemplo, para el problema del máximo común divisor se plantea derivar el cuerpo del ciclo a partir de las propiedades del $mcd$ en las que se apoya el algoritmo de Euclides.
     Si bien la técnica es ciertamente valiosa, en mi opinión sería más provechoso enfocar la enseñanza en el razonamiento procedural que realizó Euclides y que explica por qué se eligen dichas propiedades del $mcd$ en primer lugar.
 
     En general creo que podemos quitar relevancia a la derivación de programas como método preferente para construirlos, dar lugar a otros métodos como la creatividad y el ingenio y resaltar en cambio el rol de las técnicas de verificación formal a la hora de \textbf{probar} que los programas son correctos.
@@ -671,17 +747,17 @@
     \section{La metodología}
     Implementar el algoritmo de máximo común divisor de Euclides en Dafny de manera tal que el verificador logre verificar nuestra implementación despierta nuevas preguntas y potenciales respuestas sobre \textbf{qué} conocimiento posee el verificador de Dafny y \textbf{cómo o cuándo} puede aplicarlo.
 
-    Dafny sabe acaso que $mcd(m, n) = mcd(n, m\%n)$? Se lo podemos decir? Si se lo decimos, puede aplicarlo en la verificación?
+    ¿Dafny sabe acaso que $mcd(m, n) = mcd(n, m\%n)$? Se lo podemos decir? Si se lo decimos, puede aplicarlo en la verificación?
     Las respuestas rápidas son: ``no lo sabe'', ``se lo podemos decir'', y ``hay que ayudarlo a ubicar el nuevo saber en el formato y lugar correcto''.
 
     Nuestro camino hacia lograr la implementación verificada no fue lineal, sino que tuvo una etapa prematura de probar distintas estrategias ``contra la caja negra''. Sin embargo, el desarrollo puede realizarse de manera metodológica y ordenada, siguiendo estos pasos:
     \begin{enumerate}
         \item Especificar el programa.
         \item Testear la especificación.
-        \item Definir el invariante, función de cota y guarda del loop.
+        \item Definir el invariante, función de cota y guarda del ciclo.
         \item Declarar las variables necesarias en el método principal.
-        \item Especificar inicialización y cuerpo del loop.
-        \item Implementar la inicialización y el cuerpo del loop.
+        \item Especificar inicialización y cuerpo del ciclo.
+        \item Implementar la inicialización y el cuerpo del ciclo.
         \item Fortalecer el invariante, en caso de ser necesario.
     \end{enumerate}
 
@@ -726,7 +802,7 @@
     \end{dafny}
     \end{greenbox}
 
-    \subsubsection{Definir el invariante, función de cota y guarda del loop}
+    \subsubsection{Definir el invariante, función de cota y guarda del ciclo}
 
     Recordemos que la estrategia algorítmica era, sabiendo que $d$ es tal que $d = mcd(m, n)$, ir seleccionando en cada iteración dos varillas una más larga: $m'$ y otra más corta: $n'$, manteniendo dos afirmaciones:
     \begin{itemize}
@@ -745,7 +821,7 @@
     \end{dafny}
     \end{greenbox}
 
-    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ es menor en cada iteración y al llegar a $m'\%n' == 0$ terminábamos. Proponemos entonces como guarda del loop $m'\%n'>0$, y como función de cota $m'\%n'$.
+    En la estrategia propuesta, seleccionábamos $m'$ y $n'$ de forma tal que $m'\%n'$ es menor en cada iteración y al llegar a $m'\%n' = 0$ terminábamos. Proponemos entonces como guarda del ciclo $m'\%n'>0$, y como función de cota $m'\%n'$.
 
     \subsubsection{Declarar las variables necesarias en el método principal}
     Hay tres variables de tipo $int$ implicadas en el invariante: $d$, $m'$, $n'$.
@@ -788,7 +864,7 @@
     \end{whitebox}
 
 
-    \begin{redbox}[beforeafter skip=2ex]
+    \begin{redbox}[after skip=2ex]
         Error: cannot establish the existence of LHS values that satisfy the such-that predicate
     \end{redbox}
 
@@ -796,7 +872,7 @@
     Al hacerlo notamos que Dafny devuelve un error para la línea 5 
     \footnote{Aquí comentamos la poscondición a propósito. Ver \href{https://github.com/dafny-lang/dafny/issues/6122}{Issue \#6122 en Dafny}.}.
     Nosotros sabemos que para dos números enteros positivos existe un máximo común divisor pero Dafny no lo sabe. Podemos decírselo definiendo un axioma que establezca que el máximo común divisor entre $m$ y $n$ existe e invocándolo justo antes de la definición de $d$
-    \footnote{Un axioma en Dafny es un lemma que no conlleva una prueba. Si quitamos :axiom, Dafny nos pedirá que escribamos la prueba en el cuerpo del lemma.}.
+    \footnote{Un axioma en Dafny es un lema que no conlleva una prueba. Si quitamos :axiom, Dafny nos pedirá que escribamos la prueba en el cuerpo del lema.}.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -816,13 +892,13 @@
     \end{dafny}
     \end{greenbox}
 
-    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} indica que utilizamos ese lemma para concluir la condición del assert.
+    Con la introducción del axioma, el error de verificación desaparece. La construcción \textit{assert ... by} indica que utilizamos ese lema para concluir la condición del assert.
 
-    \subsubsection{Especificar inicialización y cuerpo del loop.}
+    \subsubsection{Especificar inicialización y cuerpo del ciclo.}
 
-    Cuando invocamos un método auxiliar desde un método principal, para la verificación de este último Dafny asume que el primero cumple con su especificación y se limita a verificar el método principal bajo esa asunción. Haciendo uso de esta decisión de diseño podemos definir métodos con su especificación para la inicialización y cuerpo del loop, y utilizarlos en el método principal antes de pasar a implementarlos.
+    Cuando invocamos un método auxiliar desde un método principal, para la verificación de este último Dafny asume que el primero cumple con su especificación y se limita a verificar el método principal bajo esa asunción. Haciendo uso de esta decisión de diseño podemos definir métodos con su especificación para la inicialización y cuerpo del ciclo, y utilizarlos en el método principal antes de pasar a implementarlos.
 
-    En la inicialización, requeriremos como precondición la misma precondición sobre los parámetros de entrada que tiene nuestro método principal, sumado a la condición que impusimos sobre la variable ghost $d$, luego pedimos que la inicialización asegure el invariante de modo que se satisfaga al ingresar al loop.
+    En la inicialización, requeriremos como precondición la misma precondición sobre los parámetros de entrada que tiene nuestro método principal, sumado a la condición que impusimos sobre la variable ghost $d$, luego pedimos que la inicialización asegure el invariante de modo que se satisfaga al ingresar al ciclo.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -847,7 +923,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Ahora, como decíamos, podemos invocar estos métodos en el método principal e intentar obtener una implementación verificada del mismo. Si lo logramos, habremos validado la elección del invariante, la función de cota y la guarda incluso antes de implementar el cuerpo del loop y su inicialización.
+    Ahora, como decíamos, podemos invocar estos métodos en el método principal e intentar obtener una implementación verificada del mismo. Si lo logramos, habremos validado la elección del invariante, la función de cota y la guarda incluso antes de implementar el cuerpo del ciclo y su inicialización.
 
 
     \begin{greenbox}
@@ -894,7 +970,7 @@
     A partir de un imposible puede probarse cualquier cosa, incluso \textit{false}, como sucede aquí. Cuando tengamos dudas sobre las condiciones que Dafny está logrando verificar, podemos asegurarnos de que no hay inconsistencia introduciendo \inlinedafny{assert false} y chequeando que falla la verificación.
 \end{warningbox}
 
-\subsubsection{Implementar la inicialización y el cuerpo del loop.}
+\subsubsection{Implementar la inicialización y el cuerpo del ciclo.}
 
     Con la siguiente implementación del método de inicialización, la verificación del mismo sale de forma directa, como es de esperar a partir del axioma de la asignación.
 
@@ -912,7 +988,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Si postulamos para el cuerpo del loop la asignación a $m'$ y $n'$ que obtuvimos en el desarrollo de la sección \ref{desarrollo_euclides} veremos que el verificador sobrepasa el límite de tiempo permitido antes de lograr verificar la implementación.
+    Si postulamos para el cuerpo del ciclo la asignación a $m'$ y $n'$ que obtuvimos en el desarrollo de la sección \ref{desarrollo_euclides} veremos que el verificador sobrepasa el límite de tiempo permitido antes de lograr verificar la implementación.
 
     \begin{whitebox}[before skip=2ex]
     \begin{dafny}[gobble=8]
@@ -951,7 +1027,7 @@
     \end{dafny}
     \end{redbox}
 
-    \begin{redbox}[beforeafter skip=2ex]
+    \begin{redbox}[after skip=2ex]
         Verification of 'cuerpo' timed out after 20 seconds. (the limit can be increased using --verification-time-limit)
     \end{redbox}
 
@@ -983,18 +1059,18 @@
 
     La versión final verificada del algoritmo de Euclides para el máximo común divisor, con todos los componentes reunidos, será \footnote{
     Una implementación de este algoritmo utilizando las propiedades de $mcd(m, n) == mcd(m, m - n)$ si $m \ge n$ y la de simetría, puede encontrarse en la serie Dafny Power User de Rustan Leino: \href{https://leino.science/papers/krml279.html}{Case study of definitions, proofs, algorithm correctness: GCD
-    }. Leino define la función GCD como el máximo elemento en la intersección de los conjuntos de divisores de $m$ y $n$ y luego utiliza esta función en la especificación del método. Incluye también las pruebas de los lemmas necesarios. Se recomienda su lectura como complemento de esta sección.}:
+    }. Leino define la función GCD como el máximo elemento en la intersección de los conjuntos de divisores de $m$ y $n$ y luego utiliza esta función en la especificación del método. Incluye también las pruebas de los lemas necesarios. Se recomienda su lectura como complemento de esta sección.}:
 
     \begin{greenbox}
         \dafnyfile{Versión final del máximo común divisor en Dafny}{ejemplos/mcd/mcd.dfy}
     \end{greenbox}
 
     \subsubsection{Fortalecer el invariante}
-    Como veremos en próximos ejemplos, hay ocasiones en que el invariante elegido resulta suficiente para establecer la poscondición desde la perspectiva del método principal, pero para la implementación del cuerpo del loop requerimos de variables auxiliares con sus propios invariantes que posibilitan establecer el invariante original.
+    Como veremos en próximos ejemplos, hay ocasiones en que el invariante elegido resulta suficiente para establecer la poscondición desde la perspectiva del método principal, pero para la implementación del cuerpo del ciclo requerimos de variables auxiliares con sus propios invariantes que posibilitan establecer el invariante original.
     En estos casos decimos que fortalecemos el invariante y en términos prácticos nos llevará a repetir los pasos 3 a 6, agregando las nuevas variables auxiliares y modificando el invariante para que las contemple.
 
-    \subsubsection{Nota sobre los lemmas}
-    Nuestro primer intento para los lemmas \textit{existe\_el\_mcd} y \textit{mcd\_del\_modulo} fue declararlos de la siguiente manera:
+    \subsubsection{Nota sobre los lemas}
+    Nuestro primer intento para los lemas \textit{existe\_el\_mcd} y \textit{mcd\_del\_modulo} fue declararlos de la siguiente manera:
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -1008,7 +1084,7 @@
     \end{dafny}
     \end{greenbox}
 
-    E invocarlos al inicio del método principal. Pero Dafny no logra verificar el programa de esta manera. A esto nos referíamos con la pregunta de \textbf{cómo o cuándo} puede aplicar Dafny los lemmas y axiomas que le proveemos. Conviene facilitarle a Dafny los lemas de forma tal que el verificador pueda hacer \textit{pattern-matching} entre las variables que están en el scope donde el lemma es necesario y sus parámetros de entrada.
+    E invocarlos al inicio del método principal. Pero Dafny no logra verificar el programa de esta manera. A esto nos referíamos con la pregunta de \textbf{cómo o cuándo} puede aplicar Dafny los lemas y axiomas que le proveemos. Conviene facilitarle a Dafny los lemas de forma tal que el verificador pueda hacer \textit{pattern-matching} entre las variables que están en el scope donde el lema es necesario y sus parámetros de entrada.
 
     \chapter{Aplicando la metodología a nuevos problemas}
 
@@ -1017,10 +1093,10 @@
     En este problema, el objetivo es averiguar la sumatoria de los elementos del segmento contiguo de suma máxima en un arreglo de números enteros.
     Como el arreglo puede contener números negativos, la solución no siempre es el segmento equivalente al total del arreglo.
 
-    El problema del segmento de suma máxima fue resuelto por Joseph Kadane con un algoritmo de $\mathcal{O}(N)$ el cuál analizaremos a continuación.
+    El problema del segmento de suma máxima fue resuelto por Joseph Kadane con un algoritmo de $\mathcal{O}(N)$ que analizaremos a continuación.
 
     \subsection*{El algoritmo de Joseph Kadane}
-    Visualizaremos el arreglo como una lista de cinco cartas de poker puestas boca abajo, que descubrimos una a una de izquierda a derecha. Utilizaremos cartas de corazón para representar números positivos, y cartas de trébol para números negativos.
+    Ilustraremos el arreglo considerando $N=4$ y utilizando cartas de póker puestas boca abajo, que vamos descubriendo una a una de izquierda a derecha. Utilizaremos cartas de corazón para representar números positivos, y cartas de trébol para números negativos.
 
     La idea es que en cada paso, tendremos una solución subóptima que será la suma de segmento máxima para los segmentos conocidos hasta el momento (con las cartas ya descubiertas), de modo que al descubrir todas las cartas, tendremos la suma del segmento de suma máxima para todo el arreglo.
 
@@ -1033,8 +1109,7 @@
             \psset{framebg=beige}\crdtwoh
             \psset{backcolor=red}\crdback
             \psset{backcolor=red}\crdback
-            \psset{backcolor=red}\crdback
-            \rput(-8.2,-1){\textbf{\^}} % Positioning the ^ character
+            \rput(-4.8,-1){\textbf{\^}} % Positioning the ^ character
 
             \caption{Descubriendo la tercera carta} \label{desc_ter_carta}
         \end{figure}
@@ -1046,30 +1121,29 @@
         \item O bien, la carta es de trébol y entonces el segmento de suma máxima conocido hasta el momento es el que ya conocíamos en la iteración anterior.
     \end{itemize}
 
-    Supongamos que descubrimos la tercera carta, resulta ser un diez de trébol y pasamos a descubrir la cuarta carta (ver figura \ref{desc_cuarta_carta}).
+    Supongamos que descubrimos la tercera carta, resulta ser un dos de trébol y pasamos a descubrir la cuarta carta (ver figura \ref{desc_cuarta_carta_a}).
 
     \ifUsePstPoker
         \begin{figure}[h]
             \centering
             \psset{framebg=beige}\crdsevh
             \psset{framebg=beige}\crdtwoh
-            \psset{framebg=beige}\crdtenc
+            \psset{framebg=beige}\crdtwoc
             \psset{backcolor=red}\crdback
-            \psset{backcolor=red}\crdback
-            \rput(-4.8,-1){\textbf{\^}} % Positioning the ^ character
+            \rput(-1.4,-1){\textbf{\^}} % Positioning the ^ character
 
-            \caption{Descubriendo la cuarta carta} \label{desc_cuarta_carta}
+            \caption{Descubriendo la cuarta carta, con suma positiva} \label{desc_cuarta_carta_a}
         \end{figure}
     \fi
 
     \noindent En este caso el segmento de suma máxima conocido hasta el momento es el compuesto únicamente por las dos primeras cartas. Al descubrir la cuarta carta tenemos las siguientes posibilidades:
     \begin{itemize}
         \item Es de trébol y el segmento de suma máxima seguirá siendo el ya conocido.
-        \item Es de corazón y su valor es mayor a nueve, con lo cuál tenemos un nuevo segmento de suma máxima, compuesto únicamente por esta carta.
-        \item Es de corazón pero su valor no es mayor a nueve, con lo cuál el segmento de suma máxima seguirá siendo el ya conocido.
-    \end{itemize}
+        \item Es de corazón y su valor es mayor a dos, con lo cual tenemos un nuevo segmento de suma máxima, compuesto por todas las cartas descubiertas hasta el momento.
+        \item Es de corazón pero su valor no es mayor a dos, con lo cual el segmento de suma máxima seguirá siendo el ya conocido.
+    \end{itemize} 
 
-    Pongamos que la cuarta carta es un dos de corazones y volvamos a analizar el escenario (ver figura \ref{desc_quinta_carta}).
+    Supongamos que en cambio la tercera carta resultaba ser un diez de trébol y pasábamos a descubrir la cuarta carta (ver figura \ref{desc_cuarta_carta_b}).
 
     \ifUsePstPoker
         \begin{figure}[h]
@@ -1077,34 +1151,36 @@
             \psset{framebg=beige}\crdsevh
             \psset{framebg=beige}\crdtwoh
             \psset{framebg=beige}\crdtenc
-            \psset{framebg=beige}\crdtwoh
             \psset{backcolor=red}\crdback
-            \rput(-1.8,-1){\textbf{\^}} % Positioning the ^ character
+            \rput(-1.4,-1){\textbf{\^}} % Positioning the ^ character
 
-            % Place an arrow at the bottom of the third card
-            \caption{Descubriendo la quinta carta} \label{desc_quinta_carta}
+            \caption{Descubriendo la cuarta carta, con suma negativa} \label{desc_cuarta_carta_b}
         \end{figure}
     \fi
 
-    Ahora las posibilidades al descubrir la quinta carta son:
+    \noindent En este caso el segmento de suma máxima conocido hasta el momento es el compuesto únicamente por las dos primeras cartas. Al descubrir la cuarta carta tenemos las siguientes posibilidades:
     \begin{itemize}
         \item Es de trébol y el segmento de suma máxima seguirá siendo el ya conocido.
-        \item Es de corazón y su valor sumado al dos anterior es mayor a nueve, con lo cuál tenemos un nuevo segmento de suma máxima, compuesto por el dos y esta quinta carta.
-        \item Es de corazón pero su valor sumado al dos anterior no es mayor a nueve, con lo cuál el segmento de suma máxima seguirá siendo el ya conocido.
+        \item Es de corazón y su valor es mayor a nueve, con lo cual tenemos un nuevo segmento de suma máxima, compuesto únicamente por esta última carta.
+        \item Es de corazón pero su valor no es mayor a nueve, con lo cual el segmento de suma máxima seguirá siendo el ya conocido.
     \end{itemize}
 
-    Notemos que siempre sucede que, si logramos obtener un nuevo segmento de suma máxima al descubrir una nueva carta, este será el segmento resultante de agregar la nueva carta al segmento de suma máxima que hayamos logrado hasta el momento incluyendo la carta anterior, en el caso de que hayamos logrado acumular una suma positiva como en la figura \ref{desc_quinta_carta}, o será por que esta carta por sí sola constituye el nuevo segmento de suma máxima, como podría haber sucedido en la figura \ref{desc_cuarta_carta}
+    Notemos que siempre que al descubrir una nueva carta logremos obtener un nuevo segmento de suma máxima  este será:
+    \begin{itemize}
+        \item O bien el segmento resultante de agregar la nueva carta al segmento que, de entre los segmentos que incluyen a la carta anterior, tenga suma máxima, en el caso de que alguno de ellos tenga una suma positiva como sucedería en la figura \ref{desc_cuarta_carta_a} si obtenemos una cuarta carta de corazón mayor a dos.
+        \item O bien será el segmento compuesto por esta única carta, como podría suceder en la figura \ref{desc_cuarta_carta_b} si obtenemos una cuarta carta de corazón mayor a nueve.
+    \end{itemize}
 
-    En todo caso, si en cada iteración conocemos por un lado, la suma del segmento de suma máxima conocido hasta el momento y por otro, la suma del segmento de suma máxima que incluye a la carta anterior, y en particular conocemos esto en la última iteración al descubrir la última carta, entonces tendremos toda la información necesaria para determinar el segmento de suma máxima del arreglo. Habremos logrado resolver el problema recorriendo una sola vez el arreglo.
+    En todo caso, si en cada iteración conocemos por un lado, la suma del segmento de suma máxima conocido hasta el momento y por otro, de entre los segmentos que incluyen a la carta anterior, la suma de aquel con suma máxima; y en particular conocemos esto en la última iteración, entonces tendremos toda la información necesaria para determinar el segmento de suma máxima del arreglo, habiéndolo recorrido una sola vez.
 
     Formalicemos ahora el problema y la estrategia resolutiva para obtener una implementación verificada en Dafny.
 
     \subsection*{Implementación en Dafny}
-    Identificaremos un segmento con dos índices $p,q$, donde $p$ es el índice del primer elemento del segmento y $q-1$ el del último elemento.
+    Sea $A$ un arreglo de longitud $N$, nos referiremos con $A[p, q)$ al segmento cuya primera posición es $p$ y su última posición es $q-1$; de aquí se sigue que deberemos asumir $0 \leqslant p \leqslant q \leqslant |A|$.
 
-    El segmento vacío denotado por dos índices idénticos cualquiera (ejemplo: $i,i$) tiene suma 0.
+    El segmento vacío denotado por dos índices idénticos (ejemplo: $A[i,i)$) tiene suma 0.
 
-    El primer paso entonces es especificar el programa. Para ello definimos la función recursiva \textit{suma} para denotar la suma del segmento $p,q$ de un arreglo $A$.
+    El primer paso entonces es especificar el programa. En Dafny podemos utilizar funciones recursivas dentro de la especificación de los métodos. Definiremos la función \textit{suma} de manera recursiva para denotar la suma del segmento $A[p,q)$. 
     Y un predicado para la suma máxima que utilizamos como poscondición del método principal.
 
     \begin{greenbox}
@@ -1139,6 +1215,8 @@
 
         method test_es_suma_maxima()
         {
+            assert suma(0, 4, [1,2,-2,4]) == 5;
+            assert es_suma_maxima([1,2,-2,4], 5);
             assert es_suma_maxima([1,2,-3], 3);
             assert suma(0, 3, [1,2,3]) == 6;
             assert es_suma_maxima([1,2,3], 6);
@@ -1158,7 +1236,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Notar que aún no hemos incluído en el invariante la suma de segmento máxima para segmentos que incluyan al último elemento conocido. Lo cual resultará necesario más adelante cuando intentemos verificar una implementación del cuerpo del loop que sostenga el invariante.
+    Notar que aún no hemos incluído en el invariante la suma de segmento máxima para segmentos que incluyan al último elemento conocido. Lo cual resultará necesario más adelante cuando intentemos verificar una implementación del cuerpo del ciclo que sostenga el invariante.
 
     Para la guarda postulamos $k < |A|$. Y para la función de cota $|A| - k$. Probemos ahora inicializar las variables con métodos de inicialización y cuerpo que aún no implementaremos pero especificaremos en relación al invariante y la guarda.
 
@@ -1202,7 +1280,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Para la inicialización, la única ayuda que tuvimos que darle a Dafny es inducirlo a probar que la suma del segmento vacío $0,0$ en $A$ es igual a 0 (utilizando el assert de la línea 6). Con lo cuál puede probar por sí mismo el resto del invariante.
+    Para la inicialización, la única ayuda que tuvimos que darle a Dafny es inducirlo a probar que la suma del segmento vacío $A[0,0)$ es igual a 0 (utilizando el assert de la línea 6). Con lo cual puede probar por sí mismo el resto del invariante.
 
     En cuanto nos disponemos a implementar el cuerpo notamos que no contamos con una variable que albergue la suma del segmento de suma máxima incluyendo el elemento anterior, que era necesario para computar el nuevo segmento de suma máxima.
     Utilizaremos $u$ para albergar la suma del segmento de suma máxima que incluye a $A[k-1]$, o del segmento vacío (con suma $0$) en caso de que no hayamos logrado acumular una suma positiva que incluya a $A[k-1]$. Por tanto, actualizamos el invariante con una cláusula sobre $u$ y con él la inicialización y la declaración de variables en el método principal.
@@ -1221,9 +1299,9 @@
 
     Hemos agregado, de forma intencional, las nuevas cláusulas sobre $u$ antes de las cláusulas sobre $r$. Esto es por que sabemos que el verificador necesitará de las nuevas cláusulas para poder probar las cláusulas sobre $r$. Por tanto es buena idea presentárselas en ese orden. Si el verificador no puede probar las cláusulas para $u$ la verificación se detendrá allí y el mensaje de error será más acotado.
 
-    Con el nuevo invariante postulamos la implementación del cuerpo del loop.
+    Con el nuevo invariante postulamos la implementación del cuerpo del ciclo.
 
-    \begin{whitebox}[before skip=1ex]
+    \begin{whitebox}[before skip=2ex]
     \begin{dafny}[gobble=8]
         method cuerpo(k: int, A: seq<int>, r: int, u:int)
             returns (k': int, r': int, u': int)
@@ -1231,12 +1309,12 @@
             requires invariante(k, A, r, u)
     \end{dafny}
     \end{whitebox}
-    \begin{redbox}[beforeafter skip=1.5mm]
+    \begin{redbox}
     \begin{dafny}[gobble=8,firstnumber=5]
             ensures invariante(k', A, r', u')
     \end{dafny}
     \end{redbox}
-    \begin{whitebox}[after skip=1ex]
+    \begin{whitebox}[after skip=2ex]
     \begin{dafny}[gobble=8,firstnumber=6]
             ensures k' > k
         {
@@ -1255,7 +1333,7 @@
     \end{dafny}
     \end{whitebox}
 
-    \begin{redbox}[beforeafter skip=2ex]
+    \begin{redbox}[after skip=2ex]
         This postcondition could not be proved on a return path.\\
         Could not prove: \inlinedafny{exists p_u :: 0 <= p_u <= k && suma(p_u, k, A) == u}
     \end{redbox}
@@ -1309,7 +1387,7 @@
     \end{enumerate}
 
     \subsection*{Argumento}
-    En este ejercicio debemos obtener un programa que dado un arreglo de $N$ números enteros, establezca en una variable booleana $r$ si para todas las posiciones $i$ del arreglo la sumatoria de los números impares precedentes a esa posición (sin incluir el número en dicha posición) es menor o igual a $i!$. Además debemos hacerlo recorriendo una sola vez el arreglo y sin utilizar la función factorial.
+    En este ejercicio debemos obtener un programa que dado un arreglo de $N$ números enteros, establezca en una variable booleana $r$ si para todas las posiciones $i$ del arreglo la sumatoria de los números impares precedentes a esa posición (sin incluir el número en dicha posición) es menor o igual a $i$ factorial. Además debemos hacerlo recorriendo una sola vez el arreglo y sin utilizar la función factorial.
 
     La clave para resolver este problema es notar dos cosas. Por un lado, si al momento de recorrer la posición $i$ tenemos en una variable $sum\_imp$ la sumatoria de los números impares precedentes a la posición $i$ entonces la sumatoria de los números impares precedentes a $i+1$ será $sum\_imp + A.i$ en caso de que $A.i$ sea impar o simplemente $sum\_imp$ en caso de que sea par.
     A su vez si tenemos en una variable $fact\_i$ el factorial de $i$, entonces el factorial de $i+1$ será  $fact\_i * (i+1)$.
@@ -1321,7 +1399,7 @@
     \end{align*}
 
     Avanzaremos, hasta terminar de recorrer el arreglo o bien hasta que $r$ se torne falso. Es decir, la guarda será $r \land k < |A|$, y la función de cota $|A| - 1$.
-    Claro que, para lograr mantener ese invariante, necesitaremos fortalecerlo con invariantes para $sum\_imp$ y $fact\_i$. Pero esto lo haremos cuando intentemos implementar el cuerpo del loop.
+    Claro que, para lograr mantener ese invariante, necesitaremos fortalecerlo con invariantes para $sum\_imp$ y $fact\_i$. Pero esto lo haremos cuando intentemos implementar el cuerpo del ciclo.
 
     Pasemos ahora a implementar el programa en Dafny siguiendo la metodología.
 
@@ -1461,11 +1539,11 @@
     \end{dafny}
     \end{greenbox}
 
-    Dafny logra verificar el método principal, con lo cual validamos que hemos elegido bien la guarda, el invariante y la función de cota. Y podemos pasar a la implementación de la inicialización y el cuerpo del loop.
+    Dafny logra verificar el método principal, con lo cual validamos que hemos elegido bien la guarda, el invariante y la función de cota. Y podemos pasar a la implementación de la inicialización y el cuerpo del ciclo.
 
-    \subsubsection*{Implementación de inicialización y cuerpo del loop}
+    \subsubsection*{Implementación de inicialización y cuerpo del ciclo}
 
-    Para la inicialización de $i$ la variable de iteración elegimos $0$ la primera posición del arreglo. Para $r$ elegimos $true$ para equiparar la valuación del cuantificador universal con rango vacío.
+    Para la inicialización de $i$ la variable de iteración elegimos $0$, la primera posición del arreglo. Para $r$ elegimos $true$ para equiparar la valuación del cuantificador universal con rango vacío.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -1479,7 +1557,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Dafny verifica la correctitud de la inicialización. Al intentar implementar el cuerpo del loop, recordamos necesarias las variables $sum\_imp$ y $fact\_i$ que planificamos durante el argumento. Con lo cual pasamos primero a incorporarlas en el invariante.
+    Dafny verifica la correctitud de la inicialización. Al intentar implementar el cuerpo del ciclo, recordamos necesarias las variables $sum\_imp$ y $fact\_i$ que planificamos durante el argumento. Con lo cual pasamos primero a incorporarlas en el invariante.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -1493,8 +1571,8 @@
     \end{dafny}
     \end{greenbox}
 
-    Aquí establecemos la relación entre estas variables y los valores que queríamos mantener en ellas. $sum\_imp$ será la suma de los números impares en $A$ precedentes a la posición $k$. Y $i\_fact$ el factorial de $k$.
-    Además necesitamos anteponer la condición sobre el rango en el que se mueve $k$ para cumplir con las precondiciones de las funciones $sum\_imp\_f$ y $factiorial\_f$.
+    Aquí establecemos la relación entre estas variables y los valores que queríamos mantener en ellas. $sum\_imp$ será la suma de los números impares en $A$ precedentes a la posición $k$; mientras que $i\_fact$ será el factorial de $k$.
+    Además necesitamos anteponer la condición sobre el rango en el que se mueve $k$ para cumplir con las precondiciones de las funciones $sum\_imp\_f$ y $factorial\_f$.
 
     Luego pasamos a actualizar las variables en el método principal, la inicialización y la firma del cuerpo.
 
@@ -1559,68 +1637,85 @@
 
     Aquí la actualización de $r$ es \inlinedafny{r' := sum_imp' <= i_fact';} ya que la por la conjunción de la guarda y el invariante sabemos que $Q(r, A, k)$ vale, y por tanto $Q(r', A, k+1)$ dependerá solamente de esta última comparación.
 
-    Dafny logra verificar el cuerpo del loop sin intervención alguna de nuestra parte y con ello todo el programa, el cual mostramos a continuación de manera unificada:
+    Dafny logra verificar el cuerpo del ciclo sin intervención alguna de nuestra parte y con ello todo el programa, el cual mostramos a continuación de manera unificada:
 
     \begin{greenbox}
     \dafnyfile{Ejercicio de exámen final 2024 verificado en Dafny}{ejemplos/final_2024/programa_completo.dfy}
     \end{greenbox}
-    \chapter{El pipeline de verificación de programas Dafny} \label{ch:pipeline-dafny}
+    \chapter{Breve mirada al interior de Dafny} \label{ch:pipeline-dafny}
 
-    Dafny se apoya en Boogie (un lenguaje intermedio de verificación o IVL, por sus siglas en inglés), para resolver la verificación automática de programas.
-    Boogie, como otros IVL, funciona como una capa de abstracción útil en la cual, por arriba, distintos lenguajes con soporte para especificaciones implementan su traducción a Boogie\footnote{
-        Boogie fue escrito originalmente como herramienta intermedia del proyecto Spec\#, una extensión de C\# con soporte para especificaciones. Luego tomó vida propia y hoy es utilizado para construir verificadores para otros lenguajes, como el verificador de Dafny para el lenguaje del mismo nombre, o VCC y HAVOC, dos verificadores de C.
-    }, y por abajo, Boogie despacha obligaciones de prueba a probadores de teoremas automáticos. En el medio, el IVL, debe encargarse de la generación de esas obligaciones de prueba.
+    En este capítulo intentaremos entender a grandes razgos cómo funciona Dafny internamente y cómo llegó a ser lo que es, desde una perspectiva histórica.
 
-    El pipeline de verificación de programas Dafny se compone entonces, principalmente, por estas tres etapas:
+    \section{Dafny: ¿De qué planeta viniste?}
+    Durante la década de los setenta y los ochenta, a la base axiomática para la programación imperativa presentada por Hoare\cite{10.1145/363235.363259} le siguieron investigaciones sobre la generación de condiciones de verificación (VCs, por sus siglas en inglés) para instrumentar la prueba de correctitud de un programa. Dado un programa y su especificación, sus condiciones de verificación son fórmulas en lógica de primer órden que, si todas resultan válidas, entonces sabemos que existe una demostración en la lógica de Hoare de que el programa es correcto respecto de su especificación, es decir que $\vdash[P]S[Q]$\footnote{Este tópico está muy bien explicado en las notas de \href{https://www.cl.cam.ac.uk/archive/mjcg/HL/Notes/Notes.pdf}{Mike Gordon sobre la Lógica de Hoare}}. Uno de los esfuerzos icónicos en ese sentido es el cálculo de Weakest Preconditions (WP) presentado por Dijkstra\cite{EWD:EWD418}, el cual introduce una mecánica para obtener VCs de manera composicional a partir de la definición de la precondición más débil de cada sentencia del programa respecto a una poscondición deseada.
+    La generación de VCs facilita la prueba de la correctitud de programas por que reduce esta tarea a la de demostrar la validez de fórmulas de lógica de primer orden. Esto permite aprovechar la experiencia en la manipulación del sistema formal lógico para realizar pruebas manuales, pero también posibilita la delegación de estas condiciones de verificación a probadores automáticos de teoremas, capaces de determinar si son válidas o existen contraejemplos.
+
+    Por otra parte, durante la década de los noventa, los principales protagonistas en la creación de Dafny, entonces investigadores del Compaq Systems Research Center, llevaron a cabo los primeros experimentos en ``Extended Static Checkers (ESC)'' desarrollados para el lenguaje Módula-3 (ESC/Modula-3) y Java (ESC/Java)\cite{Leino2001}.
+    En un principio los ESC buscaron ampliar la capacidad del chequeo estático a un conjunto de errores más amplio que los errores de tipado y que, hasta entonces, solo podían ser detectados en tiempo de ejecución, por ejemplo: intentos de acceder a atributos en una variable nula, índices fuera de rango, división por cero, errores de casteo de tipos, condiciones de carrera, deadlocks, etc. Luego se volcaron al objetivo de verificar que un programa anotado con precondiciones y poscondiciones cumpla con su especificación.
+
+    Los ESC utilizaron desde un principio tecnología de verificación de programas, es decir, agregaban anotaciones a los programas, y generaban condiciones de verificación, que podían probarse si y solo si el programa estaba libre del tipo de errores que se buscaba detectar. Estas condiciones de verificación eran delegadas luego a un probador automático de teoremas.
+
+    Al tener como objetivo mejorar la detección temprana de errores en proyectos de desarrollo reales, los ESC se enfrentaron con varios desafíos prácticos. Algunos de ellos fueron: decidir qué tipos de errores buscarían detectar (teniendo en cuenta el \textit{trade off} entre cobertura y esfuerzo), formalizar semánticamente lenguajes de programación modernos, utilizar eficientemente probadores automáticos de teoremas, producir reportes de errores útiles a partir del resultado de los probadores de teoremas, decidir qué anotaciones harían falta en los programas y convencer a los programadores de llevarlas a cabo.
+
+    De la experiencia de asumir estos desafíos se desprendieron algunas ideas claves que se mantienen hasta el día de hoy y forman parte de la arquitectura de solución de Dafny. Algunas de ellas son:
     \begin{itemize}
-        \item La traducción del programa Dafny a un programa Boogie.
-        \item La generación de obligaciones de prueba a partir del programa Boogie.
-        \item La descarga de esas obligaciones de prueba en un SMT Solver, típicamente.
+        \item Resolver la formalización de la semántica de lenguajes modernos en dos etapas. Primero, desarrollando un lenguaje intermedio de verificación (IVL, por sus siglas en inglés), el cual está específicamente diseñado y acotado para obtener condiciones de verificación. Y luego traducir los distintos lenguajes a este lenguaje intermedio, acompañados de un \textit{background  predicate} que formaliza las propiedades de los operadores, tipos, y demás construcciones del lenguaje que no tengan una traducción directa en el IVL. Este \textit{background  predicate} o preludio, es luego incorporado en la condición de verificación en conjunción con la precondición.
+        \item Priorizar la generación de condiciones de verificación que maximicen la eficiencia del probador de teoremas. Existen múltiples formas matemáticamente equivalentes de generar el conjunto de condiciones de verificación. Pero a la hora de integrar la verificación automática dentro del proceso de desarrollo es necesario que las VCs generadas optimicen el tiempo que tardará el probador de teoremas en verificarlas. Esto depende principalmente de su tamaño, para lo cual es necesario evitar la redundancia.
     \end{itemize}
 
-    \section{La traducción de Dafny a Boogie}
-    La traducción de Dafny a Boogie no es trivial, la pieza de código que se encarga de ello tiene aproximadamente un millón de líneas escritas en C\#, y codifica cada elemento del lenguaje de Dafny en elementos de Boogie.\footnote{El código fuente para la traducción se encuentra en el \href{https://github.com/dafny-lang/dafny/tree/v4.7.0/Source/DafnyCore/Verifier}{directorio ``Verifier''} del repositorio de Dafny, en donde la clase ``BoogieGenerator'' se construye modularmente a través de múltiples archivos. Dafny además debe encargarse de garantizar trazabilidad entre el código fuente original y los resultados de la verificación obtenidos, a fin de posibilitar un reporte útil de errores.} La expresividad de Boogie posibilita la traducción de lenguajes con múltiples features como Dafny.
+    La experiencia en el desarrollo de los Extended Static Checkers sumado al desarrollo de potentes probadores de teoremas de tipo satisfiability-modulo-theories (SMT Solvers), más recientemente, permitió que contemos hoy con verificadores automáticos de software como Dafny.
+
+    \section{El pipeline de verificación en Dafny}
+    El pipeline de verificación de programas Dafny se compone principalmente, por tres etapas que explicaremos en esta sección:
+    \begin{itemize}
+        \item La traducción del programa Dafny a un programa en el IVL Boogie\footnote{
+            Boogie fue escrito originalmente como herramienta intermedia del proyecto Spec\#, una extensión de C\# con soporte para especificaciones. Luego tomó vida propia y hoy es utilizado para construir verificadores para otros lenguajes, como el verificador de Dafny para el lenguaje del mismo nombre, o VCC y HAVOC, dos verificadores de C.
+        }.
+        \item La generación de condiciones de verificación a partir del programa Boogie.
+        \item La descarga de esas condiciones de verificación en un SMT Solver, típicamente el Z3 Solver.
+    \end{itemize}
+
+    \subsection{La traducción de Dafny a Boogie}
+    La traducción de Dafny a Boogie no es trivial, la pieza de código que se encarga de ello tiene aproximadamente un millón de líneas escritas en C\#, y busca codificar cada construcción sintáctica del lenguaje de Dafny en una construcción equivalente de Boogie.\footnote{El código fuente para la traducción se encuentra en el \href{https://github.com/dafny-lang/dafny/tree/v4.7.0/Source/DafnyCore/Verifier}{directorio ``Verifier''} del repositorio de Dafny, en donde la clase ``BoogieGenerator'' se construye modularmente a través de múltiples archivos.} Para aquellos tipos y operadores que no pueden ser codificados en Boogie, Dafny provee un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny} que los formaliza.
 
     Utilizando la línea de comandos de Dafny podemos obtener la traducción a código Boogie de la siguiente manera
     \begin{verbatim}
-        dafny verify my_program.dfy --bprint:my_program.bpl
+        $ dafny verify my_program.dfy --bprint:my_program.bpl
     \end{verbatim}
-    Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con un preludio\footnote{El código fuente del preludio se encuentra apartado en el \href{https://github.com/dafny-lang/dafny/blob/v4.7.0/Source/DafnyCore/DafnyPrelude.bpl}{directorio ``Prelude''} del repositorio de Dafny}, en el cual se axiomatizan en Boogie todos los elementos de Dafny, (tipos, expresiones, etc), seguido de la traducción en sí de nuestro programa Dafny.
+    Al hacerlo, nos encontraremos con un programa Boogie mucho más extenso que nuestro programa original en Dafny. Esto es porque la traducción empieza con el preludio de Dafny seguido de la traducción en sí de nuestro programa.
 
-    \section{La generación de obligaciones de prueba}
-    La generación de obligaciones de prueba consiste en una serie de transformaciones del programa Boogie inicial, hacia una versión tal que permita la construcción de una fórmula lógica a partir de las sentencias del programa de forma directa.
+    \subsection{La generación de condiciones de verificación}
+    La generación de condiciones de verificación consiste en una serie de transformaciones del programa Boogie inicial hacia una versión tal que permita la construcción de una fórmula lógica a partir de las sentencias del programa de forma directa.
 
     Este pipeline fue descripto por Barnett y Leino\cite{10.1145/1108792.1108813} y se recomienda su lectura para entenderlo en detalle. Aquí haremos un repaso de los conceptos principales que allí se describen.
 
-    \subsection*{ El lenguaje no estructurado de partida}
-    El pipeline se basa en programas no estructurados que siguen la siguiente gramática:
+    \subsubsection*{El lenguaje no estructurado de partida}
+    El programa resultante de la traducción de Dafny a Boogie se somete luego a una transformación hacia un lenguaje no estructurado siguiendo la siguiente gramática:
     \begin{align*}
         Program \;\;&::=\;\; Block^{+} \\
           Block \;\;&::=\;\; BlockId :\; Stmt;\;\textbf{goto } BlockId^{*} \\
            Stmt \;\;&::=\;\; VarId := Expr\;|\;\textbf{havoc } VarId \\
                 &\;\;\;\;\;\;\;\;|\ \textbf{assert } Expr\;|\;\textbf{assume } Expr \\
-                &\;\;\;\;\;\;\;\;|\ Stmt ; Stmt \;|\; \textbf{skip} \\
+                &\;\;\;\;\;\;\;\;|\ Stmt ; Stmt \;|\; \textbf{skip}
     \end{align*}
-    En este pequeño lenguaje un programa está compuesto por uno o más bloques. Al primero de ellos lo denominamos $Start$. Cada bloque está identificado por un $BlockId$, tiene un cuerpo compuesto por una o más sentencias y un conjunto de cero o más bloques \textit{sucesores}. Cuando se ejecuta un bloque se, ejecuta primero su cuerpo, y luego se continúa arbitrariamente con alguno de los bloques sucesores. 
+    En este pequeño lenguaje un programa está compuesto por uno o más bloques. Cada bloque está identificado por un $BlockId$, tiene un cuerpo compuesto por una o más sentencias y un conjunto de cero o más bloques \textit{sucesores} (los listados luego del \textbf{goto}). Al bloque que inicia la ejecución del programa lo etiquetamos con el identificador $Start$. Luego de ejecutar el cuerpo de un bloque se continúa arbitrariamente con alguno de los bloques sucesores.
 
-    El operador ``$:=$'' denota la asignación, $\textbf{havoc}$ la asignación de un valor arbitrario a una variable. El operador ``$;$'' se utiliza para componer. Las sentencias $\textbf{assert}$ y $\textbf{assume}$ tienen un rol clave en la generación de obligaciones de prueba y $\textbf{skip}$ es simplemente un atajo para $\textbf{assert True}$.
+    El operador ``$:=$'' denota la asignación, $\textbf{havoc}$ la asignación de un valor arbitrario a una variable. El operador ``$;$'' se utiliza para componer. Las sentencias $\textbf{assert}$ y $\textbf{assume}$ tienen un rol clave en la generación de condiciones de verificación y $\textbf{skip}$ es simplemente un atajo para $\textbf{assert True}$.
 
-    La transformación de programas estructurados a esta gramática se logra reemplazando ciclos con $\textbf{goto}$'s y condicionales de la forma:
+    La transformación del programa estructurado inicial se logra reemplazando ciclos y condicionales por estructuras equivalentes en esta gramática. Los condicionales de la forma:
     \begin{align*}
         \textbf{if}\ (E)\ \{S\}\ \textbf{else}\ \{T\}
     \end{align*}
-    con:
+    se reemplazan con:
     \begin{align*}
         Start:&\;\;\;\textbf{skip};\ \textbf{goto}\ Then,\ Else \\
         Then:&\;\;\;\textbf{assume}\ E;\ S;\ \textbf{goto}\ End \\
         Else:&\;\;\;\textbf{assume}\ \lnot E;\ T;\ \textbf{goto}\ End \\
         End:&\;\;\;...
     \end{align*}
-    Las precondiciones pueden codificarse incorporando sentencias $\textbf{assume}$ al principio del bloque $Start$ y las postcondiciones como sentencias $\textbf{assert}$ al final de los bloques sin sucesores.
-    Cada programa da lugar a un conjunto de trazas de ejecución posibles empezando desde el bloque $Start$. Un programa es correcto si ninguna de ellas contiene una sentencia $\textbf{assert}$ que evalúe a $False$.
 
-    \subsection*{La eliminación de loops}
-    A partir de una versión no estructurada del programa siguiendo esta gramática, los ciclos quedan codificados en la forma:
+    \noindent y los ciclos se reemplazan con \textbf{goto's} al bloque cabecera del ciclo, de la siguiente manera:
+
     \begin{align*}
         LoopHead:\;\;\;&\textbf{assert}\ \text{loop invariant};\\
                        &\textbf{goto}\ Body,\ After \\
@@ -1631,61 +1726,67 @@
                     & ...
     \end{align*}
 
-    A continuación se eliminan los loops, eliminando los ``back edges'' (introducidos por las sentencias de tipo $\textbf{goto}\ LoopHead$). Para esto, primero se mueve la aserción del invariante al bloque predecesor de $LoopHead$, reemplazándolo por sentencias $\textbf{havoc}$ sobre las variables que pueden ser modificadas por el loop, seguido de una sentencias $\textbf{assume}$ para el invariante. De esta forma las trazas que pasen por el bloque $Body$ representan cualquier iteración arbitraria del ciclo y la sentencia $\textbf{goto}\ LoopHead$ puede eliminarse del cuerpo.
-    Notar que esta transformación denota una fuerte dependencia en la definición de invariantes para los ciclos que, de no ser provistos por el usuario, se generan automáticamente.
+    Las precondiciones pueden codificarse incorporando sentencias $\textbf{assume}$ al principio del bloque $Start$ y las postcondiciones como sentencias $\textbf{assert}$ al final de los bloques sin sucesores.
+    Cada programa da lugar a un conjunto de trazas de ejecución posibles empezando desde el bloque $Start$. Un programa es correcto si ninguna de ellas contiene una sentencia $\textbf{assert}$ que evalúe a $False$.
 
-    \subsection*{La pasificación o eliminación de las asignaciones}
-    Una vez eliminados los loops, se realiza la ``pasificación'' del programa que consiste en eliminar las asignaciones y en su lugar utilizar sentencias $\textbf{assume}$. Para ello primero se introducen variables auxiliares para cada ``encarnación'' o asignación de las variables del programa, asegurando que en cualquier traza de ejecución posible cada variable sea asignada una única vez, lo que permite a continuación transformar estas asignaciones únicas en sentencias $\textbf{assume}$.
+    \subsubsection*{La eliminación de ciclos}
+    A partir de una versión no estructurada del programa siguiendo esta gramática se prosigue a eliminar los ciclos, quitando los ``back edges'' (introducidos por las sentencias de tipo $\textbf{goto}\ LoopHead$). Para esto, primero se mueve la aserción del invariante al bloque predecesor de $LoopHead$, reemplazándolo por sentencias $\textbf{havoc}$ sobre las variables que pueden ser modificadas por el ciclo, seguido de una sentencias $\textbf{assume}$ para el invariante. De esta forma las trazas que pasen por el bloque $Body$ representan cualquier iteración arbitraria del ciclo y la sentencia $\textbf{goto}\ LoopHead$ puede eliminarse del cuerpo.
+    Notar que esta transformación denota una fuerte dependencia en la definición de invariantes para los ciclos.
 
-    \subsection*{La construcción de la obligación de prueba}
+    \subsubsection*{La pasivización o eliminación de las asignaciones}
+    Una vez eliminados los ciclos, se realiza la ``pasivización'' del programa que consiste en eliminar las asignaciones y en su lugar utilizar sentencias $\textbf{assume}$. Para ello primero se introducen variables auxiliares para cada ``encarnación'' o asignación de las variables del programa, asegurando que en cualquier traza de ejecución posible cada variable sea asignada una única vez, lo que permite a continuación transformar estas asignaciones únicas en sentencias $\textbf{assume}$.
+
+    \subsubsection*{La construcción de la obligación de prueba}
     Concluídas estas dos transformaciones, se obtiene un programa compuesto por bloques de la forma:
     \begin{verbatim}
         A: S; goto ...
     \end{verbatim} 
-    Donde $S$ solo puede ser $\textbf{assume}$, $\textbf{assert}$ o composición de estos dos.\footnote{Las sentencias de tipo $\textbf{havoc }$ pueden eliminarse a los fines generar la obligación de prueba, pues ló único que interesa sobre las variables son sus condicionantes expresados en las sentencias de tipo $\textbf{assume}$ y $\textbf{assert}$. Las sentencias de tipo $\textbf{skip}$, recordemos, son un atajo a $\textbf{assert}\ True$.}
+    Donde $S$ solo puede ser $\textbf{assume}$, $\textbf{assert}$ o composición de estos dos.\footnote{Las sentencias de tipo $\textbf{havoc}$ pueden eliminarse a los fines de generar la condición de verificación, pues ló único que interesa sobre las variables son sus condicionantes expresados en las sentencias de tipo $\textbf{assume}$ y $\textbf{assert}$. Las sentencias de tipo $\textbf{skip}$, recordemos, son un atajo a $\textbf{assert}\ True$.}
     La Weakest Precondition de cada una de estos tipos de sentencias puede definirse como:
     \begin{align*}
         wp(\textbf{assert}\ P,\;Q)   &= P \land Q \\
         wp(\textbf{assume}\  P,\; Q) &= P \Rightarrow Q \\
         wp(S;T,\;Q)                  &= wp(S,\;wp(T,\;Q)) \\
     \end{align*}
-    Para cada bloque A, se define la variable auxiliar $A_{ok}$. Intuitivamente $A_{ok}$ es $true$ si el programa está en un estado a partir del cual todas las ejecuciones que empiecen desde A son correctas. Se postula la ``ecuación de bloque'' para definir $A_{ok}$ formalmente:
-    \begin{align*}
-        A_{ok} \equiv wp(S, \bigwedge_{B \in Succ(A)} B_{ok})
-    \end{align*}
+    Para cada bloque $A$, se define la variable auxiliar $A_{ok}$. Intuitivamente $A_{ok}$ es $True$ si el programa está en un estado a partir del cual todas las ejecuciones que empiecen desde $A$ son correctas. Se postula la ``ecuación de bloque'' $A_{be}$ para definir $A_{ok}$ formalmente:
+    \begin{equation}
+        \label{eq:bloq-equation}
+        A_{be}: A_{ok} \equiv wp(S, \bigwedge_{B \in Succ(A)} B_{ok})
+    \end{equation}
     Donde $Succ(A)$ es el conjunto de bloques sucesores de $A$.
 
-    Por último, siendo $R$ la conjunción de las ecuaciones de esta forma aportadas por cada bloque del programa, la obligación de prueba del programa queda definida como:
+    Cada bloque aporta una ecuación en la forma de \ref{eq:bloq-equation}. Sea $R$ como la conjunción de las ecuaciones de bloque, la obligación de prueba del programa queda definida como:
     \begin{align}
         R \Rightarrow Start_{ok} \label{eq:VC}
     \end{align}
 
-    Se puede ver, siguiendo los detalles que, si el probador de teoremas resuelve \textit{sat} para la negación de la fórmula \ref{eq:VC}:
+    Se puede ver que si el probador de teoremas resuelve \textit{sat} para la negación de la fórmula \ref{eq:VC}:
     \begin{align*}
         R \land \lnot Start_{ok}
     \end{align*}
-    Estamos en situación de que existe un estado a partir del cuál, establecida la semántica del programa ($R$), hay una traza de ejecución incorrecta, es decir que el programa no cumple con su especificación.
+    \noindent estamos en situación de que existe un estado a partir del cual, establecida la semántica del programa ($R$), hay una traza de ejecución incorrecta, es decir que el programa no cumple con su especificación.
 
-    \subsection*{Conclusión}
-
-    La generación de obligaciones de prueba que realiza Boogie, busca crear fórmulas lógicas que sean acotadas en tamaño, y eviten redundancia para facilitar la tarea del probador de teoremas.
+    Este procedimiento para la generación de la condición de verificación que realiza Boogie busca crear fórmulas lógicas que sean acotadas en tamaño y eviten redundancia para optimizar el tiempo de respuesta del probador de teoremas.
   
-    Utilizando la línea de comandos de Boogie podemos inspeccionar las distintas versiones del programa obtenidas tras realizar cada una de las etapas del pipeline con la opción \verb|\traceverify|
+    Utilizando la línea de comandos de Boogie podemos inspeccionar las distintas versiones del programa obtenidas tras realizar cada una de las etapas del pipeline con la opción \verb|/traceverify|
     \begin{verbatim}
-        boogie /traceverify ejemplos/my_program.bpl
+        $ boogie /traceverify ejemplos/my_program.bpl
     \end{verbatim}
 
-    \section{La delegación de las obligaciones de prueba}
-    Las obligaciones de prueba, que resultan del proceso descripto en la sección anterior, deben ser despachadas al probador de teoremas.
+    \subsubsection*{La delegación de las condiciones de verificación}
+    Las condiciones de verificación, que resultan del proceso descripto en la sección anterior, deben ser despachadas al probador de teoremas.
     Con la opción \verb|/proverLog| podemos ver el registro de la consulta realizada por Boogie al probador de teoremas, en formato de expresiones SMT-LIB y, como comentarios, las respuestas obtenidas:
+
     \begin{verbatim}
-        boogie /proverLog:my_program.smt my_program.bpl
+        $ boogie /proverLog:my_program.smt my_program.bpl
     \end{verbatim}
+
+    Una de las tareas importantes que realizan Boogie y Dafny es abstraernos de la complejidad de este pipeline y mantener la trazabilidad entre los reportes del SMT Solver y el código fuente en Dafny utilizando etiquetas sobre los predicados de las VCs para poder indicarnos luego, en el editor de texto, el origen de los errores de verificación.
 
     \chapter{Conclusiones}
     Dafny es un lenguaje de programación accesible, con una sintaxis fácil de interpretar. La experiencia de escribir programas Dafny en un entorno de desarrollo que integra la verificación automática es enriquecedora. El verificador es rápido y el reporte de errores es claro en sus mensajes y preciso a la hora de indicar en qué segmento del código fuente hubo una condición de verificación que no pudo resolverse.
 
-    Para que la interacción entre el desarrollador y el verificador fluya y favorezca la comprensión, es necesario ser metódicos a la hora de escribir los programas. Presentamos una metodología que ordena el desarrollo y cuyo principio fundamental es particionar el problema en subproblemas más simples (esqueleto del método principal, cuerpo del loop, inicialización). Esta metodología permite compartimentar la interacción con el verificador, evitando escenarios donde los reportes de errores sean potencialmente numerosos y variados y nos resulte confuso identificar el origen de los mismos.
+    Para que la interacción entre quien desarrolla y el verificador fluya y favorezca la comprensión, es necesario tener una metodología a la hora de escribir los programas. Presentamos una metodología que ordena el desarrollo y cuyo principio fundamental es particionar el problema en subproblemas más simples (esqueleto del método principal, cuerpo del ciclo, inicialización). Esta metodología permite compartimentar la interacción con el verificador, evitando escenarios donde los reportes de errores sean potencialmente numerosos y variados y nos resulte confuso identificar el origen de los mismos.
 
     Propusimos narrativas para explicar algoritmos imperativos simples, típicamente presentes en el dictado de la materia Algoritmos y Estructura de Datos I, mediante analogías entre dichos algoritmos y procedimientos interactivos del ser humano con objetos del mundo real (por ejemplo, el uso de ``varillas'' para entender el algoritmo de máximo común divisor de Euclides, o de ``cartas'' para el algoritmo de segmento de suma máxima de Kadane). Estas explicaciones resultaron efectivas para entender la estrategia resolutiva en cada caso y despejar los invariantes y funciones de cota que le dan sustento. Mostramos además que complementando estas narrativas con la comprensión de los axiomas y reglas de inferencia de la lógica de Hoare y una metodología para ordenar el desarrollo, se pueden lograr implementaciones verificadas en Dafny de los algoritmos expuestos.
 

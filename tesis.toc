@@ -1,0 +1,38 @@
+\babel@toc {spanish}{}\relax 
+\contentsline {chapter}{\numberline {1}Introducción}{4}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Fundamentos de programación formal para programar en Dafny}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Condiciones de contexto para la propuesta}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Especificación de un programa}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Prueba de correctitud}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Herramientas de verificación automática}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Lógica de Hoare en Dafny}{8}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Axioma de la asignación}{9}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Regla del fortalecimiento de la precondición}{10}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Regla del debilitamiento de la poscondición}{11}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Regla de la composición}{11}{subsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.5.5}Regla del \textit {if}}{12}{subsection.2.5.5}%
+\contentsline {subsection}{\numberline {2.5.6}El \textit {while}, el invariante y la función de cota}{13}{subsection.2.5.6}%
+\contentsline {subsection}{\numberline {2.5.7}Regla del \textit {while}}{15}{subsection.2.5.7}%
+\contentsline {subsection}{\numberline {2.5.8}Reglas de conjunción y disyunción}{16}{subsection.2.5.8}%
+\contentsline {subsection}{\numberline {2.5.9}Recapitulación}{16}{subsection.2.5.9}%
+\contentsline {chapter}{\numberline {3}Metodología para escribir programas en Dafny}{17}{chapter.3}%
+\contentsline {section}{\numberline {3.1}¿Qué tan relevante es la derivación de programas? una opinión personal}{17}{section.3.1}%
+\contentsline {section}{\numberline {3.2}El algoritmo de Euclides}{19}{section.3.2}%
+\contentsline {section}{\numberline {3.3}La metodología}{20}{section.3.3}%
+\contentsline {subsubsection}{Especificación del programa}{20}{Item.7}%
+\contentsline {subsubsection}{Testear la especificación}{21}{lstnumber.-10.13}%
+\contentsline {subsubsection}{Definir el invariante, función de cota y guarda del ciclo}{21}{lstnumber.-11.7}%
+\contentsline {subsubsection}{Declarar las variables necesarias en el método principal}{21}{lstnumber.-12.4}%
+\contentsline {subsubsection}{Especificar inicialización y cuerpo del ciclo.}{22}{lstnumber.-18.13}%
+\contentsline {subsubsection}{Implementar la inicialización y el cuerpo del ciclo.}{24}{lstnumber.-22.9}%
+\contentsline {subsubsection}{Fortalecer el invariante}{27}{lstnumber.3.1.72}%
+\contentsline {subsubsection}{Nota sobre los lemas}{27}{lstnumber.3.1.72}%
+\contentsline {chapter}{\numberline {4}Aplicando la metodología a nuevos problemas}{28}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Suma del segmento de suma máxima}{28}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Un ejercicio de exámen}{35}{section.4.2}%
+\contentsline {chapter}{\numberline {5}Breve mirada al interior de Dafny}{44}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Dafny: ¿De qué planeta viniste?}{44}{section.5.1}%
+\contentsline {section}{\numberline {5.2}El pipeline de verificación en Dafny}{45}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}La traducción de Dafny a Boogie}{45}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}La generación de condiciones de verificación}{46}{subsection.5.2.2}%
+\contentsline {chapter}{\numberline {6}Conclusiones}{50}{chapter.6}%
