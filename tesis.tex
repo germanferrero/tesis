@@ -181,9 +181,9 @@
     Esta materia culmina un proceso de formación en métodos formales para la especificación, comprobación y derivación de programas que se inicia con el estudio de lógica proposicional en la materia pre-correlativa Introducción a los Algoritmos y luego se expande hacia la definición de un lenguaje imperativo minimal cuya semántica se define en términos de transformación de predicados.
     En el transcurso, los estudiantes transitan un camino riguroso en el cual aprenden a operar un sistema formal con su alfabeto, expresiones, axiomas y reglas de inferencia, para luego demostrar teoremas dentro del mismo. Este sistema se complejiza paulatinamente con la introducción de predicados y expresiones cuantificadas, hasta el punto en que puede ser utilizado para especificar programas imperativos, en cuanto que la precondición y poscondición de estos programas se expresan como predicados del sistema formal y la semántica de cada una de las sentencias del lenguaje está también definida en base a fórmulas de este sistema.
 
-    Se busca así que los estudiantes conciban un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su correctitud.
+    Se busca así que los estudiantes conciban un entendimiento profundo de los programas como objetos formales de estudio que deben ser precisamente especificados y cuya implementación puede (o mejor: debe) ser demostrada dentro de un sistema formal para garantizar su corrección.
 
-    Las materias resaltan el valor adicional que se obtiene al especificar y verificar formalmente los programas en comparación con especificarlos vagamente o probar su correctitud solo para algunos casos específicos mediante la práctica usual de \textit{testing} de software.
+    Las materias resaltan el valor adicional que se obtiene al especificar y verificar formalmente los programas en comparación con especificarlos vagamente o probar su corrección solo para algunos casos específicos mediante la práctica usual de \textit{testing} de software.
 
     Consideramos esta enseñanza de la programación a través de métodos formales de altísimo valor, y buscamos con este trabajo potenciarla.
 
@@ -192,7 +192,7 @@
     Demostrar teoremas requiere de un entrenamiento meticuloso en la manipulación simbólica, capacidad de abstracción y ejercitación en la búsqueda de patrones para encontrar posibles aplicaciones de los axiomas y reglas de inferencia del sistema formal en cada uno de los pasos de la demostración.
     Esta es una actividad que si bien refuerza nuestro entendimiento de cómo se opera un sistema formal y por qué podemos confiar en él, a menudo satura nuestra capacidad cognitiva, dejando poco espacio para el aprendizaje de otros aspectos, o en otros planos, del tema que estamos estudiando.
 
-    Nos despierta particular interés la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo que se construye la demostración de su correctitud.
+    Nos despierta particular interés la puesta en práctica de la manipulación simbólica de la especificación de un programa como metodología para \textit{derivar} su implementación. Mediante esta técnica el programa se construye al mismo tiempo que se construye la demostración de su corrección.
     Esta práctica es tal vez uno de los justificantes del intenso entrenamiento en la operatoria del sistema formal. Justificante en cuanto que se resalta las bondades de la derivación de programas a partir de sus especificación como método para conseguir implementar los programas.
 
     Nuestra hipótesis de trabajo es que el énfasis actual puesto en la operatoria del sistema formal es tal vez excesivo y contraproducente.
@@ -202,7 +202,7 @@
 
     Desde nuestra mirada, ambas cosas son importantes, pero lo primero es primordial y lo segundo es complementario. Debemos priorizar el entendimiento profundo de los conceptos fundamentales sin dejar de entender el valor de las pruebas enmarcadas en un sistema formal y la necesidad de construirlas, pero manteniendo el foco en lo primero.
 
-    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas nos permiten aprender los conceptos fundamentales, a la vez que resuelven por nosotros el trabajo tedioso, liberando nuestra capacidad cognitiva para dar sentido a los programas que desarrollamos y de las piezas fundamentales que posibilitan su verificación.
+    En la actualidad existen numerosas herramientas de verificación formal de software en las que podemos delegar, en parte, la construcción de pruebas. Estas herramientas nos permiten aprender los conceptos fundamentales, a la vez que resuelven por nosotros el trabajo tedioso, liberando nuestra capacidad cognitiva para dar sentido a los programas que desarrollamos y a las piezas fundamentales que posibilitan su verificación.
 
     Creemos que en el afán de enseñar las bondades de la derivación formal, propiciamos a menudo el naufragio de muchas y muchos de nosotros que perfectamente hubiéramos podido llegar a construir los mismos programas, mediante otras técnicas, que aprovechen mejor nuestro conocimiento previo, y favorezcan la construcción de sentido sobre los programas que desarrollamos. Técnicas que no necesariamente se basan en la manipulación simbólica, sino en un rango más abierto de posibilidades, como la creatividad y el ingenio en todas sus expresiones, la analogía con otros saberes o la capacidad de resolución de problemas de forma procedural en otros ámbitos de la vida cotidiana puesta al servicio de la escritura de programas. En su tesis doctoral\cite{Losano}, Leticia Losano analiza las dificultades que atraviesan los estudiantes durante el cursado de Introducción a los Algoritmos, en particular en cuanto a la formulación de demostraciones. Su trabajo nos convoca y motiva en la búsqueda de alternativas. Sostenemos además, que estas técnicas alternativas podrían combinarse con la derivación formal en un mismo proceso de desarrollo.
 
@@ -213,9 +213,9 @@
     En este capítulo presentamos brevemente los conceptos de programación formal que creemos resultan necesarios a la hora de escribir programas imperativos en Dafny.
 
     \section{Condiciones de contexto para la propuesta}
-    La propuesta pedagógica que desarrollamos en en este trabajo supone un estudiantado que ya cuente con una primera experiencia en algún lenguaje de programación imperativa durante la cual se hayan familiarizado de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la alternativa (\textit{if-else}), y el de ciclo (\textit{while/for}). Esperaríamos como resultado de esta experiencia que los estudiantes comprendan el control de flujo de un programa imperativo, identifiquen cuándo resulta conveniente utilizar un \textit{if} o un \textit{while}, y hayan escrito baterías de tests no exhaustivas para sus programas.
+    La propuesta pedagógica que desarrollamos en este trabajo supone un estudiantado que ya cuente con una primera experiencia en algún lenguaje de programación imperativa durante la cual se hayan familiarizado de manera práctica con los conceptos básicos: tipos de datos, expresiones, precedencia de operadores, árbol de tipado e incluso con la mecánica de los comandos típicos del paradigma: la asignación, la secuencia(;), la alternativa (\textit{if-else}), y el ciclo (\textit{while/for}). Esperaríamos como resultado de esta experiencia que los estudiantes comprendan el control de flujo de un programa imperativo, identifiquen cuándo resulta conveniente utilizar un \textit{if} o un \textit{while}, y hayan escrito baterías de tests no exhaustivas para sus programas.
 
-    A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas como objetos formales cuya correctitud puede ser demostrada.
+    A continuación, ubicamos una segunda instancia formativa, de carácter formal, que ofrezca a los estudiantes la posibilidad de profundizar su entendimiento de los programas como objetos formales cuya corrección puede ser demostrada.
     En esta segunda instancia los estudiantes razonan sobre los programas, ya no en un plano mecánico, operativo, sino en el plano semántico, a partir de las definiciones de Hoare.
 
     En lo que resta de este capítulo repasamos estas definiciones con foco en aquellas que nos provean los elementos necesarios para desarrollar software verificado en Dafny.
@@ -229,7 +229,7 @@
     En programación imperativa, un programa es un transformador de estados. Un estado es una valuación de las variables y constantes a las que un programa tendrá acceso, y ejecutar el programa, significará una transformación de ese estado inicial, en otro estado final.
 
     Utilizaremos condiciones sobre las variables y constantes para describir el estado final.
-    El lenguaje para expresar estas condiciones será el de la lógica matemática con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) aplicados a las variables y constantes del programa o a expresiones construídas a partir de ellas. (ej: Para describir el estado final de un programa que implementa la división entera de $X$ por $Y$, diremos que las variables $q$ y $r$ (cociente y resto) satisfacen $X = q * Y + r \land 0 \leqslant r < Y$).
+    El lenguaje para expresar estas condiciones será el de la lógica matemática con sus operadores lógicos ($\land$, $\lor$, $\Rightarrow$, $\neg$) y cuantificadores ($\forall$, $\exists$) aplicados a las variables y constantes del programa o a expresiones construidas a partir de ellas. (ej: Para describir el estado final de un programa que implementa la división entera de $X$ por $Y$, diremos que las variables $q$ y $r$ (cociente y resto) satisfacen $X = q * Y + r \land 0 \leqslant r < Y$).
 
     Notar que si preservamos en constantes (que diferenciamos mediante letras mayúsculas) los valores de entrada de interés, luego en las condiciones sobre el estado final podemos expresar la relación que deben guardar los valores de salida de interés respecto a los de entrada.
 
@@ -253,22 +253,22 @@
 
     Ahora que contamos con un lenguaje preciso para describir qué debe hacer un programa, queda responder cómo hacemos para garantizar que efectivamente lo hace.
 
-    \section{Prueba de correctitud}
-    Con ``programación formal'' nos referimos a garantizar que un programa efectivamente cumple con su especificación mediante la generación de una demostración de correctitud bajo un sistema formal de deducción. Es decir, una secuencia de pasos lógicos que logren deducir la correctitud del programa a partir de un conjunto mínimo de axiomas y reglas de inferencia.
+    \section{Prueba de corrección}
+    Con ``programación formal'' nos referimos a garantizar que un programa efectivamente cumple con su especificación mediante la generación de una demostración de corrección bajo un sistema formal de deducción. Es decir, una secuencia de pasos lógicos que logren deducir la corrección del programa a partir de un conjunto mínimo de axiomas y reglas de inferencia.
 
     Si logramos generar una demostración de \hoare{P}{S}{Q} diremos que la terna es un teorema y lo denotaremos \hoareTheoremBkp{P}{S}{Q}.
 
-    Al igual que un teorema matemático, por ejemplo $\vdash x = x + y * 0$, donde la igualdad vale para cualquier valor de $x$ e $y$, un teorema de la forma \hoareTheoremBkp{P}{S}{Q} significa que la terna vale para cualquier estado inicial que satisfaga $P$. Es decir, a diferencia del \textit{testing} de programas que chequea algunos casos particulares no exhaustivos, una demostración formal probará la correctitud del programa para todos los casos posibles. Lo cual incrementa drásticamente la confianza que podemos depositar en los programas.
+    Al igual que un teorema matemático, por ejemplo $\vdash x = x + y * 0$, donde la igualdad vale para cualquier valor de $x$ e $y$, un teorema de la forma \hoareTheoremBkp{P}{S}{Q} significa que la terna vale para cualquier estado inicial que satisfaga $P$. Es decir, a diferencia del \textit{testing} de programas que chequea algunos casos particulares no exhaustivos, una demostración formal probará la corrección del programa para todos los casos posibles. Lo cual incrementa drásticamente la confianza que podemos depositar en los programas.
 
     Los primeros esfuerzos por definir un sistema formal de deducción para la programación imperativa se condensaron en lo que conocemos como la lógica de Hoare.
-    La misma establece axiomas y reglas de inferencia para un lenguaje simple equipado con los comandos esenciales del paradigma imperativo: la asignación, el \textit{if} y el \textit{while}. Repasaremos la lógica de Hoare en seguida con la ayuda de Dafny.
+    La misma establece axiomas y reglas de inferencia para un lenguaje simple equipado con los comandos esenciales del paradigma imperativo: la asignación, la secuencia, el \textit{if} y el \textit{while}. Repasaremos la lógica de Hoare en seguida con la ayuda de Dafny.
 
     \section{Herramientas de verificación automática}
     Hilvanar axiomas y reglas de inferencia para lograr una demostración de un programa, incluso de uno simple, es una tarea tediosa. Y es por eso que desde la presentación de la Lógica de Hoare se sostiene un gran esfuerzo de investigación y desarrollo en técnicas de mecanización y automatización de la generación de demostraciones que dio lugar a las herramientas de verificación automática de software con las que contamos actualmente, como Dafny.
 
     De ellas debemos esperar que oculten la complejidad de los mecanismos que hilvanan axiomas y reglas de inferencia en milisegundos, y que nos permitan escribir software verificado siempre que entendamos los axiomas y reglas que rigen la automatización que realizan.
 
-    Al esconder dicha complejidad, estas herramientas nos facilitan el acceso a la programación formal permitiéndonos ejercitar la especificación de programas y el uso de un sistema deductivo para demostrar su correctitud, enfocando el esfuerzo cognitivo en el plano semántico en vez del mecánico.
+    Al esconder dicha complejidad, estas herramientas nos facilitan el acceso a la programación formal permitiéndonos ejercitar la especificación de programas y el uso de un sistema deductivo para demostrar su corrección, enfocando el esfuerzo cognitivo en el plano semántico en vez del mecánico.
 
     A continuación haremos un repaso de la Lógica de Hoare al tiempo que pondremos a prueba Dafny, en cuanto a su capacidad para aplicar los axiomas y reglas de inferencia del sistema. Este ejercicio, nos proveerá del conocimiento necesario para escribir programas reales en Dafny en el siguiente capítulo.
 
@@ -278,7 +278,7 @@
     Que indica que la \textit{conclusión} $S$ puede deducirse a partir de las \textit{hipótesis} $S_1, ..., S_n$, las cuales serán o bien todos teoremas de la lógica de Hoare (en la forma $[P]S[Q]$) o bien una combinación de teoremas de la lógica de Hoare con teoremas de la lógica matemática.
 
     \subsection{Axioma de la asignación}
-    La asignación es el comando que toma la forma $x := E$ donde $x$ es una variable y $E$ es una expresión, que posiblemente contiene la variable $x$, y utilizamos para asignar a $x$ el valor que resulte de evaluar $E$ al momento de la asignación.
+    La asignación es el comando que toma la forma $x := E$ donde $x$ es una variable y $E$ es una expresión, que posiblemente contiene la variable $x$, y utilizamos para asignar a $x$ el valor resultante de evaluar $E$ al momento de la asignación.
 
     Si denotamos con $P[E/x]$ al predicado que resulta de reemplazar sintácticamente en $P$ todas las ocurrencias libres de $x$ por $E$, el axioma de la asignación es:
 
@@ -306,7 +306,7 @@
     \end{dafny}
     \end{greenbox}
 
-    En dafny una \textit{función} (\inlinedafny{function}) se utiliza para calcular valores a partir de sus parámetros de entrada, no tiene efectos secundarios y puede tener definiciones recursivas. Un \textit{predicado}(\inlinedafny{predicate}) es equivalente a una función cuyo valor de retorno es un booleano. Un \textit{método}(\inlinedafny{method}) podrá tener parámetros de entrada y de retorno, tener efectos secundarios y utilizar en su cuerpo comandos imperativos.
+    En dafny una \textit{función} (\inlinedafny{function}) se utiliza para calcular valores a partir de sus parámetros de entrada, no tiene efectos secundarios y puede tener definiciones recursivas. Un \textit{predicado} (\inlinedafny{predicate}) es equivalente a una función cuyo valor de retorno es un booleano. Un \textit{método} (\inlinedafny{method}) podrá tener parámetros de entrada y de retorno, tener efectos secundarios y utilizar en su cuerpo comandos imperativos.
 
     En el ejemplo definimos una función $E$ sobre una variable de tipo entero $x$ que devuelve a su vez un valor entero.
     Un predicado $P$ sobre una variable de tipo entero.
@@ -457,15 +457,15 @@
     El $while$ es la sentencia de la programación imperativa que nos permite escribir programas realmente interesantes y creativos, cuya estrategia resolutiva se desenvuelve en uno o más ciclos que computan algún valor deseado. Utilizamos ciclos para encontrar respuestas o construir soluciones (en definitiva, lograr alguna transformación de estado deseada) de manera iterativa y constructiva. En estos programas los ciclos son típicamente la parte más difícil tanto de elaborar como de verificar.
 
     Para trabajar con ciclos en términos formales debemos abrazar dos conceptos: el invariante del ciclo y su función de cota.
-    El invariante es una condición que se cumple a la entrada del ciclo, a la salida del mismo, y durante cada una de las iteraciones. La función de cota es una expresión numérica que evalúa a un valor cada vez menor en cada iteración del ciclo y está acotada por abajo asegurando que el ciclo termina eventualmente.
+    El invariante es una condición que se cumple a la entrada del ciclo, a la salida del mismo, y durante cada una de las iteraciones. La función de cota es una expresión entera que evalúa a un valor cada vez menor en cada iteración del ciclo y está acotada por abajo asegurando que el ciclo termina eventualmente.
 
     Si nuestro programa incluye un ciclo que eventualmente termina y realiza algún trabajo interesante, este ciclo tiene un invariante y una función de cota, lo hayamos hecho explícito o no. El invariante del ciclo es su propiedad intrínseca que nos dice que efectivamente estamos construyendo, paso a paso, esa transformación. Y la función de cota es la que nos dice que eventualmente concluiremos el trabajo.
 
-    Imaginemos dos personas que están construyendo una pared cada una que agreguen a su pared una hilada de ladrillos. Para realizar la hilada se necesitan $N$ ladrillos. Una vez que empezaron su tarea, nos detenemos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna ladrillo por ladrillo, de izquierda a derecha, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la hilada por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ ladrillos, y una función de cota: con cada ladrillo colocado, falta uno menos para llegar a $N$.
+    Imaginemos dos personas que están construyendo una pared cada una y les pedimos que agreguen a su pared una hilada de ladrillos. Para realizar la hilada se necesitan $N$ ladrillos. Una vez que empezaron su tarea, nos detenemos cada tanto a revisar el progreso y por un lado vemos como una de ellas avanza con su columna ladrillo por ladrillo, de izquierda a derecha, mientras que la otra no parece estar siguiendo ningún patrón de avance identificable. Tenemos la certeza de que la primera terminará la hilada por que hay un invariante: a cada momento $t$ la persona ya colocó $t$ ladrillos, y una función de cota: con cada ladrillo colocado, falta uno menos para llegar a $N$.
 
-    Enunciar el invariante y la función de cota incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo, aumenta nuestras posibilidades de implementarlo correctamente y es indispensable para construir una demostración de su correctitud.
+    Enunciar el invariante y la función de cota incluso antes de implementar el cuerpo del ciclo, nos ayuda a dar sentido a la estrategia resolutiva del mismo, aumenta nuestras posibilidades de implementarlo correctamente y es indispensable para construir una demostración de su corrección.
 
-    Antes de pasar a la regla de inferencia del \textit{while} repasemos el problema de la división entera cuya especificaciónen términos de pre y pos condición habíamos dado en la sección \ref{esp:division-entera}. Este problema se resuelve con un programa que contiene un ciclo.
+    Antes de pasar a la regla de inferencia del \textit{while} repasemos el problema de la división entera cuya especificación en términos de pre y pos condición habíamos dado en la sección \ref{esp:division-entera}. Este problema se resuelve con un programa que contiene un ciclo.
 
     \example{División entera de dos números enteros positivos}
 
@@ -473,9 +473,9 @@
     Recordemos que $q$ y $r$ serán números enteros que cumplen:
     $x = q * y + r \land 0 \leqslant r < y$.
     Ó dicho de otra forma $q$ y $r$ son tales que $x$ se distribuye entre ``$y$ veces $q$'' y un resto $r$ que es menor a $y$.
-    Si pensamos el problema como un proceso iterativo en el que debemos repartir la cantidad $x$ entre ``$y$ partes iguales'', podemos decir que al principio no hemos repartido nada aún, y en cada iteración del ciclo repartiremos una unidad a cada una de las partes, mientras alcance para todas. Cuando no alcance para todas, habremos terminado, y tendremos un resto $r$ entre 0 e $y$. En todo momento, lo que aún queda por repartir será el resto $r$, la guarda del ciclo será $r \geqslant y$ (que resulta verdadera si aún alcanza para repartir una unidad a cada una) y lo repartido a cada parte será $q$.
+    Si pensamos el problema como un proceso iterativo en el que debemos repartir la cantidad $x$ entre ``$y$ partes iguales'', podemos decir que al principio no hemos repartido nada aún, y en cada iteración del ciclo repartiremos una unidad a cada una de las partes, mientras alcance para todas. Cuando no alcance para todas, habremos terminado, y tendremos un resto $r$ entre 0 e $y$. En todo momento, lo que aún queda por repartir será el resto $r$, la \textbf{guarda} del ciclo será $r \geqslant y$ (que resulta verdadera si aún alcanza para repartir una unidad a cada una) y lo repartido a cada parte será $q$.
 
-    Antes de entrar al ciclo tendremos $r=x$ y $q=0$ y en todo momento mantendremos como invariante $x = q * y + r \land 0 \leqslant r$, puesto que lo que sacamos de $r$ lo ponemos en $q * y$. Notemos que $r - y$ decrecerá en cada iteración y está acotada por abajo, por lo que nos sirve como función de cota.
+    Antes de entrar al ciclo tendremos $r=x$ y $q=0$ y en todo momento mantendremos como \textbf{invariante} $x = q * y + r \land 0 \leqslant r$, puesto que lo que sacamos de $r$ lo ponemos en $q * y$. Notemos que $r - y$ decrecerá en cada iteración y está acotada por abajo, por lo que nos sirve como función de cota.
     Al final del ciclo valdrá el invariante (por haberlo mantenido a cada paso) y la negación de la guarda (por haber terminado). La conjunción de ambas cosas nos dice que: $x = q * y + r \land 0 \leqslant r < y$. Por tanto $q$ y $r$ serán el cociente y resto de la división entera de $x$ por $y$.
 
     La implementación en Dafny aún no verificada de nuestro programa luce así:
@@ -524,9 +524,9 @@
 
     Si estas dos hipótesis se cumplen, entonces podemos concluir que estableciendo el invariante en la entrada del ciclo, el mismo nos llevará a un estado en el cual se cumple el invariante y la negación de la guarda.
 
-    Dafny, como lo indica la regla, depende fuertemente de que el invariante del ciclo y la función de cota estén definidos para intentar probar su correctitud. Y salvo en casos triviales en los que puede inferirlos por su cuenta\footnote{Para intentar inferir el invariante usará técnicas de aproximación de dominios abstractos\cite{10.1007/11804192_17} que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables. Para la función de cota, como ejemplos, en caso de que la guarda sea del tipo $E<F$ probará con $F-E$, y en el caso de que sea $E!=F$ probará con $if\ E<F\ then\ F-E\ else\ E-F$.}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
+    Dafny, como lo indica la regla, depende fuertemente de que el invariante del ciclo y la función de cota estén definidos para intentar probar su corrección. Y salvo en casos triviales en los que puede inferirlos por su cuenta\footnote{Para intentar inferir el invariante usará técnicas de aproximación de dominios abstractos\cite{10.1007/11804192_17} que analizan estáticamente el programa para aproximar el rango en el que se mueven sus variables. Para la función de cota, como ejemplos, en caso de que la guarda sea del tipo $E<F$ probará con $F-E$, y en el caso de que sea $E!=F$ probará con $if\ E<F\ then\ F-E\ else\ E-F$.}, será nuestra tarea proveer el invariante del ciclo para que la verificación pueda realizarse.
 
-    Retomando el ejemplo de la división entera. Podemos lograr una implementación verificada anotando el ciclo con el invariante $x = q * y + r \land 0 \leqslant r$ (utilizando la anotación \inlinedafny{invariant}), y la función de cota $r$ (con la anotación \inlinedafny{decreases}).
+    Retomando el ejemplo de la división entera, podemos lograr una implementación verificada anotando el ciclo con el invariante $x = q * y + r \land 0 \leqslant r$ (utilizando la anotación \inlinedafny{invariant}), y la función de cota $r$ (con la anotación \inlinedafny{decreases}).
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -636,8 +636,8 @@
 
     \section{El algoritmo de Euclides}
     \label{desarrollo_euclides}
-    Euclides propuso pensar en $m$ y $n$ como dos varillas de largo $m$ unidades y $n$ unidades como se ilustra en la Figura \ref{varillas_euclides}, y buscar la varilla de largo $d$ más larga que logre componer ambas de manera exacta.
-    
+    Euclides propuso pensar en $m$ y $n$ como dos varillas conmesurables como se ilustra en la Figura \ref{varillas_euclides}, y buscar la varilla de largo $d$ más larga que logre componer ambas de manera exacta.
+
     \begin{figure}[h]
         \centering
         \begin{tikzpicture}[yscale=-1]
@@ -762,7 +762,7 @@
     \end{enumerate}
 
     \subsubsection{Especificación del programa}
-    Definimos para ello el predicado \textit{es el mcd} que será verdadero si y solo sí $d$ es el máximo común divisor de $m$ y $n$ y el método principal \textit{máximo común divisor} con su precondición sobre $m$ y $n$ y su poscondición:
+    Definimos para ello el predicado \textit{es el mcd} que será verdadero si y solo si $d$ es el máximo común divisor de $m$ y $n$ y el método principal \textit{máximo común divisor} con su precondición sobre $m$ y $n$ y su poscondición:
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -786,9 +786,9 @@
 
     \subsubsection{Testear la especificación}
     Al escribir software verificado, restringimos el espacio para el error humano de la implementación a la definición de la especificación.
-    Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como deficiencias en la implementación o en la capacidad del verificador para realizar la prueba de correctitud, cuando en realidad el problema está siendo arrastrado desde la especificación misma.
+    Si no detectamos los errores de especificación antes de pasar a la etapa de implementación, es posible que malinterpretemos los errores de verificación como deficiencias en la implementación o en la capacidad del verificador para realizar la prueba de corrección, cuando en realidad el problema está siendo arrastrado desde la especificación misma.
     Afortunadamente en Dafny podemos \textit{testear} la especificación.
-    El verificador es capaz de validar el predicado \textit{es el mcd} para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la correctitud de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
+    El verificador es capaz de validar el predicado \textit{es el mcd} para algunos casos concretos con números pequeños que nos ayudan a ganar seguridad sobre la corrección de la especificación.\footnote{Se recomienda al lector modificar el predicado o los casos de tests para forzar un error de verificación. En particular ver qué sucede si equivocamos $d' < d$ en vez de $d' <= d$ en el predicado}.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -1058,7 +1058,7 @@
     \end{greenbox}
 
     La versión final verificada del algoritmo de Euclides para el máximo común divisor, con todos los componentes reunidos, será \footnote{
-    Una implementación de este algoritmo utilizando las propiedades de $mcd(m, n) == mcd(m, m - n)$ si $m \ge n$ y la de simetría, puede encontrarse en la serie Dafny Power User de Rustan Leino: \href{https://leino.science/papers/krml279.html}{Case study of definitions, proofs, algorithm correctness: GCD
+    Una implementación de este algoritmo utilizando las propiedades de $mcd(m, n) = mcd(m, m - n)$ si $m \ge n$ y la de simetría, puede encontrarse en la serie Dafny Power User de Rustan Leino: \href{https://leino.science/papers/krml279.html}{Case study of definitions, proofs, algorithm correctness: GCD
     }. Leino define la función GCD como el máximo elemento en la intersección de los conjuntos de divisores de $m$ y $n$ y luego utiliza esta función en la especificación del método. Incluye también las pruebas de los lemas necesarios. Se recomienda su lectura como complemento de esta sección.}:
 
     \begin{greenbox}
@@ -1367,7 +1367,7 @@
         \dafnyfile{Implementación verificada de segmento de suma máxima}{ejemplos/calculo_de_programas/segmento_de_suma_maxima.dfy}
     \end{greenbox}
 
-    \section{Un ejercicio de exámen}
+    \section{Un ejercicio de examen}
     Aplicaremos ahora la metodología para programar en Dafny el programa propuesto en el ejercicio 2 de \href{https://github.com/ExamenesViejos-FAMAF-Computacion/ExamenesViejos_AlgoritmosYEstructurasDeDatos1_FAMAF/blob/d2ef152c594b2847f8c95a0c423d333403aaa88b/Pr%C3%A1ctico/Final%202024-12-03.jpg}{uno de los exámenes finales} de Algoritmos y Estructura de Datos I del año 2024. El cual transcribimos aquí:
 
     Considere el problema especificado de la siguiente manera:
@@ -1557,7 +1557,7 @@
     \end{dafny}
     \end{greenbox}
 
-    Dafny verifica la correctitud de la inicialización. Al intentar implementar el cuerpo del ciclo, recordamos necesarias las variables $sum\_imp$ y $fact\_i$ que planificamos durante el argumento. Con lo cual pasamos primero a incorporarlas en el invariante.
+    Dafny verifica la corrección de la inicialización. Al intentar implementar el cuerpo del ciclo, recordamos necesarias las variables $sum\_imp$ y $fact\_i$ que planificamos durante el argumento. Con lo cual pasamos primero a incorporarlas en el invariante.
 
     \begin{greenbox}
     \begin{dafny}[gobble=8]
@@ -1640,15 +1640,15 @@
     Dafny logra verificar el cuerpo del ciclo sin intervención alguna de nuestra parte y con ello todo el programa, el cual mostramos a continuación de manera unificada:
 
     \begin{greenbox}
-    \dafnyfile{Ejercicio de exámen final 2024 verificado en Dafny}{ejemplos/final_2024/programa_completo.dfy}
+    \dafnyfile{Ejercicio de examen final 2024 verificado en Dafny}{ejemplos/final_2024/programa_completo.dfy}
     \end{greenbox}
     \chapter{Breve mirada al interior de Dafny} \label{ch:pipeline-dafny}
 
     En este capítulo intentaremos entender a grandes razgos cómo funciona Dafny internamente y cómo llegó a ser lo que es, desde una perspectiva histórica.
 
     \section{Dafny: ¿De qué planeta viniste?}
-    Durante la década de los setenta y los ochenta, a la base axiomática para la programación imperativa presentada por Hoare\cite{10.1145/363235.363259} le siguieron investigaciones sobre la generación de condiciones de verificación (VCs, por sus siglas en inglés) para instrumentar la prueba de correctitud de un programa. Dado un programa y su especificación, sus condiciones de verificación son fórmulas en lógica de primer órden que, si todas resultan válidas, entonces sabemos que existe una demostración en la lógica de Hoare de que el programa es correcto respecto de su especificación, es decir que $\vdash[P]S[Q]$\footnote{Este tópico está muy bien explicado en las notas de \href{https://www.cl.cam.ac.uk/archive/mjcg/HL/Notes/Notes.pdf}{Mike Gordon sobre la Lógica de Hoare}}. Uno de los esfuerzos icónicos en ese sentido es el cálculo de Weakest Preconditions (WP) presentado por Dijkstra\cite{EWD:EWD418}, el cual introduce una mecánica para obtener VCs de manera composicional a partir de la definición de la precondición más débil de cada sentencia del programa respecto a una poscondición deseada.
-    La generación de VCs facilita la prueba de la correctitud de programas por que reduce esta tarea a la de demostrar la validez de fórmulas de lógica de primer orden. Esto permite aprovechar la experiencia en la manipulación del sistema formal lógico para realizar pruebas manuales, pero también posibilita la delegación de estas condiciones de verificación a probadores automáticos de teoremas, capaces de determinar si son válidas o existen contraejemplos.
+    Durante la década de los setenta y los ochenta, a la base axiomática para la programación imperativa presentada por Hoare\cite{10.1145/363235.363259} le siguieron investigaciones sobre la generación de condiciones de verificación (VCs, por sus siglas en inglés) para instrumentar la prueba de corrección de un programa. Dado un programa y su especificación, sus condiciones de verificación son fórmulas en lógica de primer órden que, si todas resultan válidas, entonces sabemos que existe una demostración en la lógica de Hoare de que el programa es correcto respecto de su especificación, es decir que $\vdash[P]S[Q]$\footnote{Este tópico está muy bien explicado en las notas de \href{https://www.cl.cam.ac.uk/archive/mjcg/HL/Notes/Notes.pdf}{Mike Gordon sobre la Lógica de Hoare}}. Uno de los esfuerzos icónicos en ese sentido es el cálculo de Weakest Preconditions (WP) presentado por Dijkstra\cite{EWD:EWD418}, el cual introduce una mecánica para obtener VCs de manera composicional a partir de la definición de la precondición más débil de cada sentencia del programa respecto a una poscondición deseada.
+    La generación de VCs facilita la prueba de la corrección de programas por que reduce esta tarea a la de demostrar la validez de fórmulas de lógica de primer orden. Esto permite aprovechar la experiencia en la manipulación del sistema formal lógico para realizar pruebas manuales, pero también posibilita la delegación de estas condiciones de verificación a probadores automáticos de teoremas, capaces de determinar si son válidas o existen contraejemplos.
 
     Por otra parte, durante la década de los noventa, los principales protagonistas en la creación de Dafny, entonces investigadores del Compaq Systems Research Center, llevaron a cabo los primeros experimentos en ``Extended Static Checkers (ESC)'' desarrollados para el lenguaje Módula-3 (ESC/Modula-3) y Java (ESC/Java)\cite{Leino2001}.
     En un principio los ESC buscaron ampliar la capacidad del chequeo estático a un conjunto de errores más amplio que los errores de tipado y que, hasta entonces, solo podían ser detectados en tiempo de ejecución, por ejemplo: intentos de acceder a atributos en una variable nula, índices fuera de rango, división por cero, errores de casteo de tipos, condiciones de carrera, deadlocks, etc. Luego se volcaron al objetivo de verificar que un programa anotado con precondiciones y poscondiciones cumpla con su especificación.
